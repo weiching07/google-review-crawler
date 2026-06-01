@@ -1,0 +1,17 @@
+{
+  "name": "google-review-crawler",
+  "version": "1.0.0",
+  "description": "Google review crawler with SQLite and Railway cron",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "sync:hit": "node cron-hit-sync.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "express": "^4.18.2",
+    "puppeteer": "^24.0.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}

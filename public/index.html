@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>LillA 評論看板</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-slate-800">LillA 評論分析儀表板</h1>
+
+    <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
+      <div class="flex flex-wrap gap-4 items-center">
+        <button
+          id="syncButton"
+          onclick="syncReviews()"
+          class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+        >
+          同步 Google 評論
+        </button>
+
+        <button
+          onclick="loadData()"
+          class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
+        >
+          重新整理資料
+        </button>
+
+        <select id="starFilter" onchange="render()" class="border p-2 rounded">
+          <option value="all">顯示全部星等</option>
+          <option value="5">5 星 ★</option>
+          <option value="4">4 星 ★</option>
+          <option value="3">3 星 ★</option>
+          <option value="2">2 星 ★</option>
+          <option value="1">1 星 ★</option>
+        </select>
+
+        <select id="sortOrder" onchange="render()" class="border p-2 rounded">
+          <option value="newest">時間：由新到舊</option>
+          <option value="oldest">時間：由舊到新</option>
+        </select>
+
+        <select id="historyFilter" onchange="render()" class="border p-2 rounded">
+          <option value="all">全部評論</option>
+          <option value="edited">只看已編輯</option>
+          <option value="hasVersions">只看有舊版本</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="status" class="mb-4 text-sm text-slate-600"></div>
+    <div id="summary" class="mb-4 text-sm text-slate-500"></div>
+    <div id="container" class="space-y-4">載入中...</div>
+  </div>
+
+  <!-- 歷史紀錄彈窗 -->
+  <dialog id="historyDialog" class="rounded-xl shadow-xl p-0 w-full max-w-3xl backdrop:bg-black/40">
+    <div class="bg-white rounded-xl overflow-hidden">
+      <div class="flex justify-between items-center bg-slate-800 text-white px-5 py-3">
+        <h2 class="font-bold text-lg">評論過往紀錄</h2>
+        <button
+          onclick="closeHistoryDialog()"
+          class="text-white text-2xl leading-none hover:text-amber-300"
+        >
+          ×
+        </button>
+      </div>
+
+      <div id="historyContent" class="p-5 max-h-[70vh] overflow-y-auto space-y-4"></div>
+
+      <div class="p-4 border-t text-right">
+        <button
+          onclick="closeHistoryDialog()"
+          class="px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-800"
+        >
+          關閉
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    let rawData = [];
+
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function getReviewKey(c) {
+      return String(c.reviewId || c.id || '');
+    }
+
+    function isEditedReview(c) {
+      const text = [
+        c.date,
+        c.editedText,
+        c.content,
+        c.status
+      ].filter(Boolean).join(' ');
+
+      return Boolean(c.isEdited) || /上次編輯|已編輯|edited|last edited/i.test(text);
+    }
+
+    function hasVersions(c) {
+      return Number(c.versionsCount || 0) > 0 || Boolean(c.hasVersions);
+    }
+
+    async function loadData() {
+      const status = document.getElementById('status');
+      const summary = document.getElementById('summary');
+
+      status.textContent = '正在讀取 SQLite 評論資料...';
+
+      try {
+        const res = await fetch('/comments');
+        rawData = await res.json();
+
+        rawData = rawData.map((item, idx) => ({
+          ...item,
+          sortIndex: idx
+        }));
+
+        render();
+
+        const total = rawData.length;
+        const editedCount = rawData.filter(isEditedReview).length;
+        const versionCount = rawData.filter(hasVersions).length;
+
+        summary.textContent = `目前共 ${total} 筆評論，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。`;
+        status.textContent = '';
+      } catch (err) {
+        console.error(err);
+        status.textContent = '讀取評論失敗，請確認 server.js 是否正在執行。';
+      }
+    }
+
+    async function syncReviews() {
+      const button = document.getElementById('syncButton');
+      const status = document.getElementById('status');
+
+      button.disabled = true;
+      status.textContent = '正在同步 Google 評論，請稍候...';
+
+      try {
+        const res = await fetch('/sync-google');
+        const data = await res.json();
+
+        if (res.ok) {
+          status.textContent =
+            `同步完成：抓到 ${data.totalScraped || 0} 筆，新增 ${data.newSaved || 0} 筆，更新 ${data.updated || 0} 筆，保存舊版本 ${data.versionSaved || 0} 筆。`;
+
+          await loadData();
+        } else {
+          status.textContent = `同步失敗：${data.error || '伺服器錯誤'}`;
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = '同步失敗：無法連線到伺服器。';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function getTimeWeight(dateStr) {
+      if (!dateStr || dateStr === '未知時間') return Number.MAX_SAFE_INTEGER;
+
+      const text = String(dateStr).toLowerCase().trim();
+      const cleanText = text.replace(/上次編輯[:：]?\s*/g, '').trim();
+
+      const now = new Date();
+      const hoursSince = date => Math.max(0, (now - date) / 3600000);
+
+      const relativeMatch = cleanText.match(/(\d+)/);
+      const num = relativeMatch ? Number(relativeMatch[1]) : 1;
+
+      if (/剛剛|just now/.test(cleanText)) return 0.01;
+      if (/分鐘|分(?!鐘)|minute|minutes|mins|m ago/.test(cleanText)) return Math.max(1 / 60, num / 60);
+      if (/小時|hour|hours|h(?![a-z])/i.test(cleanText)) return num;
+      if (/天|day|days|d ago/.test(cleanText)) return num * 24;
+      if (/週|week|weeks|w ago/.test(cleanText)) return num * 24 * 7;
+      if (/個月|month|months|mo ago/.test(cleanText)) return num * 24 * 30;
+      if (/年|year|years|y ago/.test(cleanText)) return num * 24 * 365;
+
+      const fullDate = cleanText.match(/(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日/);
+      if (fullDate) {
+        const d = new Date(Number(fullDate[1]), Number(fullDate[2]) - 1, Number(fullDate[3]));
+        return hoursSince(d);
+      }
+
+      const shortDate = cleanText.match(/(\d{1,2})月\s*(\d{1,2})日/);
+      if (shortDate) {
+        let d = new Date(now.getFullYear(), Number(shortDate[1]) - 1, Number(shortDate[2]));
+
+        if (d > now) {
+          d = new Date(now.getFullYear() - 1, Number(shortDate[1]) - 1, Number(shortDate[2]));
+        }
+
+        return hoursSince(d);
+      }
+
+      const isoDate = cleanText.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (isoDate) {
+        const d = new Date(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3]));
+        return hoursSince(d);
+      }
+
+      return Number.MAX_SAFE_INTEGER;
+    }
+
+    function renderHistoryButton(c) {
+      const key = getReviewKey(c);
+      if (!key) return '';
+
+      const edited = isEditedReview(c);
+      const count = Number(c.versionsCount || 0);
+
+      if (!edited && count === 0) {
+        return '';
+      }
+
+      const label = count > 0
+        ? `查看過往紀錄（${count}）`
+        : '已編輯，查看紀錄';
+
+      const color = count > 0
+        ? 'bg-blue-600 hover:bg-blue-700'
+        : 'bg-purple-600 hover:bg-purple-700';
+
+      return `
+        <button
+          type="button"
+          onclick="openHistoryDialog('${encodeURIComponent(key)}')"
+          class="mt-3 text-xs px-3 py-1 rounded text-white ${color}"
+        >
+          ${escapeHTML(label)}
+        </button>
+      `;
+    }
+
+    function render() {
+      const starFilter = document.getElementById('starFilter').value;
+      const sortOrder = document.getElementById('sortOrder').value;
+      const historyFilter = document.getElementById('historyFilter').value;
+      const container = document.getElementById('container');
+
+      let displayData = [...rawData];
+
+      if (starFilter !== 'all') {
+        displayData = displayData.filter(c => String(c.rating) === String(starFilter));
+      }
+
+      if (historyFilter === 'edited') {
+        displayData = displayData.filter(c => isEditedReview(c));
+      }
+
+      if (historyFilter === 'hasVersions') {
+        displayData = displayData.filter(c => hasVersions(c));
+      }
+
+      displayData.sort((a, b) => {
+        const weightA = getTimeWeight(a.date);
+        const weightB = getTimeWeight(b.date);
+
+        if (weightA === weightB) {
+          return a.sortIndex - b.sortIndex;
+        }
+
+        return sortOrder === 'newest'
+          ? weightA - weightB
+          : weightB - weightA;
+      });
+
+      if (displayData.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-5 rounded shadow text-slate-500">
+            目前沒有符合條件的評論。
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = displayData.map(c => {
+        const editedBadge = isEditedReview(c)
+          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">已編輯</span>`
+          : '';
+
+        const versionBadge = Number(c.versionsCount || 0) > 0
+          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">有 ${escapeHTML(c.versionsCount)} 筆舊版本</span>`
+          : '';
+
+        const updatedText = c.updatedAt
+          ? `<div class="text-xs text-slate-400 mt-2">資料更新：${escapeHTML(c.updatedAt)}</div>`
+          : '';
+
+        return `
+          <div id="card-${escapeHTML(c.id || c.reviewId)}" class="bg-white p-5 rounded shadow hover:border-l-4 border-amber-500 transition-all">
+            <div class="flex justify-between items-start gap-4">
+              <div>
+                <span class="text-amber-500 font-bold">${escapeHTML(c.rating || 0)} 星</span>
+                ${editedBadge}
+                ${versionBadge}
+              </div>
+
+              <span class="text-xs text-slate-400">${escapeHTML(c.date || '未知時間')}</span>
+            </div>
+
+            ${c.author ? `<div class="text-sm text-slate-500 mt-2">作者：${escapeHTML(c.author)}</div>` : ''}
+
+            <p class="text-slate-700 mt-3 whitespace-pre-wrap">${escapeHTML(c.content || '無內容')}</p>
+
+            ${updatedText}
+
+            ${renderHistoryButton(c)}
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openHistoryDialog(encodedKey) {
+      const key = decodeURIComponent(encodedKey);
+      const dialog = document.getElementById('historyDialog');
+      const content = document.getElementById('historyContent');
+
+      const current = rawData.find(c => {
+        return getReviewKey(c) === key || String(c.id || '') === key;
+      });
+
+      content.innerHTML = `
+        <div class="text-slate-500">
+          正在讀取 SQLite 過往紀錄...
+        </div>
+      `;
+
+      dialog.showModal();
+
+      let versions = [];
+
+      try {
+        const res = await fetch(`/review-versions/${encodeURIComponent(key)}`);
+        versions = await res.json();
+      } catch (err) {
+        console.error(err);
+        versions = [];
+      }
+
+      const currentBlock = current ? `
+        <div class="border rounded p-4 bg-amber-50 border-amber-200">
+          <div class="flex justify-between items-center mb-2">
+            <div class="font-bold text-amber-700">目前版本</div>
+            <div class="text-xs text-slate-500">${escapeHTML(current.date || '未知時間')}</div>
+          </div>
+
+          <div class="text-sm text-slate-600 mb-2">
+            ${escapeHTML(current.rating || 0)} 星
+          </div>
+
+          <div class="whitespace-pre-wrap text-slate-800">
+            ${escapeHTML(current.content || '無內容')}
+          </div>
+        </div>
+      ` : `
+        <div class="border rounded p-4 bg-amber-50 border-amber-200">
+          找不到目前版本資料。
+        </div>
+      `;
+
+      const oldBlocks = versions.length > 0
+        ? versions.map((v, idx) => `
+          <div class="border rounded p-4 bg-white">
+            <div class="flex justify-between items-center mb-2">
+              <div class="font-bold text-slate-700">舊版本 ${idx + 1}</div>
+              <div class="text-xs text-slate-400">
+                被取代時間：${escapeHTML(v.replacedAt || v.savedAt || '未知')}
+              </div>
+            </div>
+
+            ${v.author ? `<div class="text-xs text-slate-400 mb-2">作者：${escapeHTML(v.author)}</div>` : ''}
+
+            <div class="text-xs text-slate-400 mb-2">
+              原評論時間：${escapeHTML(v.date || '未知時間')}
+            </div>
+
+            <div class="text-sm text-slate-600 mb-2">
+              ${escapeHTML(v.rating || 0)} 星
+            </div>
+
+            <div class="whitespace-pre-wrap text-slate-700">
+              ${escapeHTML(v.content || '無內容')}
+            </div>
+
+            ${v.reason ? `<div class="text-xs text-slate-400 mt-2">原因：${escapeHTML(v.reason)}</div>` : ''}
+          </div>
+        `).join('')
+        : `
+          <div class="border rounded p-4 bg-slate-50 text-slate-600 leading-7">
+            目前 SQLite 還沒有保存到舊版本。<br>
+            如果這筆只是 Google 顯示「已編輯」，但你啟用版本紀錄前沒有保存過舊內容，就不會有過往紀錄。<br>
+            從現在開始，只要同一個 reviewId 的評論內容或星等之後再變動，舊內容就會出現在這裡。
+          </div>
+        `;
+
+      content.innerHTML = `
+        ${current && current.author ? `<div class="text-sm text-slate-500">作者：${escapeHTML(current.author)}</div>` : ''}
+        ${currentBlock}
+
+        <div class="font-bold text-slate-800 pt-2">
+          歷史版本
+        </div>
+
+        ${oldBlocks}
+      `;
+    }
+
+    function closeHistoryDialog() {
+      const dialog = document.getElementById('historyDialog');
+
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

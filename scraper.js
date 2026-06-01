@@ -1,0 +1,689 @@
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+const randomDelay = (min, max) =>
+  new Promise(r =>
+    setTimeout(r, Math.floor(Math.random() * (max - min + 1)) + min)
+  );
+
+// ✅ 切換「最新排序」：維持你現在成功的版本
+async function clickNewestSort(page) {
+  console.log("🔃 嘗試切換最新排序...");
+
+  await randomDelay(1000, 1500);
+
+  await page.evaluate(() => {
+    let container =
+      document.querySelector('div[role="feed"]') ||
+      document.querySelector('.m6U62c');
+
+    if (!container) {
+      const firstReview = document.querySelector('div[data-review-id]');
+
+      if (firstReview) {
+        let p = firstReview.parentElement;
+
+        while (p) {
+          const style = window.getComputedStyle(p);
+
+          if (
+            p.scrollHeight > p.clientHeight &&
+            ['auto', 'scroll', 'overlay'].includes(style.overflowY)
+          ) {
+            container = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+      }
+    }
+
+    if (container) {
+      container.scrollTop = 0;
+    }
+  });
+
+  await randomDelay(1200, 1800);
+
+  const sortResult = await page.evaluate(() => {
+    function getText(el) {
+      return (
+        (el.innerText || '') +
+        ' ' +
+        (el.textContent || '') +
+        ' ' +
+        (el.getAttribute('aria-label') || '') +
+        ' ' +
+        (el.getAttribute('title') || '')
+      ).replace(/\s+/g, ' ').trim();
+    }
+
+    function isVisible(el) {
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    const elements = Array.from(document.querySelectorAll(
+      'button, div[role="button"], [aria-haspopup="menu"]'
+    ));
+
+    const candidates = [];
+
+    for (const el of elements) {
+      if (!isVisible(el)) continue;
+
+      const text = getText(el);
+      const lower = text.toLowerCase();
+
+      if (
+        text.includes('排序') ||
+        text.includes('最相關') ||
+        lower.includes('sort') ||
+        lower.includes('most relevant')
+      ) {
+        const r = el.getBoundingClientRect();
+
+        candidates.push({
+          el,
+          text,
+          top: r.top,
+          left: r.left
+        });
+      }
+    }
+
+    candidates.sort((a, b) => {
+      if (a.top !== b.top) return a.top - b.top;
+      return a.left - b.left;
+    });
+
+    if (candidates.length === 0) {
+      return {
+        success: false,
+        text: ''
+      };
+    }
+
+    const target = candidates[0];
+
+    target.el.scrollIntoView({
+      block: 'center',
+      inline: 'center'
+    });
+
+    target.el.click();
+
+    return {
+      success: true,
+      text: target.text
+    };
+  });
+
+  console.log("🔃 sort result:", sortResult);
+
+  if (!sortResult.success) {
+    console.log("❌ 找不到排序按鈕");
+    return false;
+  }
+
+  await randomDelay(1500, 2200);
+
+  const newestResult = await page.evaluate(() => {
+    function getText(el) {
+      return (
+        (el.innerText || '') +
+        ' ' +
+        (el.textContent || '') +
+        ' ' +
+        (el.getAttribute('aria-label') || '') +
+        ' ' +
+        (el.getAttribute('title') || '')
+      ).replace(/\s+/g, ' ').trim();
+    }
+
+    function isVisible(el) {
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        r.top >= 0 &&
+        r.left >= 0 &&
+        r.top < window.innerHeight &&
+        r.left < window.innerWidth &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    const menuRoots = Array.from(document.querySelectorAll(
+      '[role="menu"], [role="listbox"], [role="presentation"], div[aria-modal="true"]'
+    )).filter(isVisible);
+
+    const roots = menuRoots.length > 0 ? menuRoots : [document.body];
+
+    for (const root of roots) {
+      const items = Array.from(root.querySelectorAll(
+        '[role="menuitem"], [role="menuitemradio"], [role="option"], button, div[role="button"], div, span'
+      ));
+
+      for (const item of items) {
+        if (!isVisible(item)) continue;
+
+        const text = getText(item);
+
+        if (text !== '最新') continue;
+
+        let clickable = item;
+        let p = item.parentElement;
+
+        while (p && p !== document.body) {
+          const role = p.getAttribute('role') || '';
+          const tag = p.tagName.toLowerCase();
+
+          if (
+            tag === 'button' ||
+            role === 'menuitem' ||
+            role === 'menuitemradio' ||
+            role === 'option' ||
+            role === 'button'
+          ) {
+            clickable = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+
+        clickable.scrollIntoView({
+          block: 'center',
+          inline: 'center'
+        });
+
+        clickable.click();
+
+        return {
+          success: true,
+          text
+        };
+      }
+    }
+
+    return {
+      success: false,
+      text: ''
+    };
+  });
+
+  console.log("🆕 newest result:", newestResult);
+
+  if (!newestResult.success) {
+    console.log("⚠️ DOM 沒點到最新，改用鍵盤備援");
+
+    await page.keyboard.press('ArrowDown');
+    await randomDelay(300, 500);
+    await page.keyboard.press('Enter');
+
+    await randomDelay(5000, 7000);
+
+    console.log("✅ 已用鍵盤備援選最新");
+    return true;
+  }
+
+  await randomDelay(5000, 7000);
+
+  console.log("✅ 已切換最新排序");
+  return true;
+}
+
+// ✅ 找評論容器座標，給 mouse.wheel 用
+async function getReviewScrollBox(page) {
+  return await page.evaluate(() => {
+    function isScrollable(el) {
+      if (!el) return false;
+
+      const s = window.getComputedStyle(el);
+
+      return (
+        el.scrollHeight > el.clientHeight + 100 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden' &&
+        s.overflowY !== 'hidden'
+      );
+    }
+
+    let container =
+      document.querySelector('div[role="feed"]') ||
+      document.querySelector('.m6U62c');
+
+    if (!isScrollable(container)) {
+      container = null;
+    }
+
+    if (!container) {
+      const firstReview = document.querySelector('div[data-review-id]');
+
+      if (firstReview) {
+        let p = firstReview.parentElement;
+
+        while (p && p !== document.body) {
+          if (isScrollable(p)) {
+            container = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+      }
+    }
+
+    if (!container) {
+      const divs = Array.from(document.querySelectorAll('div'));
+
+      const candidates = divs
+        .filter(isScrollable)
+        .map(el => {
+          const r = el.getBoundingClientRect();
+
+          return {
+            el,
+            left: r.left,
+            top: r.top,
+            width: r.width,
+            height: r.height
+          };
+        })
+        .filter(x => {
+          return (
+            x.width > 260 &&
+            x.height > 300 &&
+            x.left < window.innerWidth * 0.75
+          );
+        })
+        .sort((a, b) => {
+          if (a.left !== b.left) return a.left - b.left;
+          return b.height - a.height;
+        });
+
+      if (candidates.length > 0) {
+        container = candidates[0].el;
+      }
+    }
+
+    if (!container) {
+      return null;
+    }
+
+    const r = container.getBoundingClientRect();
+
+    return {
+      x: r.left + r.width / 2,
+      y: r.top + r.height / 2,
+      top: container.scrollTop,
+      height: container.scrollHeight,
+      clientHeight: container.clientHeight
+    };
+  });
+}
+
+// ✅ 抓目前 DOM 裡已載入的評論
+async function collectCurrentReviews(page, reviewMap) {
+  const current = await page.evaluate(() => {
+    const results = [];
+    const reviewEls = document.querySelectorAll('div[data-review-id]');
+
+    reviewEls.forEach((el, i) => {
+      const id = el.getAttribute('data-review-id') || `r-${i}`;
+
+      const textEl =
+        el.querySelector('.wiI7pd') ||
+        el.querySelector('[jsname="fbQN7e"]');
+
+      const ratingEl =
+        el.querySelector('[role="img"][aria-label*="星"]') ||
+        el.querySelector('[role="img"][aria-label*="star"]') ||
+        el.querySelector('[role="img"]');
+
+      const authorEl =
+        el.querySelector('.d4r55') ||
+        el.querySelector('.TSUbDb');
+
+      const dateEl =
+        el.querySelector('.rsqaWe') ||
+        el.querySelector('.xRkPPb') ||
+        Array.from(el.querySelectorAll('span')).find(s => {
+          const t = (s.innerText || '').trim();
+
+          return /剛剛|分鐘前|小時前|天前|週前|個月前|年前|分鐘|小時|天|週|個月|年|minute|hour|day|week|month|year/i.test(t);
+        });
+
+      const content = textEl ? textEl.innerText.trim() : '';
+      const author = authorEl ? authorEl.innerText.trim() : '';
+      const date = dateEl ? dateEl.innerText.trim() : '';
+
+      let rating = 5;
+
+      if (ratingEl) {
+        const m = ratingEl.getAttribute('aria-label')?.match(/\d/);
+        if (m) rating = parseInt(m[0], 10);
+      }
+
+      if (
+        content &&
+        !content.includes('function(){') &&
+        !content.includes('window.tactilecsi') &&
+        !content.includes('window.google') &&
+        !content.includes('RegExp(') &&
+        !content.includes('sjsuid_') &&
+        !content.includes(':root{')
+      ) {
+        results.push({
+          reviewId: id,
+          author,
+          content,
+          rating,
+          date
+        });
+      }
+    });
+
+    return results;
+  });
+
+  current.forEach(r => {
+    const key = r.reviewId || `${r.author}-${r.date}-${r.content}`;
+
+    if (!reviewMap.has(key)) {
+      reviewMap.set(key, r);
+    }
+  });
+
+  return current.length;
+}
+
+// ✅ 展開目前畫面評論全文，只點評論卡裡的更多
+async function expandCurrentMore(page) {
+  const count = await page.evaluate(() => {
+    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+    let count = 0;
+
+    reviewEls.forEach(review => {
+      const buttons = Array.from(review.querySelectorAll('button'));
+
+      buttons.forEach(btn => {
+        const t = (
+          (btn.innerText || '') +
+          (btn.textContent || '') +
+          (btn.getAttribute('aria-label') || '') +
+          (btn.getAttribute('title') || '')
+        ).toLowerCase();
+
+        if (
+          t.includes('更多') ||
+          t.includes('read more') ||
+          t.includes('more')
+        ) {
+          btn.click();
+          count++;
+        }
+      });
+    });
+
+    return count;
+  });
+
+  return count;
+}
+
+// ✅ 快速滾動下一批評論
+async function fastScrollReviews(page) {
+  const box = await getReviewScrollBox(page);
+
+  if (!box) {
+    await page.mouse.wheel({
+      deltaY: 3000
+    });
+
+    return {
+      success: false,
+      before: 0,
+      after: 0
+    };
+  }
+
+  await page.mouse.move(box.x, box.y);
+
+  const before = box.top;
+
+  // 一輪內連續滾多次，比原本一次 1200 快很多
+  for (let i = 0; i < 6; i++) {
+    await page.mouse.wheel({
+      deltaY: 2200
+    });
+
+    await randomDelay(200, 350);
+  }
+
+  await randomDelay(700, 1000);
+
+  const afterBox = await getReviewScrollBox(page);
+
+  return {
+    success: true,
+    before,
+    after: afterBox ? afterBox.top : before
+  };
+}
+
+// ✅ 快速載入 + 邊抓邊存
+async function fastLoadAndCollectReviews(page, maxRounds = 30) {
+  console.log("➡️ 開始快速載入並抓評論...");
+
+  const reviewMap = new Map();
+
+  let stableCount = 0;
+  let lastTotal = 0;
+
+  for (let round = 0; round < maxRounds; round++) {
+    // 1. 先抓目前畫面
+    const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
+
+    // 2. 展開目前畫面的更多
+    const expanded = await expandCurrentMore(page);
+
+    if (expanded > 0) {
+      await randomDelay(700, 1000);
+    }
+
+    // 3. 展開後再抓一次，確保內容完整
+    const afterExpandCount = await collectCurrentReviews(page, reviewMap);
+
+    console.log(
+      `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
+    );
+
+    if (reviewMap.size === lastTotal) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+      lastTotal = reviewMap.size;
+    }
+
+    if (stableCount >= 5) {
+      console.log("✅ 評論沒有再增加，停止");
+      break;
+    }
+
+    // 4. 快速滾到下一批
+    const scrollResult = await fastScrollReviews(page);
+
+    console.log(
+      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}`
+    );
+
+    await randomDelay(1200, 1800);
+  }
+
+  const reviews = Array.from(reviewMap.values());
+
+  console.log(`✅ 抓到 ${reviews.length} 筆評論`);
+
+  if (reviews.length > 0) {
+    console.log("✅ 第一筆範例:", reviews[0]);
+  }
+
+  return reviews;
+}
+
+async function scrapeGoogleReviews() {
+  let browser;
+
+  try {
+    console.log("➡️ 啟動防偵測 Chrome...");
+
+    browser = await puppeteer.launch({
+      headless: false,
+      executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      defaultViewport: null,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled',
+        '--no-first-run',
+        '--no-default-browser-check'
+      ]
+    });
+
+    const page = (await browser.pages())[0] || await browser.newPage();
+
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => undefined
+      });
+    });
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    );
+
+    // 🚀 Step 1
+    console.log("➡️ 前往 Google...");
+    await page.goto('https://www.google.com.tw/?hl=zh-TW', {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    });
+    await randomDelay(2000, 3000);
+
+    // 🚀 Step 2
+    console.log("🔍 搜尋 LillA 台北...");
+    const searchBox = 'textarea[name="q"], input[name="q"]';
+    await page.waitForSelector(searchBox);
+    await page.click(searchBox);
+
+    for (const char of 'LillA 台北') {
+      await page.type(searchBox, char);
+      await randomDelay(100, 200);
+    }
+
+    await page.keyboard.press('Enter');
+    await randomDelay(5000, 6000);
+
+    // 🚀 Step 3（進地圖）
+    console.log("🚀 嘗試進入 Google Maps...");
+
+    const opened = await page.evaluate(() => {
+      const els = Array.from(document.querySelectorAll('a, button, span'));
+
+      const target = els.find(el => {
+        const t = (el.innerText || '').toLowerCase();
+        return t.includes('地圖') || t.includes('google 地圖');
+      });
+
+      if (target) {
+        target.click();
+        return true;
+      }
+
+      return false;
+    });
+
+    if (!opened) {
+      console.log("⚠️ 直接開地圖 fallback");
+      await page.goto('https://www.google.com/maps/search/LillA', {
+        waitUntil: 'networkidle2'
+      });
+    }
+
+    await randomDelay(8000, 10000);
+
+    // 🚀 Step 4（評論按鈕強化版）
+    // ✅ 照你原本，不改
+    console.log("🎯 找評論按鈕...");
+
+    const tabClicked = await page.evaluate(() => {
+
+      const getText = (el) => {
+        return (
+          (el.innerText || '') +
+          (el.textContent || '') +
+          (el.getAttribute('aria-label') || '') +
+          (el.getAttribute('title') || '')
+        ).toLowerCase();
+      };
+
+      const keywords = [
+        '評論',
+        'reviews',
+        '查看評論',
+        '查看全部評論'
+      ];
+
+      const elements = Array.from(document.querySelectorAll('button, a, div'));
+
+      for (const el of elements) {
+        const text = getText(el);
+
+        if (keywords.some(k => text.includes(k))) {
+          el.click();
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    console.log("🎯 review tab result:", tabClicked);
+
+    if (tabClicked) {
+      await randomDelay(6000, 8000);
+    } else {
+      console.log("⚠️ 沒點到評論");
+    }
+
+    // ✅ 切換最新排序
+    await clickNewestSort(page);
+
+    // ✅ 新版：快速載入 + 邊抓邊存
+    const reviews = await fastLoadAndCollectReviews(page, 30);
+
+    return reviews;
+
+  } catch (err) {
+    console.error("❌ 錯誤:", err);
+    if (browser) await browser.close();
+    return [];
+  }
+}
+
+module.exports = scrapeGoogleReviews;
