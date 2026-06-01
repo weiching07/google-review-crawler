@@ -54,7 +54,6 @@
     <div id="container" class="space-y-4">載入中...</div>
   </div>
 
-  <!-- 歷史紀錄彈窗 -->
   <dialog id="historyDialog" class="rounded-xl shadow-xl p-0 w-full max-w-3xl backdrop:bg-black/40">
     <div class="bg-white rounded-xl overflow-hidden">
       <div class="flex justify-between items-center bg-slate-800 text-white px-5 py-3">
@@ -82,6 +81,7 @@
 
   <script>
     let rawData = [];
+    let allVersions = [];
 
     function escapeHTML(value) {
       return String(value ?? '')
@@ -107,23 +107,41 @@
       return Boolean(c.isEdited) || /上次編輯|已編輯|edited|last edited/i.test(text);
     }
 
+    function getVersionListByKey(key) {
+      return allVersions.filter(v =>
+        String(v.reviewId || '') === String(key) ||
+        String(v.commentId || '') === String(key) ||
+        String(v.id || '') === String(key)
+      );
+    }
+
     function hasVersions(c) {
-      return Number(c.versionsCount || 0) > 0 || Boolean(c.hasVersions);
+      const key = getReviewKey(c);
+      return getVersionListByKey(key).length > 0 || Boolean(c.hasVersions);
     }
 
     async function loadData() {
       const status = document.getElementById('status');
       const summary = document.getElementById('summary');
 
-      status.textContent = '正在讀取 SQLite 評論資料...';
+      status.textContent = '正在讀取評論資料...';
 
       try {
-        const res = await fetch('/comments');
-        rawData = await res.json();
+        const commentsRes = await fetch('./comments.json?t=' + Date.now());
+        rawData = await commentsRes.json();
+
+        try {
+          const versionsRes = await fetch('./review-versions.json?t=' + Date.now());
+          allVersions = await versionsRes.json();
+        } catch {
+          allVersions = [];
+        }
 
         rawData = rawData.map((item, idx) => ({
           ...item,
-          sortIndex: idx
+          sortIndex: idx,
+          versionsCount: getVersionListByKey(getReviewKey(item)).length,
+          hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
         }));
 
         render();
@@ -134,37 +152,18 @@
 
         summary.textContent = `目前共 ${total} 筆評論，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。`;
         status.textContent = '';
+
       } catch (err) {
         console.error(err);
-        status.textContent = '讀取評論失敗，請確認 server.js 是否正在執行。';
+        status.textContent = '讀取評論失敗。請確認 GitHub Actions 已經產生 public/comments.json。';
       }
     }
 
     async function syncReviews() {
-      const button = document.getElementById('syncButton');
       const status = document.getElementById('status');
 
-      button.disabled = true;
-      status.textContent = '正在同步 Google 評論，請稍候...';
-
-      try {
-        const res = await fetch('/sync-google');
-        const data = await res.json();
-
-        if (res.ok) {
-          status.textContent =
-            `同步完成：抓到 ${data.totalScraped || 0} 筆，新增 ${data.newSaved || 0} 筆，更新 ${data.updated || 0} 筆，保存舊版本 ${data.versionSaved || 0} 筆。`;
-
-          await loadData();
-        } else {
-          status.textContent = `同步失敗：${data.error || '伺服器錯誤'}`;
-        }
-      } catch (err) {
-        console.error(err);
-        status.textContent = '同步失敗：無法連線到伺服器。';
-      } finally {
-        button.disabled = false;
-      }
+      status.textContent =
+        '免費版由 GitHub Actions 自動同步，不能從網頁直接啟動爬蟲。請到 GitHub Actions 手動 Run workflow，或等待排程自動更新。';
     }
 
     function getTimeWeight(dateStr) {
@@ -218,7 +217,7 @@
       if (!key) return '';
 
       const edited = isEditedReview(c);
-      const count = Number(c.versionsCount || 0);
+      const count = getVersionListByKey(key).length;
 
       if (!edited && count === 0) {
         return '';
@@ -286,12 +285,15 @@
       }
 
       container.innerHTML = displayData.map(c => {
+        const key = getReviewKey(c);
+        const count = getVersionListByKey(key).length;
+
         const editedBadge = isEditedReview(c)
           ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">已編輯</span>`
           : '';
 
-        const versionBadge = Number(c.versionsCount || 0) > 0
-          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">有 ${escapeHTML(c.versionsCount)} 筆舊版本</span>`
+        const versionBadge = count > 0
+          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">有 ${escapeHTML(count)} 筆舊版本</span>`
           : '';
 
         const updatedText = c.updatedAt
@@ -333,21 +335,13 @@
 
       content.innerHTML = `
         <div class="text-slate-500">
-          正在讀取 SQLite 過往紀錄...
+          正在讀取過往紀錄...
         </div>
       `;
 
       dialog.showModal();
 
-      let versions = [];
-
-      try {
-        const res = await fetch(`/review-versions/${encodeURIComponent(key)}`);
-        versions = await res.json();
-      } catch (err) {
-        console.error(err);
-        versions = [];
-      }
+      const versions = getVersionListByKey(key);
 
       const currentBlock = current ? `
         <div class="border rounded p-4 bg-amber-50 border-amber-200">
@@ -399,7 +393,7 @@
         `).join('')
         : `
           <div class="border rounded p-4 bg-slate-50 text-slate-600 leading-7">
-            目前 SQLite 還沒有保存到舊版本。<br>
+            目前還沒有保存到舊版本。<br>
             如果這筆只是 Google 顯示「已編輯」，但你啟用版本紀錄前沒有保存過舊內容，就不會有過往紀錄。<br>
             從現在開始，只要同一個 reviewId 的評論內容或星等之後再變動，舊內容就會出現在這裡。
           </div>

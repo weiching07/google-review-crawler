@@ -1,11 +1,20 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+
 puppeteer.use(StealthPlugin());
 
 const randomDelay = (min, max) =>
   new Promise(r =>
     setTimeout(r, Math.floor(Math.random() * (max - min + 1)) + min)
   );
+
+function isCloudEnv() {
+  return (
+    process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.GITHUB_ACTIONS) ||
+    Boolean(process.env.CI)
+  );
+}
 
 // ✅ 切換「最新排序」：維持你現在成功的版本
 async function clickNewestSort(page) {
@@ -465,7 +474,6 @@ async function fastScrollReviews(page) {
 
   const before = box.top;
 
-  // 一輪內連續滾多次，比原本一次 1200 快很多
   for (let i = 0; i < 6; i++) {
     await page.mouse.wheel({
       deltaY: 2200
@@ -495,17 +503,14 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   let lastTotal = 0;
 
   for (let round = 0; round < maxRounds; round++) {
-    // 1. 先抓目前畫面
     const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
 
-    // 2. 展開目前畫面的更多
     const expanded = await expandCurrentMore(page);
 
     if (expanded > 0) {
       await randomDelay(700, 1000);
     }
 
-    // 3. 展開後再抓一次，確保內容完整
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
 
     console.log(
@@ -524,7 +529,6 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       break;
     }
 
-    // 4. 快速滾到下一批
     const scrollResult = await fastScrollReviews(page);
 
     console.log(
@@ -551,16 +555,28 @@ async function scrapeGoogleReviews() {
   try {
     console.log("➡️ 啟動防偵測 Chrome...");
 
+    const isCloud = isCloudEnv();
+
     browser = await puppeteer.launch({
-      headless: false,
-      executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-      defaultViewport: null,
+      headless: isCloud ? 'new' : false,
+
+      executablePath: isCloud
+        ? undefined
+        : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+
+      defaultViewport: isCloud
+        ? { width: 1366, height: 768 }
+        : null,
+
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-blink-features=AutomationControlled',
         '--no-first-run',
-        '--no-default-browser-check'
+        '--no-default-browser-check',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--window-size=1366,768'
       ]
     });
 
@@ -583,12 +599,16 @@ async function scrapeGoogleReviews() {
       waitUntil: 'networkidle2',
       timeout: 60000
     });
+
     await randomDelay(2000, 3000);
 
     // 🚀 Step 2
     console.log("🔍 搜尋 LillA 台北...");
     const searchBox = 'textarea[name="q"], input[name="q"]';
-    await page.waitForSelector(searchBox);
+    await page.waitForSelector(searchBox, {
+      timeout: 30000
+    });
+
     await page.click(searchBox);
 
     for (const char of 'LillA 台北') {
@@ -620,8 +640,10 @@ async function scrapeGoogleReviews() {
 
     if (!opened) {
       console.log("⚠️ 直接開地圖 fallback");
+
       await page.goto('https://www.google.com/maps/search/LillA', {
-        waitUntil: 'networkidle2'
+        waitUntil: 'networkidle2',
+        timeout: 60000
       });
     }
 
@@ -632,7 +654,6 @@ async function scrapeGoogleReviews() {
     console.log("🎯 找評論按鈕...");
 
     const tabClicked = await page.evaluate(() => {
-
       const getText = (el) => {
         return (
           (el.innerText || '') +
@@ -674,15 +695,18 @@ async function scrapeGoogleReviews() {
     // ✅ 切換最新排序
     await clickNewestSort(page);
 
-    // ✅ 新版：快速載入 + 邊抓邊存
+    // ✅ 快速載入 + 邊抓邊存
     const reviews = await fastLoadAndCollectReviews(page, 30);
 
     return reviews;
 
   } catch (err) {
     console.error("❌ 錯誤:", err);
-    if (browser) await browser.close();
     return [];
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 }
 
