@@ -17,7 +17,7 @@
           onclick="openManualSync()"
           class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
         >
-          前往手動同步
+          手動同步 Google 評論
         </button>
 
         <button
@@ -97,7 +97,10 @@
     let allVersions = [];
 
     const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
-    const GITHUB_ACTIONS_URL = 'https://github.com/weiching07/google-review-crawler/actions/workflows/sync.yml';
+
+    // Cloudflare Worker API
+    const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb282.workers.dev';
+    const SYNC_SECRET = 'lilla-sync-2026-change-this';
 
     let readIds = new Set();
 
@@ -121,17 +124,42 @@
         .replaceAll("'", '&#039;');
     }
 
-    function openManualSync() {
+    async function openManualSync() {
       const status = document.getElementById('status');
+      const button = document.getElementById('syncButton');
 
-      status.textContent =
-        '已開啟 GitHub Actions 頁面，請點 Run workflow 手動同步。';
+      status.textContent = '正在觸發 GitHub Actions 同步...';
+      button.disabled = true;
+      button.textContent = '同步啟動中...';
 
-      window.open(
-        GITHUB_ACTIONS_URL,
-        '_blank',
-        'noopener,noreferrer'
-      );
+      try {
+        const res = await fetch(SYNC_WORKER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Sync-Secret': SYNC_SECRET
+          },
+          body: JSON.stringify({
+            source: 'lilla-dashboard'
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.message || '同步觸發失敗');
+        }
+
+        status.textContent =
+          '已觸發同步，GitHub Actions 正在背景爬資料。請等 1～3 分鐘後按「重新整理資料」。';
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = '同步觸發失敗：' + err.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = '手動同步 Google 評論';
+      }
     }
 
     function loadReadIds() {
