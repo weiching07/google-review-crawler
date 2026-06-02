@@ -27,6 +27,13 @@
           重新整理資料
         </button>
 
+        <button
+          onclick="markAllAsRead()"
+          class="border p-2 rounded bg-green-600 text-white hover:bg-green-700"
+        >
+          全部移到已讀取
+        </button>
+
         <select id="starFilter" onchange="render()" class="border p-2 rounded">
           <option value="all">顯示全部星等</option>
           <option value="5">5 星 ★</option>
@@ -45,6 +52,12 @@
           <option value="all">全部評論</option>
           <option value="edited">只看已編輯</option>
           <option value="hasVersions">只看有舊版本</option>
+        </select>
+
+        <select id="readFilter" onchange="render()" class="border p-2 rounded">
+          <option value="all">全部讀取狀態</option>
+          <option value="unread">只看未讀取</option>
+          <option value="read">只看已讀取</option>
         </select>
       </div>
     </div>
@@ -83,10 +96,15 @@
     let rawData = [];
     let allVersions = [];
 
+    const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
+    let readIds = new Set();
+
     let summaryStats = {
       total: 0,
       editedCount: 0,
       versionCount: 0,
+      unreadCount: 0,
+      readCount: 0,
       latestSyncTime: null
     };
 
@@ -101,8 +119,61 @@
         .replaceAll("'", '&#039;');
     }
 
+    function loadReadIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(READ_STORAGE_KEY) || '[]');
+        readIds = new Set(saved.map(String));
+      } catch {
+        readIds = new Set();
+      }
+    }
+
+    function saveReadIds() {
+      localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(readIds)));
+    }
+
     function getReviewKey(c) {
       return String(c.reviewId || c.id || '');
+    }
+
+    function isReadReview(c) {
+      const key = getReviewKey(c);
+      return key && readIds.has(key);
+    }
+
+    function isUnreadReview(c) {
+      return !isReadReview(c);
+    }
+
+    function markOneAsRead(key) {
+      if (!key) return;
+
+      readIds.add(String(key));
+      saveReadIds();
+      refreshSummaryStats();
+      render();
+    }
+
+    function markAllAsRead() {
+      rawData.forEach(c => {
+        const key = getReviewKey(c);
+        if (key) {
+          readIds.add(key);
+        }
+      });
+
+      saveReadIds();
+      refreshSummaryStats();
+      render();
+    }
+
+    function markOneAsUnread(key) {
+      if (!key) return;
+
+      readIds.delete(String(key));
+      saveReadIds();
+      refreshSummaryStats();
+      render();
     }
 
     function isEditedReview(c) {
@@ -193,6 +264,19 @@
       });
     }
 
+    function refreshSummaryStats() {
+      summaryStats = {
+        total: rawData.length,
+        editedCount: rawData.filter(isEditedReview).length,
+        versionCount: rawData.filter(hasVersions).length,
+        unreadCount: rawData.filter(isUnreadReview).length,
+        readCount: rawData.filter(isReadReview).length,
+        latestSyncTime: getLatestSyncTime(rawData)
+      };
+
+      updateSummaryText();
+    }
+
     function updateSummaryText() {
       const summary = document.getElementById('summary');
 
@@ -200,6 +284,8 @@
         total,
         editedCount,
         versionCount,
+        unreadCount,
+        readCount,
         latestSyncTime
       } = summaryStats;
 
@@ -211,7 +297,7 @@
         : '上次更新：未知';
 
       summary.textContent =
-        `目前共 ${total} 筆評論，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
+        `目前共 ${total} 筆評論，未讀取 ${unreadCount} 筆，已讀取 ${readCount} 筆，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
     }
 
     async function loadData() {
@@ -220,6 +306,8 @@
       status.textContent = '正在讀取評論資料...';
 
       try {
+        loadReadIds();
+
         const commentsRes = await fetch('./comments.json?t=' + Date.now());
         rawData = await commentsRes.json();
 
@@ -237,16 +325,8 @@
           hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
         }));
 
+        refreshSummaryStats();
         render();
-
-        summaryStats = {
-          total: rawData.length,
-          editedCount: rawData.filter(isEditedReview).length,
-          versionCount: rawData.filter(hasVersions).length,
-          latestSyncTime: getLatestSyncTime(rawData)
-        };
-
-        updateSummaryText();
 
         if (summaryTimer) {
           clearInterval(summaryTimer);
@@ -345,10 +425,38 @@
       `;
     }
 
+    function renderReadButton(c) {
+      const key = getReviewKey(c);
+      if (!key) return '';
+
+      if (isReadReview(c)) {
+        return `
+          <button
+            type="button"
+            onclick="markOneAsUnread('${encodeURIComponent(key)}')"
+            class="mt-3 ml-2 text-xs px-3 py-1 rounded bg-slate-200 text-slate-600 hover:bg-slate-300"
+          >
+            改回未讀取
+          </button>
+        `;
+      }
+
+      return `
+        <button
+          type="button"
+          onclick="markOneAsRead('${encodeURIComponent(key)}')"
+          class="mt-3 ml-2 text-xs px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+        >
+          移到已讀取
+        </button>
+      `;
+    }
+
     function render() {
       const starFilter = document.getElementById('starFilter').value;
       const sortOrder = document.getElementById('sortOrder').value;
       const historyFilter = document.getElementById('historyFilter').value;
+      const readFilter = document.getElementById('readFilter').value;
       const container = document.getElementById('container');
 
       let displayData = [...rawData];
@@ -363,6 +471,14 @@
 
       if (historyFilter === 'hasVersions') {
         displayData = displayData.filter(c => hasVersions(c));
+      }
+
+      if (readFilter === 'unread') {
+        displayData = displayData.filter(c => isUnreadReview(c));
+      }
+
+      if (readFilter === 'read') {
+        displayData = displayData.filter(c => isReadReview(c));
       }
 
       displayData.sort((a, b) => {
@@ -399,15 +515,24 @@
           ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">有 ${escapeHTML(count)} 筆舊版本</span>`
           : '';
 
+        const readBadge = isReadReview(c)
+          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-slate-100 text-slate-500">已讀取</span>`
+          : `<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未讀取</span>`;
+
         const updatedText = c.updatedAt
           ? `<div class="text-xs text-slate-400 mt-2">資料更新：${escapeHTML(c.updatedAt)}</div>`
           : '';
 
+        const cardStyle = isReadReview(c)
+          ? 'bg-white opacity-80'
+          : 'bg-white border-l-4 border-red-400';
+
         return `
-          <div id="card-${escapeHTML(c.id || c.reviewId)}" class="bg-white p-5 rounded shadow hover:border-l-4 border-amber-500 transition-all">
+          <div id="card-${escapeHTML(c.id || c.reviewId)}" class="${cardStyle} p-5 rounded shadow hover:border-l-4 hover:border-amber-500 transition-all">
             <div class="flex justify-between items-start gap-4">
               <div>
                 <span class="text-amber-500 font-bold">${escapeHTML(c.rating || 0)} 星</span>
+                ${readBadge}
                 ${editedBadge}
                 ${versionBadge}
               </div>
@@ -421,7 +546,10 @@
 
             ${updatedText}
 
-            ${renderHistoryButton(c)}
+            <div>
+              ${renderHistoryButton(c)}
+              ${renderReadButton(c)}
+            </div>
           </div>
         `;
       }).join('');
