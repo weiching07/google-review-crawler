@@ -83,6 +83,15 @@
     let rawData = [];
     let allVersions = [];
 
+    let summaryStats = {
+      total: 0,
+      editedCount: 0,
+      versionCount: 0,
+      latestSyncTime: null
+    };
+
+    let summaryTimer = null;
+
     function escapeHTML(value) {
       return String(value ?? '')
         .replaceAll('&', '&amp;')
@@ -120,9 +129,93 @@
       return getVersionListByKey(key).length > 0 || Boolean(c.hasVersions);
     }
 
+    function parseTime(value) {
+      if (!value) return null;
+
+      const time = new Date(value).getTime();
+
+      if (Number.isNaN(time)) {
+        return null;
+      }
+
+      return time;
+    }
+
+    function getLatestSyncTime(comments) {
+      let latest = null;
+
+      comments.forEach(c => {
+        const candidates = [
+          c.lastSeenAt,
+          c.scrapedAt,
+          c.updatedAt
+        ];
+
+        candidates.forEach(value => {
+          const time = parseTime(value);
+
+          if (time && (!latest || time > latest)) {
+            latest = time;
+          }
+        });
+      });
+
+      return latest;
+    }
+
+    function formatRelativeTime(time) {
+      if (!time) return '未知';
+
+      const diffMs = Date.now() - time;
+      const diffMinutes = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMinutes / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMinutes < 1) return '剛剛';
+      if (diffMinutes < 60) return `${diffMinutes} 分鐘前`;
+      if (diffHours < 24) return `${diffHours} 小時前`;
+      if (diffDays < 30) return `${diffDays} 天前`;
+
+      return '超過 30 天前';
+    }
+
+    function formatFullTime(time) {
+      if (!time) return '';
+
+      return new Date(time).toLocaleString('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    function updateSummaryText() {
+      const summary = document.getElementById('summary');
+
+      const {
+        total,
+        editedCount,
+        versionCount,
+        latestSyncTime
+      } = summaryStats;
+
+      const relativeText = formatRelativeTime(latestSyncTime);
+      const fullText = formatFullTime(latestSyncTime);
+
+      const updateText = latestSyncTime
+        ? `上次更新：${relativeText}（${fullText}）`
+        : '上次更新：未知';
+
+      summary.textContent =
+        `目前共 ${total} 筆評論，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
+    }
+
     async function loadData() {
       const status = document.getElementById('status');
-      const summary = document.getElementById('summary');
 
       status.textContent = '正在讀取評論資料...';
 
@@ -146,11 +239,21 @@
 
         render();
 
-        const total = rawData.length;
-        const editedCount = rawData.filter(isEditedReview).length;
-        const versionCount = rawData.filter(hasVersions).length;
+        summaryStats = {
+          total: rawData.length,
+          editedCount: rawData.filter(isEditedReview).length,
+          versionCount: rawData.filter(hasVersions).length,
+          latestSyncTime: getLatestSyncTime(rawData)
+        };
 
-        summary.textContent = `目前共 ${total} 筆評論，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。`;
+        updateSummaryText();
+
+        if (summaryTimer) {
+          clearInterval(summaryTimer);
+        }
+
+        summaryTimer = setInterval(updateSummaryText, 60000);
+
         status.textContent = '';
 
       } catch (err) {
