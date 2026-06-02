@@ -36,6 +36,29 @@ function makeKey(r, index) {
   );
 }
 
+function buildOldMap(oldComments) {
+  const map = new Map();
+
+  oldComments.forEach((c, index) => {
+    const key = makeKey(c, index);
+
+    if (key && !map.has(key)) {
+      map.set(key, c);
+    }
+
+    if (c.reviewId && !map.has(String(c.reviewId))) {
+      map.set(String(c.reviewId), c);
+    }
+
+    const contentKey = `${c.author || 'unknown'}-${c.rating || 0}-${text(c.content).slice(0, 60)}-${index}`;
+    if (!map.has(contentKey)) {
+      map.set(contentKey, c);
+    }
+  });
+
+  return map;
+}
+
 async function main() {
   if (!fs.existsSync(PUBLIC_DIR)) {
     fs.mkdirSync(PUBLIC_DIR, { recursive: true });
@@ -46,11 +69,16 @@ async function main() {
   const oldComments = readJson(COMMENTS_FILE, []);
   const oldVersions = readJson(VERSIONS_FILE, []);
 
-  const oldMap = new Map(
-    oldComments.map((c, index) => [makeKey(c, index), c])
-  );
+  const oldMap = buildOldMap(oldComments);
 
   const reviews = await scrapeGoogleReviews();
+
+  // ✅ 重要：如果這次抓到 0 筆，不覆蓋原本資料
+  if (!Array.isArray(reviews) || reviews.length === 0) {
+    console.warn('⚠️ 本次抓到 0 筆，為避免覆蓋舊資料，不更新 comments.json / review-versions.json');
+    console.warn(`📦 目前舊資料仍保留：comments=${oldComments.length}, versions=${oldVersions.length}`);
+    return;
+  }
 
   let newCount = 0;
   let updatedCount = 0;
@@ -60,7 +88,11 @@ async function main() {
 
   const nextComments = reviews.map((r, index) => {
     const key = makeKey(r, index);
-    const old = oldMap.get(key);
+
+    const old =
+      oldMap.get(key) ||
+      oldMap.get(String(r.reviewId || '')) ||
+      oldMap.get(`${r.author || 'unknown'}-${r.rating || 0}-${text(r.content).slice(0, 60)}-${index}`);
 
     const next = {
       id: old?.id || `${Date.now()}-${index}`,
@@ -91,7 +123,7 @@ async function main() {
 
     if (contentChanged || ratingChanged) {
       const duplicate = oldVersions.some(v =>
-        v.reviewId === key &&
+        String(v.reviewId || '') === String(key) &&
         text(v.content) === text(old.content) &&
         String(v.rating || '') === String(old.rating || '')
       );
