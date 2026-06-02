@@ -27,13 +27,6 @@
           重新整理資料
         </button>
 
-        <button
-          onclick="markAllAsRead()"
-          class="border p-2 rounded bg-green-600 text-white hover:bg-green-700"
-        >
-          全部移到已讀取
-        </button>
-
         <select id="starFilter" onchange="render()" class="border p-2 rounded">
           <option value="all">顯示全部星等</option>
           <option value="5">5 星 ★</option>
@@ -53,17 +46,45 @@
           <option value="edited">只看已編輯</option>
           <option value="hasVersions">只看有舊版本</option>
         </select>
-
-        <select id="readFilter" onchange="render()" class="border p-2 rounded">
-          <option value="all">全部讀取狀態</option>
-          <option value="unread">只看未讀取</option>
-          <option value="read">只看已讀取</option>
-        </select>
       </div>
     </div>
 
     <div id="status" class="mb-4 text-sm text-slate-600"></div>
     <div id="summary" class="mb-4 text-sm text-slate-500"></div>
+
+    <div class="bg-white p-4 rounded shadow mb-4">
+      <div class="flex flex-wrap gap-3 items-center">
+        <span class="text-sm text-slate-500">讀取狀態：</span>
+
+        <button
+          id="unreadFilterButton"
+          onclick="setReadFilter('unread')"
+          class="border px-4 py-2 rounded text-sm"
+        >
+          未讀取
+        </button>
+
+        <button
+          id="readFilterButton"
+          onclick="setReadFilter('read')"
+          class="border px-4 py-2 rounded text-sm"
+        >
+          已讀取
+        </button>
+
+        <span id="readFilterText" class="text-sm text-slate-400">
+          目前顯示：全部
+        </span>
+
+        <button
+          onclick="markAllAsRead()"
+          class="ml-auto border px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm"
+        >
+          全部移到已讀取
+        </button>
+      </div>
+    </div>
+
     <div id="container" class="space-y-4">載入中...</div>
   </div>
 
@@ -98,11 +119,11 @@
 
     const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
 
-    // Cloudflare Worker API
     const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb282.workers.dev';
     const SYNC_SECRET = 'lilla-sync-2026-change-this';
 
     let readIds = new Set();
+    let currentReadFilter = 'all';
 
     let summaryStats = {
       total: 0,
@@ -186,6 +207,42 @@
 
     function isUnreadReview(c) {
       return !isReadReview(c);
+    }
+
+    function setReadFilter(filter) {
+      if (currentReadFilter === filter) {
+        currentReadFilter = 'all';
+      } else {
+        currentReadFilter = filter;
+      }
+
+      render();
+    }
+
+    function updateReadFilterButtons() {
+      const unreadButton = document.getElementById('unreadFilterButton');
+      const readButton = document.getElementById('readFilterButton');
+      const readFilterText = document.getElementById('readFilterText');
+
+      const normalClass = 'border px-4 py-2 rounded text-sm bg-white text-slate-700 hover:bg-slate-100';
+      const unreadActiveClass = 'border px-4 py-2 rounded text-sm bg-red-600 text-white hover:bg-red-700';
+      const readActiveClass = 'border px-4 py-2 rounded text-sm bg-slate-700 text-white hover:bg-slate-800';
+
+      unreadButton.className = currentReadFilter === 'unread'
+        ? unreadActiveClass
+        : normalClass;
+
+      readButton.className = currentReadFilter === 'read'
+        ? readActiveClass
+        : normalClass;
+
+      if (currentReadFilter === 'unread') {
+        readFilterText.textContent = '目前顯示：未讀取';
+      } else if (currentReadFilter === 'read') {
+        readFilterText.textContent = '目前顯示：已讀取';
+      } else {
+        readFilterText.textContent = '目前顯示：全部';
+      }
     }
 
     function markOneAsRead(encodedKey) {
@@ -499,10 +556,11 @@
     }
 
     function render() {
+      updateReadFilterButtons();
+
       const starFilter = document.getElementById('starFilter').value;
       const sortOrder = document.getElementById('sortOrder').value;
       const historyFilter = document.getElementById('historyFilter').value;
-      const readFilter = document.getElementById('readFilter').value;
       const container = document.getElementById('container');
 
       let displayData = [...rawData];
@@ -519,11 +577,11 @@
         displayData = displayData.filter(c => hasVersions(c));
       }
 
-      if (readFilter === 'unread') {
+      if (currentReadFilter === 'unread') {
         displayData = displayData.filter(c => isUnreadReview(c));
       }
 
-      if (readFilter === 'read') {
+      if (currentReadFilter === 'read') {
         displayData = displayData.filter(c => isReadReview(c));
       }
 
