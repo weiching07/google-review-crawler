@@ -2,8 +2,9 @@ name: Sync Google Reviews
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "*/10 * * * *"
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -39,11 +40,20 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Send push notifications
+        run: npm run notify:push
+        env:
+          WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
+          SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: mailto:zxcvb282@gmail.com
+
       - name: Commit updated JSON
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add public/comments.json public/review-versions.json
+          git add public/comments.json public/review-versions.json public/notified-review-ids.json
           git commit -m "auto sync reviews" || echo "No changes to commit"
           git push
 
