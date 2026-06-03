@@ -55,12 +55,27 @@ jobs:
             libgbm1 \
             libasound2t64 \
             libpango-1.0-0 \
-            libcairo2
+            libcairo2 \
+            libx11-xcb1 \
+            libxcb1 \
+            libxss1 \
+            libxtst6 \
+            fonts-liberation \
+            xdg-utils
 
       - name: Install dependencies
+        env:
+          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
         run: |
           npm install
           npx puppeteer browsers install chrome
+
+      - name: Check installed Chrome
+        env:
+          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
+        run: |
+          echo "PUPPETEER_CACHE_DIR=$PUPPETEER_CACHE_DIR"
+          ls -R /home/runner/.cache/puppeteer || true
 
       - name: Sync Google reviews
         run: npm run sync:static
