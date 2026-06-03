@@ -27,6 +27,13 @@
           重新整理資料
         </button>
 
+        <button
+          onclick="enableReviewNotifications()"
+          class="border p-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+        >
+          開啟評論通知
+        </button>
+
         <select id="starFilter" onchange="render()" class="border p-2 rounded">
           <option value="all">顯示全部星等</option>
           <option value="5">5 星 ★</option>
@@ -88,6 +95,11 @@
     <div id="container" class="space-y-4">載入中...</div>
   </div>
 
+  <div
+    id="toastContainer"
+    class="fixed top-5 right-5 z-50 space-y-3 w-80"
+  ></div>
+
   <dialog id="historyDialog" class="rounded-xl shadow-xl p-0 w-full max-w-3xl backdrop:bg-black/40">
     <div class="bg-white rounded-xl overflow-hidden">
       <div class="flex justify-between items-center bg-slate-800 text-white px-5 py-3">
@@ -122,8 +134,17 @@
     const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb2282.workers.dev';
     const SYNC_SECRET = 'sync-2026-change-this';
 
+    const LIVE_CHECK_INTERVAL = 30000;
+    const FAST_CHECK_INTERVAL = 10000;
+    const FAST_CHECK_DURATION = 4 * 60 * 1000;
+
     let readIds = new Set();
     let currentReadFilter = 'all';
+
+    let knownReviewIds = new Set();
+    let liveWatcherStarted = false;
+    let fastWatcherTimer = null;
+    let summaryTimer = null;
 
     let summaryStats = {
       total: 0,
@@ -134,8 +155,6 @@
       latestSyncTime: null
     };
 
-    let summaryTimer = null;
-
     function escapeHTML(value) {
       return String(value ?? '')
         .replaceAll('&', '&amp;')
@@ -143,6 +162,154 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    async function enableReviewNotifications() {
+      const status = document.getElementById('status');
+
+      if (!('Notification' in window)) {
+        status.textContent = '這個瀏覽器不支援桌面通知，但網頁內仍會跳出提示。';
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+          status.textContent = '評論通知已開啟。新評論出現時會跳出提醒。';
+        } else if (permission === 'denied') {
+          status.textContent = '你封鎖了瀏覽器通知，所以只會顯示網頁內提示。';
+        } else {
+          status.textContent = '你尚未允許通知，所以只會顯示網頁內提示。';
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = '通知權限開啟失敗，但網頁內提示仍可使用。';
+      }
+    }
+
+    function getNotifyKey(c) {
+      return String(c.reviewId || c.id || '');
+    }
+
+    function initKnownReviewIds() {
+      knownReviewIds = new Set(
+        rawData
+          .map(getNotifyKey)
+          .filter(Boolean)
+      );
+    }
+
+    function startLiveReviewWatcher() {
+      if (liveWatcherStarted) return;
+
+      liveWatcherStarted = true;
+
+      setInterval(checkNewReviews, LIVE_CHECK_INTERVAL);
+    }
+
+    function startFastReviewWatcher() {
+      if (fastWatcherTimer) {
+        clearInterval(fastWatcherTimer);
+      }
+
+      const endTime = Date.now() + FAST_CHECK_DURATION;
+
+      fastWatcherTimer = setInterval(async () => {
+        await checkNewReviews();
+
+        if (Date.now() >= endTime) {
+          clearInterval(fastWatcherTimer);
+          fastWatcherTimer = null;
+        }
+      }, FAST_CHECK_INTERVAL);
+    }
+
+    async function checkNewReviews() {
+      try {
+        const commentsRes = await fetch('./comments.json?t=' + Date.now());
+        const latestData = await commentsRes.json();
+
+        if (!Array.isArray(latestData)) return;
+
+        try {
+          const versionsRes = await fetch('./review-versions.json?t=' + Date.now());
+          allVersions = await versionsRes.json();
+        } catch {
+          allVersions = [];
+        }
+
+        const newReviews = latestData.filter(c => {
+          const key = getNotifyKey(c);
+          return key && !knownReviewIds.has(key);
+        });
+
+        latestData.forEach(c => {
+          const key = getNotifyKey(c);
+
+          if (key) {
+            knownReviewIds.add(key);
+          }
+        });
+
+        rawData = latestData.map((item, idx) => ({
+          ...item,
+          sortIndex: idx,
+          versionsCount: getVersionListByKey(getReviewKey(item)).length,
+          hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
+        }));
+
+        refreshSummaryStats();
+        render();
+
+        if (newReviews.length > 0) {
+          newReviews.forEach(showNewReviewPopup);
+        }
+
+      } catch (err) {
+        console.error('即時檢查評論失敗：', err);
+      }
+    }
+
+    function showNewReviewPopup(review) {
+      const toastContainer = document.getElementById('toastContainer');
+
+      if (!toastContainer) return;
+
+      const toast = document.createElement('div');
+
+      toast.className =
+        'bg-white border-l-4 border-amber-500 shadow-lg rounded p-4 text-sm text-slate-700';
+
+      toast.innerHTML = `
+        <div class="font-bold text-amber-600 mb-1">
+          有新的 Google 評論
+        </div>
+
+        <div class="text-xs text-slate-500 mb-2">
+          ${escapeHTML(review.rating || 0)} 星｜${escapeHTML(review.author || '未知作者')}
+        </div>
+
+        <div class="max-h-24 overflow-hidden leading-6">
+          ${escapeHTML(review.content || '無內容')}
+        </div>
+      `;
+
+      toastContainer.prepend(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 12000);
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const title = '有新的 Google 評論';
+        const body = `${review.rating || 0} 星｜${review.author || '未知作者'}：${review.content || ''}`.slice(0, 160);
+
+        new Notification(title, {
+          body,
+          tag: getNotifyKey(review) || String(Date.now())
+        });
+      }
     }
 
     async function openManualSync() {
@@ -161,7 +328,7 @@
             'X-Sync-Secret': SYNC_SECRET
           },
           body: JSON.stringify({
-            source: 'lilla-dashboard'
+            source: 'review-dashboard'
           })
         });
 
@@ -172,7 +339,9 @@
         }
 
         status.textContent =
-          '已觸發同步，GitHub Actions 正在背景爬資料。請等 1～3 分鐘後按「重新整理資料」。';
+          '已觸發同步。系統會自動檢查新評論，出現新評論會跳出提示。';
+
+        startFastReviewWatcher();
 
       } catch (err) {
         console.error(err);
@@ -432,6 +601,11 @@
 
         refreshSummaryStats();
         render();
+
+        if (!liveWatcherStarted) {
+          initKnownReviewIds();
+          startLiveReviewWatcher();
+        }
 
         if (summaryTimer) {
           clearInterval(summaryTimer);
