@@ -16,6 +16,26 @@ function isCloudEnv() {
   );
 }
 
+function getChromeExecutablePath(isCloud) {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+
+  if (process.env.CHROME_PATH) {
+    return process.env.CHROME_PATH;
+  }
+
+  if (process.env.GOOGLE_CHROME_BIN) {
+    return process.env.GOOGLE_CHROME_BIN;
+  }
+
+  if (!isCloud) {
+    return 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+  }
+
+  return undefined;
+}
+
 // ✅ 切換「最新排序」：維持你現在成功的版本
 async function clickNewestSort(page) {
   console.log("🔃 嘗試切換最新排序...");
@@ -544,6 +564,10 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   if (reviews.length > 0) {
     console.log("✅ 第一筆範例:", reviews[0]);
+    console.log(
+      "✅ 是否有 Shi Ying Yan:",
+      reviews.some(r => (r.author || '').includes('Shi Ying Yan'))
+    );
   }
 
   return reviews;
@@ -556,13 +580,15 @@ async function scrapeGoogleReviews() {
     console.log("➡️ 啟動防偵測 Chrome...");
 
     const isCloud = isCloudEnv();
+    const chromePath = getChromeExecutablePath(isCloud);
+
+    console.log("☁️ isCloud:", isCloud);
+    console.log("🧭 Chrome executablePath:", chromePath || "使用 Puppeteer 預設");
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
 
-      executablePath: isCloud
-        ? undefined
-        : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      executablePath: chromePath,
 
       defaultViewport: isCloud
         ? { width: 1366, height: 768 }
