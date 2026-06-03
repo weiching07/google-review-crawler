@@ -60,14 +60,20 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          if [ ! -f public/notified-review-ids.json ]; then
-            echo "[]" > public/notified-review-ids.json
-          fi
+          mkdir -p public
+          test -f public/comments.json || printf '[]\n' > public/comments.json
+          test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
+          test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
 
           git add public/comments.json public/review-versions.json public/notified-review-ids.json
-          git commit -m "auto sync reviews" || echo "No changes to commit"
-          git pull --rebase origin main
-          git push origin main
+
+          if git diff --cached --quiet; then
+            echo "No JSON changes to commit"
+          else
+            git commit -m "auto sync reviews"
+            git push origin HEAD:main
+          fi
+
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
