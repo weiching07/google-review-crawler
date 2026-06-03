@@ -2,9 +2,15 @@ name: Sync Google Reviews
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
   push:
     branches:
       - main
+    paths-ignore:
+      - "public/comments.json"
+      - "public/review-versions.json"
+      - "public/notified-review-ids.json"
 
 permissions:
   contents: write
