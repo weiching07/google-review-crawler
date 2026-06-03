@@ -38,13 +38,35 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Install Chrome dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libatk-bridge2.0-0 \
+            libatk1.0-0 \
+            libcups2 \
+            libdrm2 \
+            libxkbcommon0 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxfixes3 \
+            libxrandr2 \
+            libgbm1 \
+            libasound2t64 \
+            libpango-1.0-0 \
+            libcairo2
+
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npx puppeteer browsers install chrome
 
       - name: Sync Google reviews
         run: npm run sync:static
         env:
           NODE_ENV: production
+          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
 
       - name: Send push notifications
         run: npm run notify:push
@@ -73,7 +95,6 @@ jobs:
             git commit -m "auto sync reviews"
             git push origin HEAD:main
           fi
-
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
