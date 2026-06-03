@@ -38,50 +38,30 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install Chrome dependencies
+      - name: Setup Chrome
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-dependencies: true
+
+      - name: Check Chrome path
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3 \
-            libatk-bridge2.0-0 \
-            libatk1.0-0 \
-            libcups2 \
-            libdrm2 \
-            libxkbcommon0 \
-            libxcomposite1 \
-            libxdamage1 \
-            libxfixes3 \
-            libxrandr2 \
-            libgbm1 \
-            libasound2t64 \
-            libpango-1.0-0 \
-            libcairo2 \
-            libx11-xcb1 \
-            libxcb1 \
-            libxss1 \
-            libxtst6 \
-            fonts-liberation \
-            xdg-utils
+          echo "Chrome path: ${{ steps.setup-chrome.outputs.chrome-path }}"
+          "${{ steps.setup-chrome.outputs.chrome-path }}" --version
 
       - name: Install dependencies
         env:
-          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
+          PUPPETEER_SKIP_DOWNLOAD: true
         run: |
           npm install
-          npx puppeteer browsers install chrome
-
-      - name: Check installed Chrome
-        env:
-          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
-        run: |
-          echo "PUPPETEER_CACHE_DIR=$PUPPETEER_CACHE_DIR"
-          ls -R /home/runner/.cache/puppeteer || true
 
       - name: Sync Google reviews
         run: npm run sync:static
         env:
           NODE_ENV: production
-          PUPPETEER_CACHE_DIR: /home/runner/.cache/puppeteer
+          PUPPETEER_SKIP_DOWNLOAD: true
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
 
       - name: Send push notifications
         run: npm run notify:push
