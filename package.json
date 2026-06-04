@@ -6,12 +6,14 @@
   "scripts": {
     "start": "node server.js",
     "sync:static": "node sync-static.js",
-    "notify:push": "node notify-push.js"
+    "notify:push": "node notify-push.js",
+    "test:push": "node test-push.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.9.1",
     "express": "^4.18.2",
-    "puppeteer": "^24.0.0",
+    "puppeteer": "npm:puppeteer-core@^24.0.0",
+    "puppeteer-core": "^24.0.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "web-push": "^3.6.7"
