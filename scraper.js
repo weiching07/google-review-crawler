@@ -722,7 +722,7 @@ async function scrapeGoogleReviews() {
     await clickNewestSort(page);
 
     // ✅ 快速載入 + 邊抓邊存
-    const reviews = await fastLoadAndCollectReviews(page, 30);
+    const reviews = await fastLoadAndCollectReviews(page, 5);
 
     return reviews;
 
