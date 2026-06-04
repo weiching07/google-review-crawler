@@ -36,6 +36,16 @@ function getChromeExecutablePath(isCloud) {
   return undefined;
 }
 
+function getMaxRounds() {
+  const value = Number(process.env.SCRAPE_MAX_ROUNDS || 5);
+
+  if (!Number.isFinite(value) || value <= 0) {
+    return 5;
+  }
+
+  return Math.floor(value);
+}
+
 // ✅ 切換「最新排序」：維持你現在成功的版本
 async function clickNewestSort(page) {
   console.log("🔃 嘗試切換最新排序...");
@@ -722,7 +732,11 @@ async function scrapeGoogleReviews() {
     await clickNewestSort(page);
 
     // ✅ 快速載入 + 邊抓邊存
-    const reviews = await fastLoadAndCollectReviews(page, 5);
+    const maxRounds = getMaxRounds();
+
+    console.log("🔁 本次評論滑動輪數:", maxRounds);
+
+    const reviews = await fastLoadAndCollectReviews(page, maxRounds);
 
     return reviews;
 
