@@ -54,7 +54,7 @@ jobs:
         env:
           PUPPETEER_SKIP_DOWNLOAD: true
         run: |
-          npm install
+          npm install --ignore-scripts
 
       - name: Sync Google reviews
         run: npm run sync:static
@@ -81,6 +81,18 @@ jobs:
           test -f public/comments.json || printf '[]\n' > public/comments.json
           test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
           test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
+
+          cp public/comments.json /tmp/comments.json
+          cp public/review-versions.json /tmp/review-versions.json
+          cp public/notified-review-ids.json /tmp/notified-review-ids.json
+
+          git fetch origin main
+          git reset --hard origin/main
+
+          mkdir -p public
+          cp /tmp/comments.json public/comments.json
+          cp /tmp/review-versions.json public/review-versions.json
+          cp /tmp/notified-review-ids.json public/notified-review-ids.json
 
           git add public/comments.json public/review-versions.json public/notified-review-ids.json
 
