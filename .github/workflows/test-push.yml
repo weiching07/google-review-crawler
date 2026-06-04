@@ -1,0 +1,29 @@
+name: Test Push Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Send test push notification
+        run: npm run test:push
+        env:
+          WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
+          SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: mailto:zxcvb282@gmail.com
