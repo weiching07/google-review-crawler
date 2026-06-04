@@ -2,6 +2,11 @@ name: Sync Google Reviews
 
 on:
   workflow_dispatch:
+    inputs:
+      scrape_rounds:
+        description: "評論滑動輪數"
+        required: false
+        default: "5"
   schedule:
     - cron: "*/10 * * * *"
   push:
@@ -79,7 +84,7 @@ jobs:
 
           mkdir -p public
           test -f public/comments.json || printf '[]\n' > public/comments.json
-          test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
+          test -f public/review-versions.json || printf '[]\n' > public/review-versv4ions.json
           test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
 
           cp public/comments.json /tmp/comments.json
