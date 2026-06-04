@@ -67,6 +67,7 @@ jobs:
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
 
       - name: Send push notifications
         run: npm run notify:push
