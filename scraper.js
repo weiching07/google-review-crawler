@@ -573,12 +573,8 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
   if (reviews.length > 0) {
-    console.log("✅ 第一筆範例:", reviews[0]);
-    console.log(
-      "✅ 是否有 Shi Ying Yan:",
-      reviews.some(r => (r.author || '').includes('Shi Ying Yan'))
-    );
-  }
+  console.log("✅ 第一筆範例:", reviews[0]);
+}
 
   return reviews;
 }
