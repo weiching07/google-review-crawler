@@ -141,7 +141,6 @@
     let allVersions = [];
 
     const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
-    const DELETED_STORAGE_KEY = 'lilla_deleted_review_ids_v1';
 
     const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb2282.workers.dev';
     const SYNC_SECRET = 'sync-2026-change-this';
@@ -153,7 +152,6 @@
     const FAST_CHECK_DURATION = 4 * 60 * 1000;
 
     let readIds = new Set();
-    let deletedIds = new Set();
     let currentReadFilter = 'all';
 
     let knownReviewIds = new Set();
@@ -350,7 +348,7 @@
 
         const newReviews = latestData.filter(c => {
           const key = getNotifyKey(c);
-          return key && !knownReviewIds.has(key);
+          return key && !knownReviewIds.has(key) && !isDeletedReview(c);
         });
 
         latestData.forEach(c => {
@@ -427,8 +425,8 @@
 
       status.textContent =
         scrapeRounds >= 999
-          ? '正在觸發完整同步，會滑到最底...'
-          : '正在觸發快速同步，只滑 5 次...';
+          ? '正在觸發完整同步，會滑到最底並自動偵測已刪除評論...'
+          : '正在觸發快速同步，只滑 5 次，不判斷刪除...';
 
       button.disabled = true;
       button.textContent = '同步啟動中...';
@@ -455,8 +453,8 @@
 
         status.textContent =
           scrapeRounds >= 999
-            ? '已觸發完整同步。系統會滑到最底，完成後自動檢查新評論。'
-            : '已觸發快速同步。系統只會滑 5 次，完成後自動檢查新評論。';
+            ? '已觸發完整同步。系統會滑到最底，完成後自動標記已刪除評論。'
+            : '已觸發快速同步。系統只會滑 5 次，不會判斷刪除。';
 
         startFastReviewWatcher();
 
@@ -470,7 +468,7 @@
     }
 
     async function openManualSync() {
-      await triggerSync(5, 'syncButton', '手動同步 Google 評論');
+      await triggerSync(5, 'syncButton', '手動同步最新 Google 評論');
     }
 
     async function openFullManualSync() {
@@ -490,19 +488,6 @@
       localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(readIds)));
     }
 
-    function loadDeletedIds() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(DELETED_STORAGE_KEY) || '[]');
-        deletedIds = new Set(saved.map(String));
-      } catch {
-        deletedIds = new Set();
-      }
-    }
-
-    function saveDeletedIds() {
-      localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(Array.from(deletedIds)));
-    }
-
     function getReviewKey(c) {
       return String(c.reviewId || c.id || '');
     }
@@ -517,8 +502,7 @@
     }
 
     function isDeletedReview(c) {
-      const key = getReviewKey(c);
-      return key && deletedIds.has(key);
+      return Boolean(c && c.isDeleted);
     }
 
     function isNotDeletedReview(c) {
@@ -585,6 +569,8 @@
 
     function markAllAsRead() {
       rawData.forEach(c => {
+        if (isDeletedReview(c)) return;
+
         const key = getReviewKey(c);
 
         if (key) {
@@ -640,7 +626,8 @@
         const candidates = [
           c.lastSeenAt,
           c.scrapedAt,
-          c.updatedAt
+          c.updatedAt,
+          c.deletedAt
         ];
 
         candidates.forEach(value => {
@@ -688,10 +675,10 @@
     function refreshSummaryStats() {
       summaryStats = {
         total: rawData.length,
-        editedCount: rawData.filter(isEditedReview).length,
-        versionCount: rawData.filter(hasVersions).length,
-        unreadCount: rawData.filter(isUnreadReview).length,
-        readCount: rawData.filter(isReadReview).length,
+        editedCount: rawData.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length,
+        versionCount: rawData.filter(c => hasVersions(c) && isNotDeletedReview(c)).length,
+        unreadCount: rawData.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
+        readCount: rawData.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
         deletedCount: rawData.filter(isDeletedReview).length,
         latestSyncTime: getLatestSyncTime(rawData)
       };
@@ -730,7 +717,6 @@
 
       try {
         loadReadIds();
-        loadDeletedIds();
 
         const commentsRes = await fetch('./comments.json?t=' + Date.now());
         rawData = await commentsRes.json();
@@ -823,7 +809,7 @@
     function renderHistoryButton(c) {
       const key = getReviewKey(c);
 
-      if (!key) return '';
+      if (!key || isDeletedReview(c)) return '';
 
       const edited = isEditedReview(c);
       const count = getVersionListByKey(key).length;
@@ -854,7 +840,7 @@
     function renderReadButton(c) {
       const key = getReviewKey(c);
 
-      if (!key) return '';
+      if (!key || isDeletedReview(c)) return '';
 
       if (isReadReview(c)) {
         return `
@@ -879,53 +865,17 @@
       `;
     }
 
-    function markOneAsDeleted(encodedKey) {
-      const key = decodeURIComponent(encodedKey || '');
+    function renderDeletedInfo(c) {
+      if (!isDeletedReview(c)) return '';
 
-      if (!key) return;
-
-      deletedIds.add(String(key));
-      saveDeletedIds();
-      refreshSummaryStats();
-      render();
-    }
-
-    function restoreDeletedReview(encodedKey) {
-      const key = decodeURIComponent(encodedKey || '');
-
-      if (!key) return;
-
-      deletedIds.delete(String(key));
-      saveDeletedIds();
-      refreshSummaryStats();
-      render();
-    }
-
-    function renderDeleteButton(c) {
-      const key = getReviewKey(c);
-
-      if (!key) return '';
-
-      if (isDeletedReview(c)) {
-        return `
-          <button
-            type="button"
-            onclick="restoreDeletedReview('${encodeURIComponent(key)}')"
-            class="text-xs px-3 py-1 rounded bg-amber-500 text-white hover:bg-amber-600"
-          >
-            還原
-          </button>
-        `;
-      }
+      const deletedTime = c.deletedAt
+        ? formatFullTime(parseTime(c.deletedAt))
+        : '';
 
       return `
-        <button
-          type="button"
-          onclick="markOneAsDeleted('${encodeURIComponent(key)}')"
-          class="text-xs px-3 py-1 rounded bg-zinc-700 text-white hover:bg-zinc-800"
-        >
-          移到已刪除
-        </button>
+        <div class="text-xs text-zinc-500 mt-2">
+          此評論已在完整同步時偵測為已刪除${deletedTime ? `，刪除偵測時間：${escapeHTML(deletedTime)}` : ''}。
+        </div>
       `;
     }
 
@@ -987,25 +937,33 @@
         const key = getReviewKey(c);
         const count = getVersionListByKey(key).length;
 
-        const editedBadge = isEditedReview(c)
+        const editedBadge = isEditedReview(c) && isNotDeletedReview(c)
           ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">已編輯</span>`
           : '';
 
-        const versionBadge = count > 0
+        const versionBadge = count > 0 && isNotDeletedReview(c)
           ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">有 ${escapeHTML(count)} 筆舊版本</span>`
           : '';
 
-        const readBadge = isReadReview(c)
-          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-slate-100 text-slate-500">已讀取</span>`
-          : `<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未讀取</span>`;
+        const deletedBadge = isDeletedReview(c)
+          ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-zinc-200 text-zinc-700">已刪除</span>`
+          : '';
+
+        const readBadge = isDeletedReview(c)
+          ? ''
+          : isReadReview(c)
+            ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-slate-100 text-slate-500">已讀取</span>`
+            : `<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未讀取</span>`;
 
         const updatedText = c.updatedAt
           ? `<div class="text-xs text-slate-400 mt-2">資料更新：${escapeHTML(c.updatedAt)}</div>`
           : '';
 
-        const cardStyle = isReadReview(c)
-          ? 'bg-white opacity-80 border-l-4 border-slate-200'
-          : 'bg-white border-l-4 border-red-400';
+        const cardStyle = isDeletedReview(c)
+          ? 'bg-white opacity-60 border-l-4 border-zinc-400'
+          : isReadReview(c)
+            ? 'bg-white opacity-80 border-l-4 border-slate-200'
+            : 'bg-white border-l-4 border-red-400';
 
         return `
           <div id="card-${escapeHTML(c.id || c.reviewId)}" class="${cardStyle} p-5 rounded shadow hover:border-amber-500 transition-all">
@@ -1013,6 +971,7 @@
               <div>
                 <span class="text-amber-500 font-bold">${escapeHTML(c.rating || 0)} 星</span>
                 ${readBadge}
+                ${deletedBadge}
                 ${editedBadge}
                 ${versionBadge}
               </div>
@@ -1025,11 +984,11 @@
             <p class="text-slate-700 mt-3 whitespace-pre-wrap">${escapeHTML(c.content || '無內容')}</p>
 
             ${updatedText}
+            ${renderDeletedInfo(c)}
 
             <div class="mt-4 pt-3 border-t flex flex-wrap gap-2 justify-end">
               ${renderHistoryButton(c)}
               ${renderReadButton(c)}
-              ${renderDeleteButton(c)}
             </div>
           </div>
         `;

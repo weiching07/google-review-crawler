@@ -264,36 +264,55 @@ async function main() {
     return next;
   });
 
-  let nextComments;
+ let nextComments;
 
-  if (isPartialSync) {
-    const crawledKeySet = new Set();
+if (isPartialSync) {
+  const crawledKeySet = new Set();
 
-    crawledComments.forEach((c, index) => {
-      getAllPossibleKeys(c, index).forEach(key => {
-        crawledKeySet.add(String(key));
-      });
+  crawledComments.forEach((c, index) => {
+    getAllPossibleKeys(c, index).forEach(key => {
+      crawledKeySet.add(String(key));
     });
+  });
 
-    const preservedOldComments = oldComments.filter((old, index) => {
-      if (isOldMatched(matchedOldKeys, old)) {
-        return false;
-      }
+  const preservedOldComments = oldComments.filter((old, index) => {
+    if (isOldMatched(matchedOldKeys, old)) {
+      return false;
+    }
 
-      const oldKeys = getAllPossibleKeys(old, index);
+    const oldKeys = getAllPossibleKeys(old, index);
 
-      return !oldKeys.some(key => crawledKeySet.has(String(key)));
-    });
+    return !oldKeys.some(key => crawledKeySet.has(String(key)));
+  });
 
-    nextComments = [
-      ...crawledComments,
-      ...preservedOldComments
-    ];
+  nextComments = [
+    ...crawledComments,
+    ...preservedOldComments
+  ];
 
-    console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
-  } else {
-    nextComments = crawledComments;
-  }
+  console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
+} else {
+  const deletedOldComments = oldComments
+    .filter(old => !isOldMatched(matchedOldKeys, old))
+    .map(old => ({
+      ...old,
+      isDeleted: true,
+      deletedAt: old.deletedAt || now,
+      updatedAt: now,
+      lastSeenAt: old.lastSeenAt || old.updatedAt || old.scrapedAt || now
+    }));
+
+  nextComments = [
+    ...crawledComments.map(c => ({
+      ...c,
+      isDeleted: false,
+      deletedAt: ''
+    })),
+    ...deletedOldComments
+  ];
+
+  console.log(`🗑️ 完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
+}
 
   writeJson(COMMENTS_FILE, nextComments);
   writeJson(VERSIONS_FILE, oldVersions);
