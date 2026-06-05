@@ -8,7 +8,7 @@ const DASHBOARD_TEMPLATE = {
       stores: [
         {
           store: '台北',
-          label: '台北',
+          label: '台北 店',
           title: 'LillA 台北店 評論分析儀表板'
         }
       ]
@@ -19,7 +19,7 @@ const DASHBOARD_TEMPLATE = {
       stores: [
         {
           store: '南港',
-          label: '南港',
+          label: '南港 店',
           title: 'SALT&STONE 南港店 評論分析儀表板'
         },
         {
@@ -149,37 +149,57 @@ function renderSidebar() {
   const sidebarWidthClass = sidebarCollapsed ? 'w-16' : 'w-64';
   const toggleIcon = sidebarCollapsed ? '›' : '‹';
 
-  const brandBlocks = sidebarCollapsed
-    ? ''
-    : DASHBOARD_TEMPLATE.stores.map(brandGroup => {
-        const storeButtons = brandGroup.stores.map(storeItem => {
-          const id = getStoreButtonId(brandGroup.brand, storeItem.store);
+  let sidebarContent = '';
 
-          return `
-            <button
-              onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-              id="${id}"
-              class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
-            >
-              ${escapeHTML(storeItem.label)}
-            </button>
-          `;
-        }).join('');
+  if (!sidebarCollapsed) {
+    const brandBlocks = DASHBOARD_TEMPLATE.stores.map(brandGroup => {
+      const storeButtons = brandGroup.stores.map(storeItem => {
+        const id = getStoreButtonId(brandGroup.brand, storeItem.store);
 
         return `
-          <div>
-            <div class="text-sm font-bold text-slate-500 mb-2">
-              ${escapeHTML(brandGroup.brandLabel)}
-            </div>
-
-            ${storeButtons}
-          </div>
+          <button
+            onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
+            id="${id}"
+            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
+          >
+            ${escapeHTML(storeItem.label)}
+          </button>
         `;
       }).join('');
 
+      return `
+        <div>
+          <div class="text-sm font-bold text-slate-500 mb-2">
+            ${escapeHTML(brandGroup.brandLabel)}
+          </div>
+
+          ${storeButtons}
+        </div>
+      `;
+    }).join('');
+
+    sidebarContent = `
+      <h2 class="font-bold text-lg text-slate-800 mb-4">
+        品牌 / 店別
+      </h2>
+
+      <div class="space-y-4">
+        <button
+          onclick="setStoreFilter('all', 'all')"
+          id="store-all"
+          class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
+        >
+          全部品牌
+        </button>
+
+        ${brandBlocks}
+      </div>
+    `;
+  }
+
   sidebarMount.innerHTML = `
     <aside class="${sidebarWidthClass} shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8 transition-all duration-200">
-      <div class="flex items-center justify-center mb-4">
+      <div class="flex items-center justify-center ${sidebarCollapsed ? '' : 'mb-4'}">
         <button
           onclick="toggleSidebar()"
           class="border rounded px-3 py-2 text-slate-600 hover:bg-slate-100"
@@ -189,27 +209,7 @@ function renderSidebar() {
         </button>
       </div>
 
-      ${
-        sidebarCollapsed
-          ? ''
-          : `
-            <h2 class="font-bold text-lg text-slate-800 mb-4">
-              品牌 / 店別
-            </h2>
-
-            <div class="space-y-4">
-              <button
-                onclick="setStoreFilter('all', 'all')"
-                id="store-all"
-                class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
-              >
-                全部品牌
-              </button>
-
-              ${brandBlocks}
-            </div>
-          `
-      }
+      ${sidebarContent}
     </aside>
   `;
 
@@ -226,7 +226,9 @@ function setStoreFilter(brand, store) {
 }
 
 function updateStoreFilterButtons() {
-  if (sidebarCollapsed) return;
+  if (sidebarCollapsed) {
+    return;
+  }
 
   const allButton = document.getElementById('store-all');
 
