@@ -64,6 +64,14 @@
           <option value="hasVersions">只看有舊版本</option>
           <option value="deleted">已刪除</option>
         </select>
+
+        <input
+          id="keywordSearch"
+          type="text"
+          oninput="render()"
+          placeholder="搜尋作者或評論內容"
+          class="border p-2 rounded w-64"
+        />
       </div>
     </div>
 
@@ -425,8 +433,8 @@
 
       status.textContent =
         scrapeRounds >= 999
-          ? '正在觸發完整同步，會滑到最底並自動偵測已刪除評論...'
-          : '正在觸發快速同步，只滑 5 次，不判斷刪除...';
+          ? '正在觸發完整同步，偵測新評論、已編輯與已刪除評論...'
+          : '正在觸發快速同步，偵測新評論';
 
       button.disabled = true;
       button.textContent = '同步啟動中...';
@@ -885,12 +893,28 @@
       const starFilter = document.getElementById('starFilter').value;
       const sortOrder = document.getElementById('sortOrder').value;
       const historyFilter = document.getElementById('historyFilter').value;
+      const keyword = document.getElementById('keywordSearch').value.trim().toLowerCase();
       const container = document.getElementById('container');
 
       let displayData = [...rawData];
 
       if (starFilter !== 'all') {
         displayData = displayData.filter(c => String(c.rating) === String(starFilter));
+      }
+
+      if (keyword) {
+        displayData = displayData.filter(c => {
+          const searchText = [
+            c.author,
+            c.content,
+            c.date,
+            c.rating,
+            c.editedText,
+            c.status
+          ].filter(Boolean).join(' ').toLowerCase();
+
+          return searchText.includes(keyword);
+        });
       }
 
       if (historyFilter === 'edited') {
