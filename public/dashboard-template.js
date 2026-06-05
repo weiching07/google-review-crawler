@@ -147,81 +147,69 @@ function renderSidebar() {
   if (!sidebarMount) return;
 
   const sidebarWidthClass = sidebarCollapsed ? 'w-16' : 'w-64';
-  const hideTextClass = sidebarCollapsed ? 'hidden' : '';
   const toggleIcon = sidebarCollapsed ? '›' : '‹';
 
-  const brandBlocks = DASHBOARD_TEMPLATE.stores.map(brandGroup => {
-    const storeButtons = brandGroup.stores.map(storeItem => {
-      const id = getStoreButtonId(brandGroup.brand, storeItem.store);
+  const brandBlocks = sidebarCollapsed
+    ? ''
+    : DASHBOARD_TEMPLATE.stores.map(brandGroup => {
+        const storeButtons = brandGroup.stores.map(storeItem => {
+          const id = getStoreButtonId(brandGroup.brand, storeItem.store);
 
-      if (sidebarCollapsed) {
-  return `
-    <button
-      onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-      id="${id}"
-      class="w-full text-center px-2 py-2 rounded bg-white hover:bg-slate-100 border mb-2 text-xs"
-      title="${escapeHTML(brandGroup.brandLabel)} ${escapeHTML(storeItem.label)}"
-    >
-      ${escapeHTML(storeItem.label).slice(0, 2)}
-    </button>
-  `;
-}
+          return `
+            <button
+              onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
+              id="${id}"
+              class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
+            >
+              ${escapeHTML(storeItem.label)}
+            </button>
+          `;
+        }).join('');
 
-      return `
-        <button
-          onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-          id="${id}"
-          class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
-        >
-          ${escapeHTML(storeItem.label)}
-        </button>
-      `;
-    }).join('');
+        return `
+          <div>
+            <div class="text-sm font-bold text-slate-500 mb-2">
+              ${escapeHTML(brandGroup.brandLabel)}
+            </div>
 
-    return `
-      <div>
-        <div class="text-sm font-bold text-slate-500 mb-2 ${hideTextClass}">
-          ${escapeHTML(brandGroup.brandLabel)}
-        </div>
-
-        ${storeButtons}
-      </div>
-    `;
-  }).join('');
+            ${storeButtons}
+          </div>
+        `;
+      }).join('');
 
   sidebarMount.innerHTML = `
     <aside class="${sidebarWidthClass} shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8 transition-all duration-200">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="font-bold text-lg text-slate-800 ${hideTextClass}">
-          品牌 / 店別
-        </h2>
-
+      <div class="flex items-center justify-center mb-4">
         <button
           onclick="toggleSidebar()"
-          class="border rounded px-2 py-1 text-slate-600 hover:bg-slate-100"
+          class="border rounded px-3 py-2 text-slate-600 hover:bg-slate-100"
           title="${sidebarCollapsed ? '展開側邊欄' : '收合側邊欄'}"
         >
           ${toggleIcon}
         </button>
       </div>
 
-      <div class="space-y-4">
-        ${
-  sidebarCollapsed
-    ? ''
-    : `
-      <button
-        onclick="setStoreFilter('all', 'all')"
-        id="store-all"
-        class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
-      >
-        全部品牌
-      </button>
-    `
-}
+      ${
+        sidebarCollapsed
+          ? ''
+          : `
+            <h2 class="font-bold text-lg text-slate-800 mb-4">
+              品牌 / 店別
+            </h2>
 
-        ${brandBlocks}
-      </div>
+            <div class="space-y-4">
+              <button
+                onclick="setStoreFilter('all', 'all')"
+                id="store-all"
+                class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
+              >
+                全部品牌
+              </button>
+
+              ${brandBlocks}
+            </div>
+          `
+      }
     </aside>
   `;
 
@@ -238,18 +226,14 @@ function setStoreFilter(brand, store) {
 }
 
 function updateStoreFilterButtons() {
+  if (sidebarCollapsed) return;
+
   const allButton = document.getElementById('store-all');
 
   if (allButton) {
-    if (sidebarCollapsed) {
-      allButton.className = currentBrandFilter === 'all'
-        ? 'w-full text-center px-2 py-2 rounded bg-slate-800 text-white text-xs'
-        : 'w-full text-center px-2 py-2 rounded bg-white hover:bg-slate-100 border text-xs';
-    } else {
-      allButton.className = currentBrandFilter === 'all'
-        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
-        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
-    }
+    allButton.className = currentBrandFilter === 'all'
+      ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
+      : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
   }
 
   DASHBOARD_TEMPLATE.stores.forEach(brandGroup => {
@@ -262,15 +246,9 @@ function updateStoreFilterButtons() {
         currentBrandFilter === brandGroup.brand &&
         currentStoreFilter === storeItem.store;
 
-      if (sidebarCollapsed) {
-        btn.className = active
-          ? 'w-full text-center px-2 py-2 rounded bg-slate-800 text-white mb-2 text-xs'
-          : 'w-full text-center px-2 py-2 rounded bg-white hover:bg-slate-100 border mb-2 text-xs';
-      } else {
-        btn.className = active
-          ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
-          : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
-      }
+      btn.className = active
+        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
+        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
     });
   });
 }
