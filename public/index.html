@@ -9,109 +9,157 @@
 </head>
 
 <body class="bg-slate-100 p-8">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6 text-slate-800">LillA 評論分析儀表板</h1>
+  <div class="flex gap-6 max-w-7xl mx-auto">
+    <aside class="w-64 shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8">
+      <h2 class="font-bold text-lg mb-4 text-slate-800">品牌 / 店別</h2>
 
-    <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
-      <div class="flex flex-wrap gap-4 items-center">
+      <div class="space-y-4">
         <button
-          id="syncButton"
-          onclick="openManualSync()"
-          class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+          onclick="setStoreFilter('all', 'all')"
+          id="store-all"
+          class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
         >
-          手動同步最新 Google 評論
+          全部品牌
         </button>
 
-        <button
-          id="fullSyncButton"
-          onclick="openFullManualSync()"
-          class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-        >
-          完整同步 Google 評論
-        </button>
+        <div>
+          <div class="text-sm font-bold text-slate-500 mb-2">LILLA</div>
 
-        <button
-          onclick="loadData()"
-          class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
-        >
-          重新整理資料
-        </button>
+          <button
+            onclick="setStoreFilter('LILLA', '台北')"
+            id="store-lilla-taipei"
+            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border"
+          >
+            台北
+          </button>
+        </div>
 
-        <button
-          onclick="enableAllReviewNotifications()"
-          class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
-        >
-          開啟網頁與手機背景評論通知
-        </button>
+        <div>
+          <div class="text-sm font-bold text-slate-500 mb-2">SALT&amp;STONE</div>
 
-        <select id="starFilter" onchange="render()" class="border p-2 rounded">
-          <option value="all">顯示全部星等</option>
-          <option value="5">5 星 ★</option>
-          <option value="4">4 星 ★</option>
-          <option value="3">3 星 ★</option>
-          <option value="2">2 星 ★</option>
-          <option value="1">1 星 ★</option>
-        </select>
+          <button
+            onclick="setStoreFilter('SALT&STONE', '南港')"
+            id="store-saltstone-nangang"
+            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
+          >
+            南港
+          </button>
 
-        <select id="sortOrder" onchange="render()" class="border p-2 rounded">
-          <option value="newest">時間：由新到舊</option>
-          <option value="oldest">時間：由舊到新</option>
-        </select>
-
-        <select id="historyFilter" onchange="render()" class="border p-2 rounded">
-          <option value="all">全部評論</option>
-          <option value="edited">只看已編輯</option>
-          <option value="hasVersions">只看有舊版本</option>
-          <option value="deleted">已刪除</option>
-        </select>
-
-        <input
-          id="keywordSearch"
-          type="text"
-          oninput="render()"
-          placeholder="搜尋作者或評論內容"
-          class="border p-2 rounded w-64"
-        />
+          <button
+            onclick="setStoreFilter('SALT&STONE', '101')"
+            id="store-saltstone-101"
+            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border"
+          >
+            101 店
+          </button>
+        </div>
       </div>
-    </div>
+    </aside>
 
-    <div id="status" class="mb-4 text-sm text-slate-600"></div>
-    <div id="summary" class="mb-4 text-sm text-slate-500"></div>
+    <main class="flex-1 min-w-0">
+      <h1 class="text-3xl font-bold mb-6 text-slate-800">LillA 評論分析儀表板</h1>
 
-    <div class="bg-white p-4 rounded shadow mb-4">
-      <div class="flex flex-wrap gap-3 items-center">
-        <span class="text-sm text-slate-500">讀取狀態：</span>
+      <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
+        <div class="flex flex-wrap gap-4 items-center">
+          <button
+            id="syncButton"
+            onclick="openManualSync()"
+            class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+          >
+            手動同步最新 Google 評論
+          </button>
 
-        <button
-          id="unreadFilterButton"
-          onclick="setReadFilter('unread')"
-          class="border px-4 py-2 rounded text-sm"
-        >
-          未讀取
-        </button>
+          <button
+            id="fullSyncButton"
+            onclick="openFullManualSync()"
+            class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+          >
+            完整同步 Google 評論
+          </button>
 
-        <button
-          id="readFilterButton"
-          onclick="setReadFilter('read')"
-          class="border px-4 py-2 rounded text-sm"
-        >
-          已讀取
-        </button>
+          <button
+            onclick="loadData()"
+            class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
+          >
+            重新整理資料
+          </button>
 
-        <span id="readFilterText" class="text-sm text-slate-400">
-          目前顯示：全部
-        </span>
+          <button
+            onclick="enableAllReviewNotifications()"
+            class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+          >
+            開啟網頁與手機背景評論通知
+          </button>
 
-        <button
-          onclick="markAllAsRead()"
-          class="ml-auto border px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm"
-        >
-          全部移到已讀取
-        </button>
+          <select id="starFilter" onchange="render()" class="border p-2 rounded">
+            <option value="all">顯示全部星等</option>
+            <option value="5">5 星 ★</option>
+            <option value="4">4 星 ★</option>
+            <option value="3">3 星 ★</option>
+            <option value="2">2 星 ★</option>
+            <option value="1">1 星 ★</option>
+          </select>
+
+          <select id="sortOrder" onchange="render()" class="border p-2 rounded">
+            <option value="newest">時間：由新到舊</option>
+            <option value="oldest">時間：由舊到新</option>
+          </select>
+
+          <select id="historyFilter" onchange="render()" class="border p-2 rounded">
+            <option value="all">全部評論</option>
+            <option value="edited">只看已編輯</option>
+            <option value="hasVersions">只看有舊版本</option>
+            <option value="deleted">已刪除</option>
+          </select>
+
+          <input
+            id="keywordSearch"
+            type="text"
+            oninput="render()"
+            placeholder="搜尋作者或評論內容"
+            class="border p-2 rounded w-64"
+          />
+        </div>
       </div>
-    </div>
 
-    <div id="container" class="space-y-4">載入中...</div>
+      <div id="status" class="mb-4 text-sm text-slate-600"></div>
+      <div id="summary" class="mb-4 text-sm text-slate-500"></div>
+
+      <div class="bg-white p-4 rounded shadow mb-4">
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="text-sm text-slate-500">讀取狀態：</span>
+
+          <button
+            id="unreadFilterButton"
+            onclick="setReadFilter('unread')"
+            class="border px-4 py-2 rounded text-sm"
+          >
+            未讀取
+          </button>
+
+          <button
+            id="readFilterButton"
+            onclick="setReadFilter('read')"
+            class="border px-4 py-2 rounded text-sm"
+          >
+            已讀取
+          </button>
+
+          <span id="readFilterText" class="text-sm text-slate-400">
+            目前顯示：全部
+          </span>
+
+          <button
+            onclick="markAllAsRead()"
+            class="ml-auto border px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 text-sm"
+          >
+            全部移到已讀取
+          </button>
+        </div>
+      </div>
+
+      <div id="container" class="space-y-4">載入中...</div>
+    </main>
   </div>
 
   <div
@@ -162,6 +210,9 @@
     let readIds = new Set();
     let currentReadFilter = 'all';
 
+    let currentBrandFilter = 'all';
+    let currentStoreFilter = 'all';
+
     let knownReviewIds = new Set();
     let liveWatcherStarted = false;
     let fastWatcherTimer = null;
@@ -184,6 +235,61 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+    }
+
+    function normalizeBrand(value) {
+      const raw = String(value || '').trim().toUpperCase();
+
+      if (
+        raw === 'LILLA' ||
+        raw === 'LILLA 台北' ||
+        raw === 'LILLA_TAIPEI'
+      ) {
+        return 'LILLA';
+      }
+
+      if (
+        raw === 'SALT&STONE' ||
+        raw === 'SALT & STONE' ||
+        raw === 'SALTSTONE' ||
+        raw === 'SALT_STONE'
+      ) {
+        return 'SALT&STONE';
+      }
+
+      return raw;
+    }
+
+    function getCommentBrand(c) {
+      return normalizeBrand(c.brand || c.branch || c.brandName || '');
+    }
+
+    function getCommentStore(c) {
+      const brand = getCommentBrand(c);
+      const rawStore = String(c.store || c.storeName || c.location || c.shop || c.branchStore || '').trim();
+
+      if (rawStore) {
+        if (rawStore.includes('南港')) return '南港';
+        if (rawStore.includes('101')) return '101';
+        if (rawStore.includes('台北')) return '台北';
+        return rawStore;
+      }
+
+      if (brand === 'LILLA') {
+        return '台北';
+      }
+
+      return '';
+    }
+
+    function getDisplayBrand(c) {
+      const brand = getCommentBrand(c);
+      return brand || '未知';
+    }
+
+    function getDisplayStore(c) {
+      const store = getCommentStore(c);
+      return store || '未知';
     }
 
     function urlBase64ToUint8Array(base64String) {
@@ -517,6 +623,41 @@
       return !isDeletedReview(c);
     }
 
+    function setStoreFilter(brand, store) {
+      currentBrandFilter = brand;
+      currentStoreFilter = store;
+
+      updateStoreFilterButtons();
+      render();
+    }
+
+    function updateStoreFilterButtons() {
+      const baseClass = 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
+      const baseClassWithMargin = 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
+      const activeClass = 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white';
+      const activeClassWithMargin = 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2';
+
+      const allButton = document.getElementById('store-all');
+      const lillaTaipeiButton = document.getElementById('store-lilla-taipei');
+      const saltstoneNangangButton = document.getElementById('store-saltstone-nangang');
+      const saltstone101Button = document.getElementById('store-saltstone-101');
+
+      if (allButton) allButton.className = baseClass;
+      if (lillaTaipeiButton) lillaTaipeiButton.className = baseClass;
+      if (saltstoneNangangButton) saltstoneNangangButton.className = baseClassWithMargin;
+      if (saltstone101Button) saltstone101Button.className = baseClass;
+
+      if (currentBrandFilter === 'all') {
+        if (allButton) allButton.className = activeClass;
+      } else if (currentBrandFilter === 'LILLA' && currentStoreFilter === '台北') {
+        if (lillaTaipeiButton) lillaTaipeiButton.className = activeClass;
+      } else if (currentBrandFilter === 'SALT&STONE' && currentStoreFilter === '南港') {
+        if (saltstoneNangangButton) saltstoneNangangButton.className = activeClassWithMargin;
+      } else if (currentBrandFilter === 'SALT&STONE' && currentStoreFilter === '101') {
+        if (saltstone101Button) saltstone101Button.className = activeClass;
+      }
+    }
+
     function setReadFilter(filter) {
       if (currentReadFilter === filter) {
         currentReadFilter = 'all';
@@ -744,6 +885,7 @@
         }));
 
         refreshSummaryStats();
+        updateStoreFilterButtons();
         render();
 
         if (!liveWatcherStarted) {
@@ -898,6 +1040,14 @@
 
       let displayData = [...rawData];
 
+      if (currentBrandFilter !== 'all') {
+        displayData = displayData.filter(c => getCommentBrand(c) === currentBrandFilter);
+      }
+
+      if (currentStoreFilter !== 'all') {
+        displayData = displayData.filter(c => getCommentStore(c) === currentStoreFilter);
+      }
+
       if (starFilter !== 'all') {
         displayData = displayData.filter(c => String(c.rating) === String(starFilter));
       }
@@ -910,7 +1060,9 @@
             c.date,
             c.rating,
             c.editedText,
-            c.status
+            c.status,
+            getDisplayBrand(c),
+            getDisplayStore(c)
           ].filter(Boolean).join(' ').toLowerCase();
 
           return searchText.includes(keyword);
@@ -983,6 +1135,12 @@
           ? `<div class="text-xs text-slate-400 mt-2">資料更新：${escapeHTML(c.updatedAt)}</div>`
           : '';
 
+        const storeText = `
+          <div class="text-xs text-slate-400 mt-2">
+            品牌：${escapeHTML(getDisplayBrand(c))}｜店別：${escapeHTML(getDisplayStore(c))}
+          </div>
+        `;
+
         const cardStyle = isDeletedReview(c)
           ? 'bg-white opacity-60 border-l-4 border-zinc-400'
           : isReadReview(c)
@@ -1004,6 +1162,7 @@
             </div>
 
             ${c.author ? `<div class="text-sm text-slate-500 mt-2">作者：${escapeHTML(c.author)}</div>` : ''}
+            ${storeText}
 
             <p class="text-slate-700 mt-3 whitespace-pre-wrap">${escapeHTML(c.content || '無內容')}</p>
 
