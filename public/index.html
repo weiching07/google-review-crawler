@@ -62,6 +62,7 @@
           <option value="all">全部評論</option>
           <option value="edited">只看已編輯</option>
           <option value="hasVersions">只看有舊版本</option>
+          <option value="deleted">已刪除</option>
         </select>
       </div>
     </div>
@@ -140,6 +141,7 @@
     let allVersions = [];
 
     const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
+    const DELETED_STORAGE_KEY = 'lilla_deleted_review_ids_v1';
 
     const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb2282.workers.dev';
     const SYNC_SECRET = 'sync-2026-change-this';
@@ -151,6 +153,7 @@
     const FAST_CHECK_DURATION = 4 * 60 * 1000;
 
     let readIds = new Set();
+    let deletedIds = new Set();
     let currentReadFilter = 'all';
 
     let knownReviewIds = new Set();
@@ -164,6 +167,7 @@
       versionCount: 0,
       unreadCount: 0,
       readCount: 0,
+      deletedCount: 0,
       latestSyncTime: null
     };
 
@@ -486,6 +490,19 @@
       localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(readIds)));
     }
 
+    function loadDeletedIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DELETED_STORAGE_KEY) || '[]');
+        deletedIds = new Set(saved.map(String));
+      } catch {
+        deletedIds = new Set();
+      }
+    }
+
+    function saveDeletedIds() {
+      localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(Array.from(deletedIds)));
+    }
+
     function getReviewKey(c) {
       return String(c.reviewId || c.id || '');
     }
@@ -497,6 +514,15 @@
 
     function isUnreadReview(c) {
       return !isReadReview(c);
+    }
+
+    function isDeletedReview(c) {
+      const key = getReviewKey(c);
+      return key && deletedIds.has(key);
+    }
+
+    function isNotDeletedReview(c) {
+      return !isDeletedReview(c);
     }
 
     function setReadFilter(filter) {
@@ -666,6 +692,7 @@
         versionCount: rawData.filter(hasVersions).length,
         unreadCount: rawData.filter(isUnreadReview).length,
         readCount: rawData.filter(isReadReview).length,
+        deletedCount: rawData.filter(isDeletedReview).length,
         latestSyncTime: getLatestSyncTime(rawData)
       };
 
@@ -681,6 +708,7 @@
         versionCount,
         unreadCount,
         readCount,
+        deletedCount,
         latestSyncTime
       } = summaryStats;
 
@@ -692,7 +720,7 @@
         : '上次更新：未知';
 
       summary.textContent =
-        `目前共 ${total} 筆評論，未讀取 ${unreadCount} 筆，已讀取 ${readCount} 筆，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
+        `目前共 ${total} 筆評論，未讀取 ${unreadCount} 筆，已讀取 ${readCount} 筆，已刪除 ${deletedCount} 筆，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
     }
 
     async function loadData() {
@@ -702,6 +730,7 @@
 
       try {
         loadReadIds();
+        loadDeletedIds();
 
         const commentsRes = await fetch('./comments.json?t=' + Date.now());
         rawData = await commentsRes.json();
@@ -850,6 +879,56 @@
       `;
     }
 
+    function markOneAsDeleted(encodedKey) {
+      const key = decodeURIComponent(encodedKey || '');
+
+      if (!key) return;
+
+      deletedIds.add(String(key));
+      saveDeletedIds();
+      refreshSummaryStats();
+      render();
+    }
+
+    function restoreDeletedReview(encodedKey) {
+      const key = decodeURIComponent(encodedKey || '');
+
+      if (!key) return;
+
+      deletedIds.delete(String(key));
+      saveDeletedIds();
+      refreshSummaryStats();
+      render();
+    }
+
+    function renderDeleteButton(c) {
+      const key = getReviewKey(c);
+
+      if (!key) return '';
+
+      if (isDeletedReview(c)) {
+        return `
+          <button
+            type="button"
+            onclick="restoreDeletedReview('${encodeURIComponent(key)}')"
+            class="text-xs px-3 py-1 rounded bg-amber-500 text-white hover:bg-amber-600"
+          >
+            還原
+          </button>
+        `;
+      }
+
+      return `
+        <button
+          type="button"
+          onclick="markOneAsDeleted('${encodeURIComponent(key)}')"
+          class="text-xs px-3 py-1 rounded bg-zinc-700 text-white hover:bg-zinc-800"
+        >
+          移到已刪除
+        </button>
+      `;
+    }
+
     function render() {
       updateReadFilterButtons();
 
@@ -865,11 +944,13 @@
       }
 
       if (historyFilter === 'edited') {
-        displayData = displayData.filter(c => isEditedReview(c));
-      }
-
-      if (historyFilter === 'hasVersions') {
-        displayData = displayData.filter(c => hasVersions(c));
+        displayData = displayData.filter(c => isEditedReview(c) && isNotDeletedReview(c));
+      } else if (historyFilter === 'hasVersions') {
+        displayData = displayData.filter(c => hasVersions(c) && isNotDeletedReview(c));
+      } else if (historyFilter === 'deleted') {
+        displayData = displayData.filter(c => isDeletedReview(c));
+      } else {
+        displayData = displayData.filter(c => isNotDeletedReview(c));
       }
 
       if (currentReadFilter === 'unread') {
@@ -948,6 +1029,7 @@
             <div class="mt-4 pt-3 border-t flex flex-wrap gap-2 justify-end">
               ${renderHistoryButton(c)}
               ${renderReadButton(c)}
+              ${renderDeleteButton(c)}
             </div>
           </div>
         `;

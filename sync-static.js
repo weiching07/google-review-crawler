@@ -7,7 +7,9 @@ const COMMENTS_FILE = path.join(PUBLIC_DIR, 'comments.json');
 const VERSIONS_FILE = path.join(PUBLIC_DIR, 'review-versions.json');
 
 function readJson(file, fallback) {
-  if (!fs.existsSync(file)) return fallback;
+  if (!fs.existsSync(file)) {
+    return fallback;
+  }
 
   try {
     const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
@@ -23,7 +25,15 @@ function readJson(file, fallback) {
 }
 
 function writeJson(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+  fs.mkdirSync(path.dirname(file), {
+    recursive: true
+  });
+
+  fs.writeFileSync(
+    file,
+    JSON.stringify(data, null, 2),
+    'utf-8'
+  );
 }
 
 function text(value) {
@@ -35,7 +45,11 @@ function isEditedText(value) {
 }
 
 function getMaxRounds() {
-  const value = Number(process.env.SCRAPE_MAX_ROUNDS || 5);
+  const rawValue = process.env.SCRAPE_MAX_ROUNDS;
+
+  console.log('🧪 原始 process.env.SCRAPE_MAX_ROUNDS =', rawValue);
+
+  const value = Number(rawValue || 5);
 
   if (!Number.isFinite(value) || value <= 0) {
     return 5;
@@ -62,10 +76,21 @@ function getAllPossibleKeys(r, index) {
   const mainKey = makeKey(r, index);
   const contentKey = makeContentKey(r, index);
 
-  if (mainKey) keys.push(String(mainKey));
-  if (r.reviewId) keys.push(String(r.reviewId));
-  if (r.id) keys.push(String(r.id));
-  if (contentKey) keys.push(String(contentKey));
+  if (mainKey) {
+    keys.push(String(mainKey));
+  }
+
+  if (r.reviewId) {
+    keys.push(String(r.reviewId));
+  }
+
+  if (r.id) {
+    keys.push(String(r.id));
+  }
+
+  if (contentKey) {
+    keys.push(String(contentKey));
+  }
 
   return [...new Set(keys.filter(Boolean))];
 }
@@ -99,14 +124,23 @@ function findOldComment(oldMap, r, index) {
 }
 
 function markMatchedOld(matchedOldKeys, old) {
-  if (!old) return;
+  if (!old) {
+    return;
+  }
 
-  if (old.id) matchedOldKeys.add(String(old.id));
-  if (old.reviewId) matchedOldKeys.add(String(old.reviewId));
+  if (old.id) {
+    matchedOldKeys.add(String(old.id));
+  }
+
+  if (old.reviewId) {
+    matchedOldKeys.add(String(old.reviewId));
+  }
 }
 
 function isOldMatched(matchedOldKeys, old) {
-  if (!old) return false;
+  if (!old) {
+    return false;
+  }
 
   if (old.id && matchedOldKeys.has(String(old.id))) {
     return true;
@@ -121,17 +155,22 @@ function isOldMatched(matchedOldKeys, old) {
 
 async function main() {
   if (!fs.existsSync(PUBLIC_DIR)) {
-    fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+    fs.mkdirSync(PUBLIC_DIR, {
+      recursive: true
+    });
   }
 
   const maxRounds = getMaxRounds();
 
-  // ✅ 5 次以內視為快速同步：不刪舊資料
-  // ✅ 999 或大於 5 視為完整同步：用完整爬到的資料覆蓋
+  // ✅ 關鍵：強制把目前這次同步的滑動輪數塞回 env
+  // ✅ scraper.js 如果是讀 process.env.SCRAPE_MAX_ROUNDS，就一定讀得到
+  process.env.SCRAPE_MAX_ROUNDS = String(maxRounds);
+
   const isPartialSync = maxRounds <= 5;
 
   console.log('🔥 開始同步 Google 評論...');
-  console.log(`🔁 SCRAPE_MAX_ROUNDS=${maxRounds}`);
+  console.log(`🔁 本次 sync-static.js 讀到 SCRAPE_MAX_ROUNDS=${maxRounds}`);
+  console.log(`🔁 已重新寫入 process.env.SCRAPE_MAX_ROUNDS=${process.env.SCRAPE_MAX_ROUNDS}`);
   console.log(isPartialSync ? '⚡ 快速同步模式：保留舊有評論' : '🧹 完整同步模式：以本次完整資料為準');
 
   const oldComments = readJson(COMMENTS_FILE, []);
@@ -140,9 +179,10 @@ async function main() {
   const oldMap = buildOldMap(oldComments);
   const matchedOldKeys = new Set();
 
-  const reviews = await scrapeGoogleReviews();
+  // ✅ 傳 maxRounds 給 scraper.js
+  // ✅ 如果 scraper.js 沒接參數也沒關係，至少它可以讀 process.env.SCRAPE_MAX_ROUNDS
+  const reviews = await scrapeGoogleReviews(maxRounds);
 
-  // ✅ 重要：如果這次抓到 0 筆，不覆蓋原本資料
   if (!Array.isArray(reviews) || reviews.length === 0) {
     console.warn('⚠️ 本次抓到 0 筆，為避免覆蓋舊資料，不更新 comments.json / review-versions.json');
     console.warn(`📦 目前舊資料仍保留：comments=${oldComments.length}, versions=${oldVersions.length}`);
@@ -227,7 +267,6 @@ async function main() {
   let nextComments;
 
   if (isPartialSync) {
-    // ✅ 快速同步：這次抓到的放前面，舊的沒抓到也保留
     const crawledKeySet = new Set();
 
     crawledComments.forEach((c, index) => {
@@ -253,7 +292,6 @@ async function main() {
 
     console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
   } else {
-    // ✅ 完整同步：以完整爬到的結果為準，沒爬到的視為不存在
     nextComments = crawledComments;
   }
 
