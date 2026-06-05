@@ -9,7 +9,7 @@ const DASHBOARD_TEMPLATE = {
         {
           store: '台北',
           label: '台北',
-          title: 'LillA 台北 評論分析儀表板'
+          title: 'LillA 台北店 評論分析儀表板'
         }
       ]
     },
