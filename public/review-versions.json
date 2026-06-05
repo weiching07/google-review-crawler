@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "version-1780646073855-0",
+    "commentId": "1780645804995-0",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT214aFpYbGpkekJpVWtsSE1tNVJaVUZDWW5KNFFrRRAB",
+    "author": "趙子陽",
+    "content": "很好吃",
+    "rating": 5,
+    "date": "1 分鐘前",
+    "editedText": "",
+    "branch": "LILLA",
+    "savedAt": "2026-06-05T07:54:33.854Z",
+    "replacedAt": "2026-06-05T07:54:33.854Z",
+    "reason": "content_or_rating_changed"
+  }
+]
