@@ -10,7 +10,13 @@ function readJson(file, fallback) {
   if (!fs.existsSync(file)) return fallback;
 
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+
+    if (Array.isArray(fallback) && !Array.isArray(data)) {
+      return fallback;
+    }
+
+    return data;
   } catch {
     return fallback;
   }
@@ -28,6 +34,16 @@ function isEditedText(value) {
   return /上次編輯|已編輯|edited|last edited/i.test(text(value));
 }
 
+function getMaxRounds() {
+  const value = Number(process.env.SCRAPE_MAX_ROUNDS || 5);
+
+  if (!Number.isFinite(value) || value <= 0) {
+    return 5;
+  }
+
+  return Math.floor(value);
+}
+
 function makeKey(r, index) {
   return String(
     r.reviewId ||
@@ -36,27 +52,71 @@ function makeKey(r, index) {
   );
 }
 
+function makeContentKey(r, index) {
+  return `${r.author || 'unknown'}-${r.rating || 0}-${text(r.content).slice(0, 60)}-${index}`;
+}
+
+function getAllPossibleKeys(r, index) {
+  const keys = [];
+
+  const mainKey = makeKey(r, index);
+  const contentKey = makeContentKey(r, index);
+
+  if (mainKey) keys.push(String(mainKey));
+  if (r.reviewId) keys.push(String(r.reviewId));
+  if (r.id) keys.push(String(r.id));
+  if (contentKey) keys.push(String(contentKey));
+
+  return [...new Set(keys.filter(Boolean))];
+}
+
 function buildOldMap(oldComments) {
   const map = new Map();
 
   oldComments.forEach((c, index) => {
-    const key = makeKey(c, index);
+    const keys = getAllPossibleKeys(c, index);
 
-    if (key && !map.has(key)) {
-      map.set(key, c);
-    }
-
-    if (c.reviewId && !map.has(String(c.reviewId))) {
-      map.set(String(c.reviewId), c);
-    }
-
-    const contentKey = `${c.author || 'unknown'}-${c.rating || 0}-${text(c.content).slice(0, 60)}-${index}`;
-    if (!map.has(contentKey)) {
-      map.set(contentKey, c);
-    }
+    keys.forEach(key => {
+      if (key && !map.has(key)) {
+        map.set(key, c);
+      }
+    });
   });
 
   return map;
+}
+
+function findOldComment(oldMap, r, index) {
+  const keys = getAllPossibleKeys(r, index);
+
+  for (const key of keys) {
+    if (oldMap.has(key)) {
+      return oldMap.get(key);
+    }
+  }
+
+  return null;
+}
+
+function markMatchedOld(matchedOldKeys, old) {
+  if (!old) return;
+
+  if (old.id) matchedOldKeys.add(String(old.id));
+  if (old.reviewId) matchedOldKeys.add(String(old.reviewId));
+}
+
+function isOldMatched(matchedOldKeys, old) {
+  if (!old) return false;
+
+  if (old.id && matchedOldKeys.has(String(old.id))) {
+    return true;
+  }
+
+  if (old.reviewId && matchedOldKeys.has(String(old.reviewId))) {
+    return true;
+  }
+
+  return false;
 }
 
 async function main() {
@@ -64,12 +124,21 @@ async function main() {
     fs.mkdirSync(PUBLIC_DIR, { recursive: true });
   }
 
+  const maxRounds = getMaxRounds();
+
+  // ✅ 5 次以內視為快速同步：不刪舊資料
+  // ✅ 999 或大於 5 視為完整同步：用完整爬到的資料覆蓋
+  const isPartialSync = maxRounds <= 5;
+
   console.log('🔥 開始同步 Google 評論...');
+  console.log(`🔁 SCRAPE_MAX_ROUNDS=${maxRounds}`);
+  console.log(isPartialSync ? '⚡ 快速同步模式：保留舊有評論' : '🧹 完整同步模式：以本次完整資料為準');
 
   const oldComments = readJson(COMMENTS_FILE, []);
   const oldVersions = readJson(VERSIONS_FILE, []);
 
   const oldMap = buildOldMap(oldComments);
+  const matchedOldKeys = new Set();
 
   const reviews = await scrapeGoogleReviews();
 
@@ -86,13 +155,13 @@ async function main() {
 
   const now = new Date().toISOString();
 
-  const nextComments = reviews.map((r, index) => {
+  const crawledComments = reviews.map((r, index) => {
     const key = makeKey(r, index);
+    const old = findOldComment(oldMap, r, index);
 
-    const old =
-      oldMap.get(key) ||
-      oldMap.get(String(r.reviewId || '')) ||
-      oldMap.get(`${r.author || 'unknown'}-${r.rating || 0}-${text(r.content).slice(0, 60)}-${index}`);
+    if (old) {
+      markMatchedOld(matchedOldKeys, old);
+    }
 
     const next = {
       id: old?.id || `${Date.now()}-${index}`,
@@ -155,10 +224,44 @@ async function main() {
     return next;
   });
 
+  let nextComments;
+
+  if (isPartialSync) {
+    // ✅ 快速同步：這次抓到的放前面，舊的沒抓到也保留
+    const crawledKeySet = new Set();
+
+    crawledComments.forEach((c, index) => {
+      getAllPossibleKeys(c, index).forEach(key => {
+        crawledKeySet.add(String(key));
+      });
+    });
+
+    const preservedOldComments = oldComments.filter((old, index) => {
+      if (isOldMatched(matchedOldKeys, old)) {
+        return false;
+      }
+
+      const oldKeys = getAllPossibleKeys(old, index);
+
+      return !oldKeys.some(key => crawledKeySet.has(String(key)));
+    });
+
+    nextComments = [
+      ...crawledComments,
+      ...preservedOldComments
+    ];
+
+    console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
+  } else {
+    // ✅ 完整同步：以完整爬到的結果為準，沒爬到的視為不存在
+    nextComments = crawledComments;
+  }
+
   writeJson(COMMENTS_FILE, nextComments);
   writeJson(VERSIONS_FILE, oldVersions);
 
-  console.log(`✅ 抓到 ${reviews.length} 筆`);
+  console.log(`✅ 本次抓到 ${reviews.length} 筆`);
+  console.log(`📦 寫入 comments.json ${nextComments.length} 筆`);
   console.log(`💾 新增 ${newCount} 筆，更新 ${updatedCount} 筆，保存舊版本 ${versionSavedCount} 筆`);
 }
 
