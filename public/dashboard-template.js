@@ -155,17 +155,17 @@ function renderSidebar() {
       const id = getStoreButtonId(brandGroup.brand, storeItem.store);
 
       if (sidebarCollapsed) {
-        return `
-          <button
-            onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-            id="${id}"
-            class="w-full text-center px-2 py-2 rounded bg-white hover:bg-slate-100 border mb-2 text-xs"
-            title="${escapeHTML(brandGroup.brandLabel)} ${escapeHTML(storeItem.label)}"
-          >
-            ${escapeHTML(storeItem.label).slice(0, 2)}
-          </button>
-        `;
-      }
+  return `
+    <button
+      onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
+      id="${id}"
+      class="w-full text-center px-2 py-2 rounded bg-white hover:bg-slate-100 border mb-2 text-xs"
+      title="${escapeHTML(brandGroup.brandLabel)} ${escapeHTML(storeItem.label)}"
+    >
+      ${escapeHTML(storeItem.label).slice(0, 2)}
+    </button>
+  `;
+}
 
       return `
         <button
@@ -207,27 +207,18 @@ function renderSidebar() {
 
       <div class="space-y-4">
         ${
-          sidebarCollapsed
-            ? `
-              <button
-                onclick="setStoreFilter('all', 'all')"
-                id="store-all"
-                class="w-full text-center px-2 py-2 rounded bg-slate-800 text-white text-xs"
-                title="全部品牌"
-              >
-                全
-              </button>
-            `
-            : `
-              <button
-                onclick="setStoreFilter('all', 'all')"
-                id="store-all"
-                class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
-              >
-                全部品牌
-              </button>
-            `
-        }
+  sidebarCollapsed
+    ? ''
+    : `
+      <button
+        onclick="setStoreFilter('all', 'all')"
+        id="store-all"
+        class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
+      >
+        全部品牌
+      </button>
+    `
+}
 
         ${brandBlocks}
       </div>
