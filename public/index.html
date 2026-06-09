@@ -6,7 +6,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#f59e0b">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="./dashboard-template.js?v=20260609-reply"></script>
+  <script src="./dashboard-template.js"></script>
 </head>
 
 <body class="bg-slate-100 p-8">
@@ -69,12 +69,6 @@
             <option value="edited">只看已編輯</option>
             <option value="hasVersions">只看有舊版本</option>
             <option value="deleted">已刪除</option>
-          </select>
-
-          <select id="replyFilter" onchange="render()" class="border p-2 rounded">
-            <option value="all">全部回覆狀態</option>
-            <option value="replied">已回覆</option>
-            <option value="unreplied">未回覆</option>
           </select>
 
           <input
@@ -157,31 +151,6 @@
     </div>
   </dialog>
 
-  <dialog id="replyDialog" class="rounded-xl shadow-xl p-0 w-full max-w-2xl backdrop:bg-black/40">
-    <div class="bg-white rounded-xl overflow-hidden">
-      <div class="flex justify-between items-center bg-slate-800 text-white px-5 py-3">
-        <h2 class="font-bold text-lg">店家回覆內容</h2>
-        <button
-          onclick="closeReplyDialog()"
-          class="text-white text-2xl leading-none hover:text-amber-300"
-        >
-          ×
-        </button>
-      </div>
-
-      <div id="replyContent" class="p-5 max-h-[70vh] overflow-y-auto space-y-4"></div>
-
-      <div class="p-4 border-t text-right">
-        <button
-          onclick="closeReplyDialog()"
-          class="px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-800"
-        >
-          關閉
-        </button>
-      </div>
-    </div>
-  </dialog>
-
   <script>
     let rawData = [];
     let allVersions = [];
@@ -215,8 +184,6 @@
       unreadCount: 0,
       readCount: 0,
       deletedCount: 0,
-      repliedCount: 0,
-      unrepliedCount: 0,
       latestSyncTime: null
     };
 
@@ -637,7 +604,14 @@
     }
 
     function isEditedReview(c) {
-      return Boolean(c.googleIsEdited);
+      const text = [
+        c.date,
+        c.editedText,
+        c.content,
+        c.status
+      ].filter(Boolean).join(' ');
+
+      return Boolean(c.isEdited) || /上次編輯|已編輯|edited|last edited/i.test(text);
     }
 
     function getVersionListByKey(key) {
@@ -649,12 +623,8 @@
     }
 
     function hasVersions(c) {
-      if (!isEditedReview(c)) {
-        return false;
-      }
-
       const key = getReviewKey(c);
-      return getVersionListByKey(key).length > 0;
+      return getVersionListByKey(key).length > 0 || Boolean(c.hasVersions);
     }
 
     function parseTime(value) {
@@ -730,8 +700,6 @@
         unreadCount: rawData.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
         readCount: rawData.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
         deletedCount: rawData.filter(isDeletedReview).length,
-        repliedCount: rawData.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length,
-        unrepliedCount: rawData.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length,
         latestSyncTime: getLatestSyncTime(rawData)
       };
 
@@ -748,8 +716,6 @@
         unreadCount,
         readCount,
         deletedCount,
-        repliedCount,
-        unrepliedCount,
         latestSyncTime
       } = summaryStats;
 
@@ -761,7 +727,7 @@
         : '上次更新：未知';
 
       summary.textContent =
-        `目前共 ${total} 筆評論，未讀取 ${unreadCount} 筆，已讀取 ${readCount} 筆，未回覆 ${unrepliedCount} 筆，已回覆 ${repliedCount} 筆，已刪除 ${deletedCount} 筆，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
+        `目前共 ${total} 筆評論，未讀取 ${unreadCount} 筆，已讀取 ${readCount} 筆，已刪除 ${deletedCount} 筆，已編輯 ${editedCount} 筆，有舊版本 ${versionCount} 筆。${updateText}`;
     }
 
     async function loadData() {
@@ -785,8 +751,8 @@
         rawData = rawData.map((item, idx) => ({
           ...item,
           sortIndex: idx,
-          versionsCount: isEditedReview(item) ? getVersionListByKey(getReviewKey(item)).length : 0,
-          hasVersions: isEditedReview(item) && getVersionListByKey(getReviewKey(item)).length > 0
+          versionsCount: getVersionListByKey(getReviewKey(item)).length,
+          hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
         }));
 
         refreshSummaryStats();
@@ -921,118 +887,6 @@
       `;
     }
 
-    function getReplyText(c) {
-      return String(
-        c.replyContent ||
-        c.ownerReply ||
-        c.ownerResponse ||
-        c.response ||
-        c.reply ||
-        ''
-      ).trim();
-    }
-
-    function getReplyDate(c) {
-      return String(
-        c.replyDate ||
-        c.ownerReplyDate ||
-        c.responseDate ||
-        ''
-      ).trim();
-    }
-
-    function hasOwnerReply(c) {
-      return Boolean(c && (c.hasReply || getReplyText(c)));
-    }
-
-    function renderReplyButton(c) {
-      const key = getReviewKey(c);
-
-      if (!key || isDeletedReview(c)) return '';
-
-      if (!hasOwnerReply(c)) {
-        return `
-          <span class="text-xs px-3 py-1 rounded bg-red-100 text-red-700">
-            未回覆
-          </span>
-        `;
-      }
-
-      return `
-        <button
-          type="button"
-          onclick="openReplyDialog('${encodeURIComponent(key)}')"
-          class="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-        >
-          已回覆，查看內容
-        </button>
-      `;
-    }
-
-    function openReplyDialog(encodedKey) {
-      const key = decodeURIComponent(encodedKey || '');
-      const dialog = document.getElementById('replyDialog');
-      const content = document.getElementById('replyContent');
-
-      const review = rawData.find(c => getReviewKey(c) === key);
-
-      if (!review) {
-        content.innerHTML = `
-          <div class="text-slate-500">
-            找不到這筆評論資料。
-          </div>
-        `;
-
-        dialog.showModal();
-        return;
-      }
-
-      const replyText = getReplyText(review);
-      const replyDate = getReplyDate(review);
-
-      content.innerHTML = `
-        <div class="border rounded p-4 bg-slate-50">
-          <div class="text-sm text-slate-500 mb-2">
-            原評論作者：${escapeHTML(review.author || '未知作者')}
-          </div>
-
-          <div class="text-sm text-slate-500 mb-2">
-            原評論星等：${escapeHTML(review.rating || 0)} 星
-          </div>
-
-          <div class="whitespace-pre-wrap text-slate-700">
-            ${escapeHTML(review.content || '無內容')}
-          </div>
-        </div>
-
-        <div class="border rounded p-4 bg-blue-50 border-blue-200">
-          <div class="font-bold text-blue-700 mb-2">
-            店家回覆
-          </div>
-
-          ${
-            replyDate
-              ? `<div class="text-xs text-slate-500 mb-2">回覆時間：${escapeHTML(replyDate)}</div>`
-              : ''
-          }
-
-          <div class="whitespace-pre-wrap text-slate-800">
-            ${escapeHTML(replyText || '目前沒有回覆內容')}
-          </div>
-        </div>
-      `;
-
-      dialog.showModal();
-    }
-
-    function closeReplyDialog() {
-      const dialog = document.getElementById('replyDialog');
-
-      if (dialog.open) {
-        dialog.close();
-      }
-    }
-
     function renderDeletedInfo(c) {
       if (!isDeletedReview(c)) return '';
 
@@ -1053,7 +907,6 @@
       const starFilter = document.getElementById('starFilter').value;
       const sortOrder = document.getElementById('sortOrder').value;
       const historyFilter = document.getElementById('historyFilter').value;
-      const replyFilter = document.getElementById('replyFilter').value;
       const keyword = document.getElementById('keywordSearch').value.trim().toLowerCase();
       const container = document.getElementById('container');
 
@@ -1080,8 +933,6 @@
             c.rating,
             c.editedText,
             c.status,
-            getReplyText(c),
-            getReplyDate(c),
             getDisplayBrand(c),
             getDisplayStore(c)
           ].filter(Boolean).join(' ').toLowerCase();
@@ -1098,14 +949,6 @@
         displayData = displayData.filter(c => isDeletedReview(c));
       } else {
         displayData = displayData.filter(c => isNotDeletedReview(c));
-      }
-
-      if (replyFilter === 'replied') {
-        displayData = displayData.filter(c => hasOwnerReply(c) && isNotDeletedReview(c));
-      }
-
-      if (replyFilter === 'unreplied') {
-        displayData = displayData.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c));
       }
 
       if (currentReadFilter === 'unread') {
@@ -1160,12 +1003,6 @@
             ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-slate-100 text-slate-500">已讀取</span>`
             : `<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未讀取</span>`;
 
-        const replyBadge = isDeletedReview(c)
-          ? ''
-          : hasOwnerReply(c)
-            ? `<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">已回覆</span>`
-            : `<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未回覆</span>`;
-
         const updatedText = c.updatedAt
           ? `<div class="text-xs text-slate-400 mt-2">資料更新：${escapeHTML(c.updatedAt)}</div>`
           : '';
@@ -1188,7 +1025,6 @@
               <div>
                 <span class="text-amber-500 font-bold">${escapeHTML(c.rating || 0)} 星</span>
                 ${readBadge}
-                ${replyBadge}
                 ${deletedBadge}
                 ${editedBadge}
                 ${versionBadge}
@@ -1207,7 +1043,6 @@
 
             <div class="mt-4 pt-3 border-t flex flex-wrap gap-2 justify-end">
               ${renderHistoryButton(c)}
-              ${renderReplyButton(c)}
               ${renderReadButton(c)}
             </div>
           </div>
