@@ -637,14 +637,7 @@
     }
 
     function isEditedReview(c) {
-      const text = [
-        c.date,
-        c.editedText,
-        c.content,
-        c.status
-      ].filter(Boolean).join(' ');
-
-      return Boolean(c.isEdited) || /上次編輯|已編輯|edited|last edited/i.test(text);
+      return Boolean(c.googleIsEdited);
     }
 
     function getVersionListByKey(key) {
@@ -656,8 +649,12 @@
     }
 
     function hasVersions(c) {
+      if (!isEditedReview(c)) {
+        return false;
+      }
+
       const key = getReviewKey(c);
-      return getVersionListByKey(key).length > 0 || Boolean(c.hasVersions);
+      return getVersionListByKey(key).length > 0;
     }
 
     function parseTime(value) {
@@ -788,8 +785,8 @@
         rawData = rawData.map((item, idx) => ({
           ...item,
           sortIndex: idx,
-          versionsCount: getVersionListByKey(getReviewKey(item)).length,
-          hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
+          versionsCount: isEditedReview(item) ? getVersionListByKey(getReviewKey(item)).length : 0,
+          hasVersions: isEditedReview(item) && getVersionListByKey(getReviewKey(item)).length > 0
         }));
 
         refreshSummaryStats();
