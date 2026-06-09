@@ -4,11 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       scrape_rounds:
-        description: "評論滑動輪數"
+        description: "評論滑動輪數，5=快速同步，999=完整同步"
         required: false
         default: "5"
+
   schedule:
+    # 每 10 分鐘快速同步，等於左邊按鈕
     - cron: "*/10 * * * *"
+
+    # 每天台灣時間凌晨 3 點完整同步，等於右邊按鈕
+    # GitHub Actions cron 使用 UTC，UTC 19:00 = 台灣 03:00
+    - cron: "0 19 * * *"
+
   push:
     branches:
       - main
@@ -61,13 +68,26 @@ jobs:
         run: |
           npm install --ignore-scripts
 
+      - name: Decide scrape rounds
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "SCRAPE_MAX_ROUNDS=${{ github.event.inputs.scrape_rounds || '5' }}" >> $GITHUB_ENV
+            echo "Manual sync rounds: ${{ github.event.inputs.scrape_rounds || '5' }}"
+          elif [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" = "0 19 * * *" ]; then
+            echo "SCRAPE_MAX_ROUNDS=999" >> $GITHUB_ENV
+            echo "Daily full sync rounds: 999"
+          else
+            echo "SCRAPE_MAX_ROUNDS=5" >> $GITHUB_ENV
+            echo "Fast sync rounds: 5"
+          fi
+
       - name: Sync Google reviews
         run: npm run sync:static
         env:
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
-          SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
+          SCRAPE_MAX_ROUNDS: ${{ env.SCRAPE_MAX_ROUNDS }}
 
       - name: Send push notifications
         run: npm run notify:push
@@ -85,7 +105,7 @@ jobs:
 
           mkdir -p public
           test -f public/comments.json || printf '[]\n' > public/comments.json
-          test -f public/review-versions.json || printf '[]\n' > public/review-versv4ions.json
+          test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
           test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
 
           cp public/comments.json /tmp/comments.json
