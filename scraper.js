@@ -375,11 +375,127 @@ async function getReviewScrollBox(page) {
   });
 }
 
-// ✅ 抓目前 DOM 裡已載入的評論
+// ✅ 抓目前 DOM 裡已載入的評論 + 店家回覆
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
     const reviewEls = document.querySelectorAll('div[data-review-id]');
+
+    function cleanText(value) {
+      return String(value || '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function isBadText(text) {
+      return (
+        !text ||
+        text.includes('function(){') ||
+        text.includes('window.tactilecsi') ||
+        text.includes('window.google') ||
+        text.includes('RegExp(') ||
+        text.includes('sjsuid_') ||
+        text.includes(':root{')
+      );
+    }
+
+    function getNodeText(node) {
+      return cleanText(
+        (node && (node.innerText || node.textContent)) || ''
+      );
+    }
+
+    function extractReply(reviewEl, reviewContent) {
+      const replyKeywordReg =
+        /業主回覆|店家回覆|商家回覆|擁有者回覆|老闆回覆|屋主回覆|Response from the owner|Owner response|Response from owner/i;
+
+      const dateReg =
+        /剛剛|(\d+)\s*(分鐘|小時|天|週|個月|年)前|just now|(\d+)\s*(minute|hour|day|week|month|year)s?\s*ago/i;
+
+      const nodes = Array.from(reviewEl.querySelectorAll('div, span'));
+
+      let replyRoot = null;
+
+      for (const node of nodes) {
+        const text = getNodeText(node);
+
+        if (!text) continue;
+
+        if (replyKeywordReg.test(text)) {
+          let target = node;
+
+          for (let i = 0; i < 5; i++) {
+            if (!target.parentElement || target.parentElement === reviewEl) break;
+
+            const parentText = getNodeText(target.parentElement);
+
+            if (
+              parentText &&
+              parentText.length > text.length &&
+              parentText.length < 3000 &&
+              replyKeywordReg.test(parentText)
+            ) {
+              target = target.parentElement;
+            }
+          }
+
+          replyRoot = target;
+          break;
+        }
+      }
+
+      if (!replyRoot) {
+        return {
+          hasReply: false,
+          replyContent: '',
+          replyDate: ''
+        };
+      }
+
+      let rawReplyText = getNodeText(replyRoot);
+
+      rawReplyText = rawReplyText
+        .replace(/業主回覆[:：]?/gi, '')
+        .replace(/店家回覆[:：]?/gi, '')
+        .replace(/商家回覆[:：]?/gi, '')
+        .replace(/擁有者回覆[:：]?/gi, '')
+        .replace(/老闆回覆[:：]?/gi, '')
+        .replace(/屋主回覆[:：]?/gi, '')
+        .replace(/Response from the owner[:：]?/gi, '')
+        .replace(/Owner response[:：]?/gi, '')
+        .replace(/Response from owner[:：]?/gi, '')
+        .trim();
+
+      const dateMatch = rawReplyText.match(dateReg);
+      const replyDate = dateMatch ? dateMatch[0] : '';
+
+      if (replyDate) {
+        rawReplyText = rawReplyText.replace(replyDate, '').trim();
+      }
+
+      if (reviewContent && rawReplyText.includes(reviewContent)) {
+        rawReplyText = rawReplyText.replace(reviewContent, '').trim();
+      }
+
+      rawReplyText = rawReplyText
+        .replace(/^[-–—\s]+/, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!rawReplyText || rawReplyText.length < 2) {
+        return {
+          hasReply: false,
+          replyContent: '',
+          replyDate: ''
+        };
+      }
+
+      return {
+        hasReply: true,
+        replyContent: rawReplyText,
+        replyDate
+      };
+    }
 
     reviewEls.forEach((el, i) => {
       const id = el.getAttribute('data-review-id') || `r-${i}`;
@@ -401,37 +517,37 @@ async function collectCurrentReviews(page, reviewMap) {
         el.querySelector('.rsqaWe') ||
         el.querySelector('.xRkPPb') ||
         Array.from(el.querySelectorAll('span')).find(s => {
-          const t = (s.innerText || '').trim();
+          const t = cleanText(s.innerText || '');
 
           return /剛剛|分鐘前|小時前|天前|週前|個月前|年前|分鐘|小時|天|週|個月|年|minute|hour|day|week|month|year/i.test(t);
         });
 
-      const content = textEl ? textEl.innerText.trim() : '';
-      const author = authorEl ? authorEl.innerText.trim() : '';
-      const date = dateEl ? dateEl.innerText.trim() : '';
+      const content = textEl ? cleanText(textEl.innerText) : '';
+      const author = authorEl ? cleanText(authorEl.innerText) : '';
+      const date = dateEl ? cleanText(dateEl.innerText) : '';
 
       let rating = 5;
 
       if (ratingEl) {
         const m = ratingEl.getAttribute('aria-label')?.match(/\d/);
-        if (m) rating = parseInt(m[0], 10);
+
+        if (m) {
+          rating = parseInt(m[0], 10);
+        }
       }
 
-      if (
-        content &&
-        !content.includes('function(){') &&
-        !content.includes('window.tactilecsi') &&
-        !content.includes('window.google') &&
-        !content.includes('RegExp(') &&
-        !content.includes('sjsuid_') &&
-        !content.includes(':root{')
-      ) {
+      const replyData = extractReply(el, content);
+
+      if (!isBadText(content)) {
         results.push({
           reviewId: id,
           author,
           content,
           rating,
-          date
+          date,
+          hasReply: replyData.hasReply,
+          replyContent: replyData.replyContent,
+          replyDate: replyData.replyDate
         });
       }
     });
@@ -444,7 +560,18 @@ async function collectCurrentReviews(page, reviewMap) {
 
     if (!reviewMap.has(key)) {
       reviewMap.set(key, r);
+      return;
     }
+
+    const old = reviewMap.get(key);
+
+    reviewMap.set(key, {
+      ...old,
+      ...r,
+      hasReply: r.hasReply || old.hasReply || false,
+      replyContent: r.replyContent || old.replyContent || '',
+      replyDate: r.replyDate || old.replyDate || ''
+    });
   });
 
   return current.length;
@@ -573,8 +700,8 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
   if (reviews.length > 0) {
-  console.log("✅ 第一筆範例:", reviews[0]);
-}
+    console.log("✅ 第一筆範例:", reviews[0]);
+  }
 
   return reviews;
 }
@@ -682,7 +809,6 @@ async function scrapeGoogleReviews() {
     await randomDelay(8000, 10000);
 
     // 🚀 Step 4（評論按鈕強化版）
-    // ✅ 照你原本，不改
     console.log("🎯 找評論按鈕...");
 
     const tabClicked = await page.evaluate(() => {
