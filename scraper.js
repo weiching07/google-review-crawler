@@ -498,10 +498,8 @@ async function collectCurrentReviews(page, reviewMap) {
 
       const replyContent = cleanReplyText(replyLines.join('\n'));
 
-      // ✅ 重點：
-      // 一定要真的抓到回覆文字，才算已回覆。
-      // 不因為只有「業主回應」或日期就算。
-      // 不刪「謝謝分享！ :)」，真的抓到就會保留。
+      // ✅ 一定要真的抓到回覆文字才算已回覆
+      // ✅ 不用「謝謝分享」黑名單
       if (!replyContent) {
         return empty;
       }
@@ -587,7 +585,7 @@ async function collectCurrentReviews(page, reviewMap) {
       const old = reviewMap.get(key);
 
       // ✅ 同一輪重複抓到同一張評論時，以最新 DOM 結果為準
-      // ❌ 不用 old.replyContent 補回來，避免舊誤判殘留
+      // ❌ 不用 old.replyContent 補回來
       reviewMap.set(key, {
         ...old,
         ...r,
