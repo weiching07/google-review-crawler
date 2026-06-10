@@ -7,8 +7,10 @@ on:
         description: "評論滑動輪數"
         required: false
         default: "5"
+
   schedule:
     - cron: "*/10 * * * *"
+
   push:
     branches:
       - main
@@ -78,6 +80,12 @@ jobs:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           VAPID_SUBJECT: mailto:zxcvb282@gmail.com
 
+          O365_SMTP_HOST: ${{ secrets.O365_SMTP_HOST }}
+          O365_SMTP_PORT: ${{ secrets.O365_SMTP_PORT }}
+          O365_SMTP_USER: ${{ secrets.O365_SMTP_USER }}
+          O365_SMTP_PASS: ${{ secrets.O365_SMTP_PASS }}
+          O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
+
       - name: Commit updated JSON
         run: |
           git config user.name "github-actions"
@@ -85,7 +93,7 @@ jobs:
 
           mkdir -p public
           test -f public/comments.json || printf '[]\n' > public/comments.json
-          test -f public/review-versions.json || printf '[]\n' > public/review-versv4ions.json
+          test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
           test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
 
           cp public/comments.json /tmp/comments.json

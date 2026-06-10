@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const webpush = require('web-push');
+const { sendNewReviewEmail } = require('./notify-email');
 
 const WORKER_URL = process.env.WORKER_URL;
 const SYNC_SECRET = process.env.SYNC_SECRET;
@@ -128,18 +129,14 @@ async function sendPushToSubscriptions(subscriptions, payload, reviewId) {
   return successCount;
 }
 
-async function main() {
-  if (!WORKER_URL || !SYNC_SECRET || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-    console.log('⚠️ 缺少 push 環境變數，略過推播');
-    return;
-  }
-
-  webpush.setVapidDetails(
-    VAPID_SUBJECT,
-    VAPID_PUBLIC_KEY,
-    VAPID_PRIVATE_KEY
+function hasEmailConfig() {
+  return Boolean(
+    process.env.O365_SMTP_USER &&
+    process.env.O365_SMTP_PASS
   );
+}
 
+async function main() {
   const commentsData = loadJson(COMMENTS_PATH, []);
   const comments = normalizeComments(commentsData);
 
@@ -158,15 +155,14 @@ async function main() {
   console.log(`已通知 ID 數：${notifiedIds.size}`);
 
   if (comments.length === 0) {
-    console.log('沒有評論資料，略過推播');
+    console.log('沒有評論資料，略過通知');
     return;
   }
 
-  // ✅ 第一次啟用時，不要把舊的 382 筆全部推播
-  // ✅ 只把目前存在的評論標記成已通知，之後才會只推新的
+  // 第一次啟用時，不要把舊的全部通知
   if (notifiedIds.size === 0) {
     saveJson(NOTIFIED_PATH, Array.from(new Set(currentReviewIds)));
-    console.log(`初始化通知紀錄：已把目前 ${currentReviewIds.length} 筆評論標記為已通知，本次不推播`);
+    console.log(`初始化通知紀錄：已把目前 ${currentReviewIds.length} 筆評論標記為已通知，本次不通知`);
     return;
   }
 
@@ -183,36 +179,72 @@ async function main() {
   console.log(`新評論數：${newReviews.length}`);
 
   if (newReviews.length === 0) {
-    console.log('沒有新評論，不推播');
+    console.log('沒有新評論，不通知');
     return;
   }
 
-  const subscriptions = await getSubscriptions();
+  const sentReviewIds = new Set();
 
-  console.log(`手機訂閱數：${subscriptions.length}`);
+  // ✅ 新增：偵測到新評論就寄 O365 Email
+  if (hasEmailConfig()) {
+    try {
+      await sendNewReviewEmail(newReviews);
 
-  if (subscriptions.length === 0) {
-    console.log('沒有手機訂閱，略過推播');
-    return;
+      for (const review of newReviews) {
+        const reviewId = getReviewId(review);
+
+        if (reviewId) {
+          sentReviewIds.add(reviewId);
+        }
+      }
+
+      console.log(`✅ 本次成功寄出 Email 新評論數：${newReviews.length}`);
+    } catch (err) {
+      console.log(`⚠️ Email 通知失敗：${err.message}`);
+    }
+  } else {
+    console.log('⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過 Email 通知');
   }
 
-  const sentReviewIds = [];
-
-  for (const review of newReviews) {
-    const reviewId = getReviewId(review);
-    const payload = buildPayload(review);
-
-    const successCount = await sendPushToSubscriptions(
-      subscriptions,
-      payload,
-      reviewId
+  // ✅ 原本手機推播邏輯保留
+  if (!WORKER_URL || !SYNC_SECRET || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    console.log('⚠️ 缺少 push 環境變數，略過手機推播');
+  } else {
+    webpush.setVapidDetails(
+      VAPID_SUBJECT,
+      VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY
     );
 
-    if (successCount > 0) {
-      sentReviewIds.push(reviewId);
-    }
+    const subscriptions = await getSubscriptions();
 
-    await sleep(1200);
+    console.log(`手機訂閱數：${subscriptions.length}`);
+
+    if (subscriptions.length === 0) {
+      console.log('沒有手機訂閱，略過手機推播');
+    } else {
+      for (const review of newReviews) {
+        const reviewId = getReviewId(review);
+        const payload = buildPayload(review);
+
+        const successCount = await sendPushToSubscriptions(
+          subscriptions,
+          payload,
+          reviewId
+        );
+
+        if (successCount > 0) {
+          sentReviewIds.add(reviewId);
+        }
+
+        await sleep(1200);
+      }
+    }
+  }
+
+  if (sentReviewIds.size === 0) {
+    console.log('⚠️ Email 和手機推播都沒有成功，本次不更新 notified-review-ids.json');
+    return;
   }
 
   for (const id of sentReviewIds) {
@@ -224,11 +256,11 @@ async function main() {
     Array.from(notifiedIds)
   );
 
-  console.log(`✅ 本次成功通知新評論數：${sentReviewIds.length}`);
+  console.log(`✅ 本次成功通知新評論數：${sentReviewIds.size}`);
   console.log(`✅ notified-review-ids.json 已更新`);
 }
 
 main().catch(err => {
-  console.error('❌ 推播流程失敗：', err);
+  console.error('❌ 通知流程失敗：', err);
   process.exit(1);
 });
