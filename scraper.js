@@ -379,12 +379,22 @@ async function getReviewScrollBox(page) {
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
-    const reviewEls = document.querySelectorAll('div[data-review-id]');
+    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+
+    const REPLY_KEYWORD =
+      /店家回覆|店家回應|業主回覆|業主回應|業主回覆|業主回應|商家回覆|商家回應|Response from the owner|Owner response/i;
 
     function normalizeText(value) {
       return String(value || '')
         .replace(/\u00a0/g, ' ')
         .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function getRawText(el) {
+      return String((el && (el.innerText || el.textContent)) || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
         .trim();
     }
 
@@ -397,8 +407,11 @@ async function collectCurrentReviews(page, reviewMap) {
         .filter(Boolean)
         .join('\n')
         .replace(/^店家回覆[:：]?\s*/i, '')
+        .replace(/^店家回應[:：]?\s*/i, '')
         .replace(/^業主回覆[:：]?\s*/i, '')
+        .replace(/^業主回應[:：]?\s*/i, '')
         .replace(/^商家回覆[:：]?\s*/i, '')
+        .replace(/^商家回應[:：]?\s*/i, '')
         .replace(/^Response from the owner[:：]?\s*/i, '')
         .replace(/^Owner response[:：]?\s*/i, '')
         .trim();
@@ -416,79 +429,90 @@ async function collectCurrentReviews(page, reviewMap) {
       return (
         !text ||
         /^讚$|^分享$|^更多$|^回覆$|^查看原文$|^read more$/i.test(text) ||
-        /^\d+\s*星$/.test(text) ||
-        /^like$|^share$|^reply$/i.test(text)
+        /^like$|^share$|^reply$/i.test(text) ||
+        /^\d+\s*星$/.test(text)
       );
     }
 
-    function findSmallestReplyRoot(el) {
-      const replyKeyword = /店家回覆|業主回覆|商家回覆|Response from the owner|Owner response/i;
+    function getReviewBlockText(reviewEl) {
+      const parts = [];
 
-      const nodes = Array.from(el.querySelectorAll('div, span'));
+      // 1. 評論本體
+      parts.push(getRawText(reviewEl));
 
-      const candidates = nodes
-        .map(node => {
-          const text = normalizeText(node.innerText || node.textContent || '');
+      // 2. Google Maps 有時候會把「業主回應」放在評論卡下面的 sibling
+      let node = reviewEl.nextElementSibling;
+      let guard = 0;
 
-          return {
-            node,
-            text,
-            length: text.length
-          };
-        })
-        .filter(item => {
-          return (
-            item.text &&
-            replyKeyword.test(item.text) &&
-            item.length < 2000
-          );
-        })
-        .sort((a, b) => a.length - b.length);
+      while (node && guard < 8) {
+        guard++;
 
-      if (candidates.length === 0) {
-        return null;
-      }
-
-      let root = candidates[0].node;
-
-      for (let i = 0; i < 4; i++) {
-        if (!root.parentElement || root.parentElement === el) break;
-
-        const parentText = normalizeText(root.parentElement.innerText || root.parentElement.textContent || '');
-
-        if (
-          replyKeyword.test(parentText) &&
-          parentText.length <= 2000
-        ) {
-          root = root.parentElement;
-        } else {
+        if (node.matches && node.matches('div[data-review-id]')) {
           break;
         }
+
+        if (node.querySelector && node.querySelector('div[data-review-id]')) {
+          break;
+        }
+
+        const text = getRawText(node);
+
+        if (text) {
+          parts.push(text);
+        }
+
+        if (REPLY_KEYWORD.test(text)) {
+          const next = node.nextElementSibling;
+
+          if (
+            next &&
+            !(next.matches && next.matches('div[data-review-id]')) &&
+            !(next.querySelector && next.querySelector('div[data-review-id]'))
+          ) {
+            const nextText = getRawText(next);
+
+            if (nextText) {
+              parts.push(nextText);
+            }
+          }
+
+          break;
+        }
+
+        node = node.nextElementSibling;
       }
 
-      return root;
+      // 3. 有些版型把評論本體和業主回應包在父層
+      let parent = reviewEl.parentElement;
+
+      for (let i = 0; i < 5 && parent; i++) {
+        const parentText = getRawText(parent);
+
+        if (
+          parentText &&
+          REPLY_KEYWORD.test(parentText) &&
+          parentText.length < 4000
+        ) {
+          parts.push(parentText);
+          break;
+        }
+
+        parent = parent.parentElement;
+      }
+
+      return parts.join('\n');
     }
 
-    function extractOwnerReply(el) {
+    function extractOwnerReplyFromText(sourceText) {
       const empty = {
         hasReply: false,
         replyContent: '',
         replyDate: ''
       };
 
-      if (!el) return empty;
-
-      const replyKeyword = /店家回覆|業主回覆|商家回覆|Response from the owner|Owner response/i;
-      const fullText = el.innerText || el.textContent || '';
-
-      if (!replyKeyword.test(fullText)) {
+      if (!REPLY_KEYWORD.test(sourceText)) {
         return empty;
       }
-
-      const root = findSmallestReplyRoot(el);
-      const sourceText = root
-        ? (root.innerText || root.textContent || '')
-        : fullText;
 
       const lines = String(sourceText || '')
         .replace(/\u00a0/g, ' ')
@@ -497,7 +521,7 @@ async function collectCurrentReviews(page, reviewMap) {
         .map(line => line.trim())
         .filter(Boolean);
 
-      const startIndex = lines.findIndex(line => replyKeyword.test(line));
+      const startIndex = lines.findIndex(line => REPLY_KEYWORD.test(line));
 
       if (startIndex === -1) {
         return {
@@ -511,7 +535,7 @@ async function collectCurrentReviews(page, reviewMap) {
       const replyLines = [];
 
       const firstLine = lines[startIndex]
-        .replace(replyKeyword, '')
+        .replace(REPLY_KEYWORD, '')
         .replace(/^[:：]\s*/, '')
         .trim();
 
@@ -522,16 +546,25 @@ async function collectCurrentReviews(page, reviewMap) {
       for (let i = startIndex + 1; i < lines.length; i++) {
         const line = lines[i];
 
-        if (isJunkReplyLine(line)) continue;
+        if (!line) continue;
 
         if (!replyDate && isReplyDateLine(line)) {
           replyDate = normalizeText(line);
           continue;
         }
 
-        // 避免吃到下一則評論或 Google 介面文字
+        if (isJunkReplyLine(line)) continue;
+
+        // 到這些文字代表已經離開業主回應區
+        if (/^由\s*Google\s*提供翻譯/i.test(line)) break;
+        if (/^查看原文/i.test(line)) break;
+        if (/^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)) break;
+        if (/^\d+\s*星$/.test(line)) break;
         if (/^Google\s/.test(line)) continue;
         if (/排序|最相關|最新|評論/.test(line) && line.length < 12) continue;
+
+        // 避免吃到下一則評論作者資訊
+        if (/在地嚮導/.test(line) && /則評論|張相片/.test(line)) break;
 
         replyLines.push(line);
       }
@@ -590,7 +623,8 @@ async function collectCurrentReviews(page, reviewMap) {
         !content.includes('sjsuid_') &&
         !content.includes(':root{')
       ) {
-        const replyData = extractOwnerReply(el);
+        const blockText = getReviewBlockText(el);
+        const replyData = extractOwnerReplyFromText(blockText);
 
         results.push({
           reviewId: id,
@@ -599,7 +633,7 @@ async function collectCurrentReviews(page, reviewMap) {
           rating,
           date,
 
-          // 店家回覆
+          // 店家 / 業主回應
           hasReply: replyData.hasReply,
           replyContent: replyData.replyContent,
           replyDate: replyData.replyDate
@@ -615,6 +649,16 @@ async function collectCurrentReviews(page, reviewMap) {
 
     if (!reviewMap.has(key)) {
       reviewMap.set(key, r);
+    } else {
+      const old = reviewMap.get(key);
+
+      reviewMap.set(key, {
+        ...old,
+        ...r,
+        hasReply: Boolean(r.hasReply || old.hasReply),
+        replyContent: r.replyContent || old.replyContent || '',
+        replyDate: r.replyDate || old.replyDate || ''
+      });
     }
   });
 
@@ -808,6 +852,7 @@ async function scrapeGoogleReviews() {
     // 🚀 Step 2
     console.log("🔍 搜尋 LillA 台北...");
     const searchBox = 'textarea[name="q"], input[name="q"]';
+
     await page.waitForSelector(searchBox, {
       timeout: 30000
     });

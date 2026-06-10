@@ -153,6 +153,33 @@ function isOldMatched(matchedOldKeys, old) {
   return false;
 }
 
+function hasReplyField(r) {
+  return Object.prototype.hasOwnProperty.call(r, 'hasReply') ||
+    Object.prototype.hasOwnProperty.call(r, 'replyContent') ||
+    Object.prototype.hasOwnProperty.call(r, 'replyDate');
+}
+
+function getMergedReplyData(r, old) {
+  const scraperHasReplyField = hasReplyField(r);
+
+  const newReplyContent = text(r.replyContent);
+  const newReplyDate = text(r.replyDate);
+
+  if (scraperHasReplyField) {
+    return {
+      hasReply: Boolean(r.hasReply || newReplyContent),
+      replyContent: newReplyContent,
+      replyDate: newReplyDate
+    };
+  }
+
+  return {
+    hasReply: Boolean(old?.hasReply || old?.replyContent),
+    replyContent: old?.replyContent || '',
+    replyDate: old?.replyDate || ''
+  };
+}
+
 async function main() {
   if (!fs.existsSync(PUBLIC_DIR)) {
     fs.mkdirSync(PUBLIC_DIR, {
@@ -162,8 +189,6 @@ async function main() {
 
   const maxRounds = getMaxRounds();
 
-  // ✅ 關鍵：強制把目前這次同步的滑動輪數塞回 env
-  // ✅ scraper.js 如果是讀 process.env.SCRAPE_MAX_ROUNDS，就一定讀得到
   process.env.SCRAPE_MAX_ROUNDS = String(maxRounds);
 
   const isPartialSync = maxRounds <= 5;
@@ -179,8 +204,6 @@ async function main() {
   const oldMap = buildOldMap(oldComments);
   const matchedOldKeys = new Set();
 
-  // ✅ 傳 maxRounds 給 scraper.js
-  // ✅ 如果 scraper.js 沒接參數也沒關係，至少它可以讀 process.env.SCRAPE_MAX_ROUNDS
   const reviews = await scrapeGoogleReviews(maxRounds);
 
   if (!Array.isArray(reviews) || reviews.length === 0) {
@@ -198,6 +221,7 @@ async function main() {
   const crawledComments = reviews.map((r, index) => {
     const key = makeKey(r, index);
     const old = findOldComment(oldMap, r, index);
+    const replyData = getMergedReplyData(r, old);
 
     if (old) {
       markMatchedOld(matchedOldKeys, old);
@@ -216,7 +240,15 @@ async function main() {
         isEditedText(r.date) ||
         isEditedText(r.editedText) ||
         Boolean(old?.isEdited),
-      branch: 'LILLA',
+
+      // ✅ 商家 / 業主回應欄位：這三個就是之前漏掉的
+      hasReply: replyData.hasReply,
+      replyContent: replyData.replyContent,
+      replyDate: replyData.replyDate,
+
+      branch: old?.branch || 'LILLA',
+      brand: old?.brand || r.brand || '',
+      store: old?.store || r.store || '',
       scrapedAt: old?.scrapedAt || now,
       updatedAt: old?.updatedAt || '',
       lastSeenAt: now
@@ -229,6 +261,9 @@ async function main() {
 
     const contentChanged = text(old.content) !== text(next.content);
     const ratingChanged = String(old.rating || '') !== String(next.rating || '');
+    const replyChanged =
+      text(old.replyContent) !== text(next.replyContent) ||
+      Boolean(old.hasReply) !== Boolean(next.hasReply);
 
     if (contentChanged || ratingChanged) {
       const duplicate = oldVersions.some(v =>
@@ -259,60 +294,63 @@ async function main() {
       next.isEdited = true;
       next.updatedAt = now;
       updatedCount++;
+    } else if (replyChanged) {
+      next.updatedAt = now;
+      updatedCount++;
     }
 
     return next;
   });
 
- let nextComments;
+  let nextComments;
 
-if (isPartialSync) {
-  const crawledKeySet = new Set();
+  if (isPartialSync) {
+    const crawledKeySet = new Set();
 
-  crawledComments.forEach((c, index) => {
-    getAllPossibleKeys(c, index).forEach(key => {
-      crawledKeySet.add(String(key));
+    crawledComments.forEach((c, index) => {
+      getAllPossibleKeys(c, index).forEach(key => {
+        crawledKeySet.add(String(key));
+      });
     });
-  });
 
-  const preservedOldComments = oldComments.filter((old, index) => {
-    if (isOldMatched(matchedOldKeys, old)) {
-      return false;
-    }
+    const preservedOldComments = oldComments.filter((old, index) => {
+      if (isOldMatched(matchedOldKeys, old)) {
+        return false;
+      }
 
-    const oldKeys = getAllPossibleKeys(old, index);
+      const oldKeys = getAllPossibleKeys(old, index);
 
-    return !oldKeys.some(key => crawledKeySet.has(String(key)));
-  });
+      return !oldKeys.some(key => crawledKeySet.has(String(key)));
+    });
 
-  nextComments = [
-    ...crawledComments,
-    ...preservedOldComments
-  ];
+    nextComments = [
+      ...crawledComments,
+      ...preservedOldComments
+    ];
 
-  console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
-} else {
-  const deletedOldComments = oldComments
-    .filter(old => !isOldMatched(matchedOldKeys, old))
-    .map(old => ({
-      ...old,
-      isDeleted: true,
-      deletedAt: old.deletedAt || now,
-      updatedAt: now,
-      lastSeenAt: old.lastSeenAt || old.updatedAt || old.scrapedAt || now
-    }));
+    console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
+  } else {
+    const deletedOldComments = oldComments
+      .filter(old => !isOldMatched(matchedOldKeys, old))
+      .map(old => ({
+        ...old,
+        isDeleted: true,
+        deletedAt: old.deletedAt || now,
+        updatedAt: now,
+        lastSeenAt: old.lastSeenAt || old.updatedAt || old.scrapedAt || now
+      }));
 
-  nextComments = [
-    ...crawledComments.map(c => ({
-      ...c,
-      isDeleted: false,
-      deletedAt: ''
-    })),
-    ...deletedOldComments
-  ];
+    nextComments = [
+      ...crawledComments.map(c => ({
+        ...c,
+        isDeleted: false,
+        deletedAt: ''
+      })),
+      ...deletedOldComments
+    ];
 
-  console.log(`🗑️ 完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
-}
+    console.log(`🗑️ 完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
+  }
 
   writeJson(COMMENTS_FILE, nextComments);
   writeJson(VERSIONS_FILE, oldVersions);
@@ -320,6 +358,9 @@ if (isPartialSync) {
   console.log(`✅ 本次抓到 ${reviews.length} 筆`);
   console.log(`📦 寫入 comments.json ${nextComments.length} 筆`);
   console.log(`💾 新增 ${newCount} 筆，更新 ${updatedCount} 筆，保存舊版本 ${versionSavedCount} 筆`);
+
+  const replyCount = nextComments.filter(c => c.hasReply || c.replyContent).length;
+  console.log(`💬 已寫入有業主回應 ${replyCount} 筆`);
 }
 
 main().catch(err => {
