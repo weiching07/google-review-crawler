@@ -381,6 +381,170 @@ async function collectCurrentReviews(page, reviewMap) {
     const results = [];
     const reviewEls = document.querySelectorAll('div[data-review-id]');
 
+    function normalizeText(value) {
+      return String(value || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function cleanReplyText(value) {
+      return String(value || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .join('\n')
+        .replace(/^店家回覆[:：]?\s*/i, '')
+        .replace(/^業主回覆[:：]?\s*/i, '')
+        .replace(/^商家回覆[:：]?\s*/i, '')
+        .replace(/^Response from the owner[:：]?\s*/i, '')
+        .replace(/^Owner response[:：]?\s*/i, '')
+        .trim();
+    }
+
+    function isReplyDateLine(line) {
+      return /^(剛剛|\d+\s*(分鐘|小時|天|週|個月|年)前|just now|\d+\s*(minutes?|mins?|hours?|days?|weeks?|months?|years?) ago)$/i.test(
+        normalizeText(line)
+      );
+    }
+
+    function isJunkReplyLine(line) {
+      const text = normalizeText(line);
+
+      return (
+        !text ||
+        /^讚$|^分享$|^更多$|^回覆$|^查看原文$|^read more$/i.test(text) ||
+        /^\d+\s*星$/.test(text) ||
+        /^like$|^share$|^reply$/i.test(text)
+      );
+    }
+
+    function findSmallestReplyRoot(el) {
+      const replyKeyword = /店家回覆|業主回覆|商家回覆|Response from the owner|Owner response/i;
+
+      const nodes = Array.from(el.querySelectorAll('div, span'));
+
+      const candidates = nodes
+        .map(node => {
+          const text = normalizeText(node.innerText || node.textContent || '');
+
+          return {
+            node,
+            text,
+            length: text.length
+          };
+        })
+        .filter(item => {
+          return (
+            item.text &&
+            replyKeyword.test(item.text) &&
+            item.length < 2000
+          );
+        })
+        .sort((a, b) => a.length - b.length);
+
+      if (candidates.length === 0) {
+        return null;
+      }
+
+      let root = candidates[0].node;
+
+      for (let i = 0; i < 4; i++) {
+        if (!root.parentElement || root.parentElement === el) break;
+
+        const parentText = normalizeText(root.parentElement.innerText || root.parentElement.textContent || '');
+
+        if (
+          replyKeyword.test(parentText) &&
+          parentText.length <= 2000
+        ) {
+          root = root.parentElement;
+        } else {
+          break;
+        }
+      }
+
+      return root;
+    }
+
+    function extractOwnerReply(el) {
+      const empty = {
+        hasReply: false,
+        replyContent: '',
+        replyDate: ''
+      };
+
+      if (!el) return empty;
+
+      const replyKeyword = /店家回覆|業主回覆|商家回覆|Response from the owner|Owner response/i;
+      const fullText = el.innerText || el.textContent || '';
+
+      if (!replyKeyword.test(fullText)) {
+        return empty;
+      }
+
+      const root = findSmallestReplyRoot(el);
+      const sourceText = root
+        ? (root.innerText || root.textContent || '')
+        : fullText;
+
+      const lines = String(sourceText || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const startIndex = lines.findIndex(line => replyKeyword.test(line));
+
+      if (startIndex === -1) {
+        return {
+          hasReply: true,
+          replyContent: '',
+          replyDate: ''
+        };
+      }
+
+      let replyDate = '';
+      const replyLines = [];
+
+      const firstLine = lines[startIndex]
+        .replace(replyKeyword, '')
+        .replace(/^[:：]\s*/, '')
+        .trim();
+
+      if (firstLine && !isJunkReplyLine(firstLine) && !isReplyDateLine(firstLine)) {
+        replyLines.push(firstLine);
+      }
+
+      for (let i = startIndex + 1; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (isJunkReplyLine(line)) continue;
+
+        if (!replyDate && isReplyDateLine(line)) {
+          replyDate = normalizeText(line);
+          continue;
+        }
+
+        // 避免吃到下一則評論或 Google 介面文字
+        if (/^Google\s/.test(line)) continue;
+        if (/排序|最相關|最新|評論/.test(line) && line.length < 12) continue;
+
+        replyLines.push(line);
+      }
+
+      const replyContent = cleanReplyText(replyLines.join('\n'));
+
+      return {
+        hasReply: true,
+        replyContent,
+        replyDate
+      };
+    }
+
     reviewEls.forEach((el, i) => {
       const id = el.getAttribute('data-review-id') || `r-${i}`;
 
@@ -426,12 +590,19 @@ async function collectCurrentReviews(page, reviewMap) {
         !content.includes('sjsuid_') &&
         !content.includes(':root{')
       ) {
+        const replyData = extractOwnerReply(el);
+
         results.push({
           reviewId: id,
           author,
           content,
           rating,
-          date
+          date,
+
+          // 店家回覆
+          hasReply: replyData.hasReply,
+          replyContent: replyData.replyContent,
+          replyDate: replyData.replyDate
         });
       }
     });
@@ -573,8 +744,8 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
   if (reviews.length > 0) {
-  console.log("✅ 第一筆範例:", reviews[0]);
-}
+    console.log("✅ 第一筆範例:", reviews[0]);
+  }
 
   return reviews;
 }
@@ -682,7 +853,6 @@ async function scrapeGoogleReviews() {
     await randomDelay(8000, 10000);
 
     // 🚀 Step 4（評論按鈕強化版）
-    // ✅ 照你原本，不改
     console.log("🎯 找評論按鈕...");
 
     const tabClicked = await page.evaluate(() => {
