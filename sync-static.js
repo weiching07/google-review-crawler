@@ -153,25 +153,21 @@ function isOldMatched(matchedOldKeys, old) {
   return false;
 }
 
-// ✅ 保留這個函式，但邏輯改安全：
-// 只判斷 scraper.js 這次是否有提供回覆欄位。
 function hasReplyField(r) {
   return Object.prototype.hasOwnProperty.call(r, 'hasReply') ||
     Object.prototype.hasOwnProperty.call(r, 'replyContent') ||
     Object.prototype.hasOwnProperty.call(r, 'replyDate');
 }
 
-// ✅ 重點修正：
-// 1. 沒有文字黑名單，所以不會刪「謝謝分享！ :)」。
-// 2. scraper 這次有回覆欄位時，以 scraper 這次結果為準。
-// 3. 不用 old.replyContent 補回來，避免舊錯誤回覆一直殘留在已重新爬到的評論上。
-// 4. 如果 scraper 真的沒提供回覆欄位，才保留 old，避免未支援欄位的舊版資料被清空。
 function getMergedReplyData(r, old) {
   const scraperHasReplyField = hasReplyField(r);
 
   const newReplyContent = text(r.replyContent);
   const newReplyDate = text(r.replyDate);
 
+  // scraper 這次有提供回覆欄位，就以這次爬到的結果為準
+  // 不拿 old.replyContent 補回來，避免錯誤回覆殘留
+  // 不用任何文字黑名單，所以不會刪掉真正的「謝謝分享！ :)」
   if (scraperHasReplyField) {
     return {
       hasReply: Boolean(newReplyContent),
@@ -180,11 +176,22 @@ function getMergedReplyData(r, old) {
     };
   }
 
+  // 如果 scraper 沒提供回覆欄位，才保留舊資料
   return {
     hasReply: Boolean(old?.replyContent),
     replyContent: old?.replyContent || '',
     replyDate: old?.replyDate || ''
   };
+}
+
+function findIndexInComments(comments, target, targetIndex) {
+  const targetKeys = getAllPossibleKeys(target, targetIndex).map(String);
+
+  return comments.findIndex((item, index) => {
+    const itemKeys = getAllPossibleKeys(item, index).map(String);
+
+    return itemKeys.some(key => targetKeys.includes(key));
+  });
 }
 
 async function main() {
@@ -248,7 +255,7 @@ async function main() {
         isEditedText(r.editedText) ||
         Boolean(old?.isEdited),
 
-      // ✅ 商家 / 業主回應欄位
+      // 商家 / 業主回應欄位
       hasReply: replyData.hasReply,
       replyContent: replyData.replyContent,
       replyDate: replyData.replyDate,
@@ -312,36 +319,59 @@ async function main() {
   let nextComments;
 
   if (isPartialSync) {
-    const crawledKeySet = new Set();
+    // 手動同步 / 快速同步按鈕邏輯：
+    // 1. 舊 comments.json 全部保留
+    // 2. 這次爬到的評論只更新 / 新增
+    // 3. 這次沒爬到的舊評論完全不動
+    // 4. 絕對不因為只滑 5 次就把舊 300 多筆刪掉
+    const mergedComments = [...oldComments];
 
-    crawledComments.forEach((c, index) => {
-      getAllPossibleKeys(c, index).forEach(key => {
-        crawledKeySet.add(String(key));
-      });
-    });
+    crawledComments.forEach((newComment, newIndex) => {
+      const old = findOldComment(oldMap, newComment, newIndex);
 
-    const preservedOldComments = oldComments.filter((old, index) => {
-      if (isOldMatched(matchedOldKeys, old)) {
-        return false;
+      if (old) {
+        const oldIndex = findIndexInComments(mergedComments, old, newIndex);
+
+        if (oldIndex >= 0) {
+          mergedComments[oldIndex] = {
+            ...old,
+            ...newComment,
+
+            // 保留舊資料裡比較穩定的欄位
+            id: old.id || newComment.id,
+            reviewId: newComment.reviewId || old.reviewId,
+            scrapedAt: old.scrapedAt || newComment.scrapedAt,
+
+            // 這次看到了，更新 lastSeenAt
+            lastSeenAt: newComment.lastSeenAt || now,
+
+            // 快速同步不做刪除判斷
+            isDeleted: false,
+            deleted: false,
+            deletedAt: ''
+          };
+
+          updatedCount++;
+        } else {
+          mergedComments.unshift(newComment);
+          newCount++;
+        }
+      } else {
+        mergedComments.unshift(newComment);
+        newCount++;
       }
-
-      const oldKeys = getAllPossibleKeys(old, index);
-
-      return !oldKeys.some(key => crawledKeySet.has(String(key)));
     });
 
-    nextComments = [
-      ...crawledComments,
-      ...preservedOldComments
-    ];
+    nextComments = mergedComments;
 
-    console.log(`📌 快速同步保留舊評論 ${preservedOldComments.length} 筆`);
+    console.log(`📌 快速同步模式：舊評論全部保留，本次爬到 ${crawledComments.length} 筆，合併後 ${nextComments.length} 筆`);
   } else {
     const deletedOldComments = oldComments
       .filter(old => !isOldMatched(matchedOldKeys, old))
       .map(old => ({
         ...old,
         isDeleted: true,
+        deleted: true,
         deletedAt: old.deletedAt || now,
         updatedAt: now,
         lastSeenAt: old.lastSeenAt || old.updatedAt || old.scrapedAt || now
@@ -351,6 +381,7 @@ async function main() {
       ...crawledComments.map(c => ({
         ...c,
         isDeleted: false,
+        deleted: false,
         deletedAt: ''
       })),
       ...deletedOldComments

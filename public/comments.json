@@ -1,6 +1,6 @@
 [
   {
-    "id": "1781072798174-0",
+    "id": "1781076885616-0",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2pGb2VVUmZla1ZwVUc1SlVUZE5hV2x3TW5KRFdGRRAB",
     "author": "patty Cheng",
     "content": "午餐套餐很超值，吃超飽！其中蛤蠣濃湯和鮭魚炒飯都好吃！",
@@ -14,9 +14,13 @@
     "branch": "LILLA",
     "brand": "",
     "store": "",
-    "scrapedAt": "2026-06-10T06:26:38.166Z",
+    "scrapedAt": "2026-06-10T07:34:45.611Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z"
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-0",
@@ -34,8 +38,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-1",
@@ -53,8 +65,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-2",
@@ -72,8 +92,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-3",
@@ -91,8 +119,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-4",
@@ -110,8 +146,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-5",
@@ -129,8 +173,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-6",
@@ -148,8 +200,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-7",
@@ -167,8 +227,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-8",
@@ -186,8 +254,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-9",
@@ -205,8 +281,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-10",
@@ -224,8 +308,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-11",
@@ -243,8 +335,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-12",
@@ -262,8 +362,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-13",
@@ -281,8 +389,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-14",
@@ -300,8 +416,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-15",
@@ -319,8 +443,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T07:00:17.065Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T05:54:27.073Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-16",
@@ -338,8 +470,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-17",
@@ -357,8 +497,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-18",
@@ -376,8 +524,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-19",
@@ -395,8 +551,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T07:00:17.065Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-20",
@@ -414,8 +578,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-21",
@@ -433,8 +605,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-22",
@@ -452,8 +632,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-23",
@@ -471,8 +659,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-24",
@@ -490,8 +686,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-25",
@@ -509,8 +713,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T05:54:27.073Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-26",
@@ -528,8 +740,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T06:26:38.166Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T07:34:45.611Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-27",
@@ -548,7 +768,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-28",
@@ -567,7 +794,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-29",
@@ -586,7 +820,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-30",
@@ -605,7 +846,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-31",
@@ -624,7 +872,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-32",
@@ -643,7 +898,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-33",
@@ -662,7 +924,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-34",
@@ -681,7 +950,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-35",
@@ -700,7 +976,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-36",
@@ -719,7 +1002,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-37",
@@ -738,7 +1028,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-38",
@@ -757,7 +1054,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-39",
@@ -776,7 +1080,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-40",
@@ -795,7 +1106,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-41",
@@ -814,7 +1132,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-42",
@@ -833,7 +1158,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-43",
@@ -852,7 +1184,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-44",
@@ -871,7 +1210,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-45",
@@ -890,7 +1236,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-46",
@@ -909,7 +1262,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-47",
@@ -928,7 +1288,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-48",
@@ -947,7 +1314,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-49",
@@ -966,7 +1340,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-50",
@@ -985,7 +1366,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-51",
@@ -1004,7 +1392,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-52",
@@ -1023,7 +1418,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-53",
@@ -1042,7 +1444,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-54",
@@ -1061,7 +1470,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-55",
@@ -1080,7 +1496,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-56",
@@ -1099,7 +1522,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-57",
@@ -1118,7 +1548,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-58",
@@ -1137,7 +1574,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-59",
@@ -1156,7 +1600,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-60",
@@ -1175,7 +1626,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-61",
@@ -1194,7 +1652,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-62",
@@ -1213,7 +1678,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-63",
@@ -1232,7 +1704,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-64",
@@ -1251,7 +1730,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-65",
@@ -1270,7 +1756,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-66",
@@ -1289,7 +1782,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-67",
@@ -1308,7 +1808,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-68",
@@ -1327,7 +1834,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-69",
@@ -1346,7 +1860,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-70",
@@ -1365,7 +1886,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-71",
@@ -1384,7 +1912,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-72",
@@ -1403,7 +1938,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-73",
@@ -1422,7 +1964,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-74",
@@ -1441,7 +1990,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-75",
@@ -1460,7 +2016,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-76",
@@ -1479,7 +2042,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-77",
@@ -1498,7 +2068,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-78",
@@ -1517,7 +2094,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-79",
@@ -1536,7 +2120,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-80",
@@ -1555,7 +2146,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-81",
@@ -1574,7 +2172,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-82",
@@ -1593,7 +2198,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-83",
@@ -1612,7 +2224,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-84",
@@ -1631,7 +2250,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "2026-06-10T05:47:36.818Z",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-85",
@@ -1649,8 +2275,16 @@
     "brand": "",
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
+<<<<<<< HEAD
     "updatedAt": "2026-06-10T07:18:45.775Z",
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "updatedAt": "2026-06-10T06:13:26.552Z",
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-86",
@@ -1669,7 +2303,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-87",
@@ -1688,7 +2329,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-88",
@@ -1707,7 +2355,14 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
+<<<<<<< HEAD
     "lastSeenAt": "2026-06-10T07:18:45.775Z"
+=======
+    "lastSeenAt": "2026-06-10T07:34:45.611Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+>>>>>>> fb38295 (fix manual sync preserve old reviews)
   },
   {
     "id": "1781064055333-89",
@@ -1726,6 +2381,6 @@
     "store": "",
     "scrapedAt": "2026-06-10T04:00:55.328Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-10T05:54:27.073Z"
+    "lastSeenAt": "2026-06-10T06:13:26.552Z"
   }
 ]
