@@ -382,19 +382,12 @@ async function collectCurrentReviews(page, reviewMap) {
     const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
 
     const REPLY_KEYWORD =
-      /店家回覆|店家回應|業主回覆|業主回應|業主回覆|業主回應|商家回覆|商家回應|Response from the owner|Owner response/i;
+      /店家回覆|店家回應|業主回覆|業主回應|商家回覆|商家回應|Response from the owner|Owner response/i;
 
     function normalizeText(value) {
       return String(value || '')
         .replace(/\u00a0/g, ' ')
         .replace(/\s+/g, ' ')
-        .trim();
-    }
-
-    function getRawText(el) {
-      return String((el && (el.innerText || el.textContent)) || '')
-        .replace(/\u00a0/g, ' ')
-        .replace(/\r/g, '\n')
         .trim();
     }
 
@@ -434,89 +427,28 @@ async function collectCurrentReviews(page, reviewMap) {
       );
     }
 
-    function getReviewBlockText(reviewEl) {
-      const parts = [];
-
-      // 1. 評論本體
-      parts.push(getRawText(reviewEl));
-
-      // 2. Google Maps 有時候會把「業主回應」放在評論卡下面的 sibling
-      let node = reviewEl.nextElementSibling;
-      let guard = 0;
-
-      while (node && guard < 8) {
-        guard++;
-
-        if (node.matches && node.matches('div[data-review-id]')) {
-          break;
-        }
-
-        if (node.querySelector && node.querySelector('div[data-review-id]')) {
-          break;
-        }
-
-        const text = getRawText(node);
-
-        if (text) {
-          parts.push(text);
-        }
-
-        if (REPLY_KEYWORD.test(text)) {
-          const next = node.nextElementSibling;
-
-          if (
-            next &&
-            !(next.matches && next.matches('div[data-review-id]')) &&
-            !(next.querySelector && next.querySelector('div[data-review-id]'))
-          ) {
-            const nextText = getRawText(next);
-
-            if (nextText) {
-              parts.push(nextText);
-            }
-          }
-
-          break;
-        }
-
-        node = node.nextElementSibling;
-      }
-
-      // 3. 有些版型把評論本體和業主回應包在父層
-      let parent = reviewEl.parentElement;
-
-      for (let i = 0; i < 5 && parent; i++) {
-        const parentText = getRawText(parent);
-
-        if (
-          parentText &&
-          REPLY_KEYWORD.test(parentText) &&
-          parentText.length < 4000
-        ) {
-          parts.push(parentText);
-          break;
-        }
-
-        parent = parent.parentElement;
-      }
-
-      return parts.join('\n');
-    }
-
-    function extractOwnerReplyFromText(sourceText) {
+    function extractOwnerReply(el) {
       const empty = {
         hasReply: false,
         replyContent: '',
         replyDate: ''
       };
 
+      if (!el) return empty;
+
+      // ✅ 只抓目前這張評論卡內的文字
+      // ❌ 不抓 nextElementSibling
+      // ❌ 不抓 parentElement
+      const sourceText = String(el.innerText || el.textContent || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
+        .trim();
+
       if (!REPLY_KEYWORD.test(sourceText)) {
         return empty;
       }
 
-      const lines = String(sourceText || '')
-        .replace(/\u00a0/g, ' ')
-        .replace(/\r/g, '\n')
+      const lines = sourceText
         .split('\n')
         .map(line => line.trim())
         .filter(Boolean);
@@ -524,11 +456,7 @@ async function collectCurrentReviews(page, reviewMap) {
       const startIndex = lines.findIndex(line => REPLY_KEYWORD.test(line));
 
       if (startIndex === -1) {
-        return {
-          hasReply: true,
-          replyContent: '',
-          replyDate: ''
-        };
+        return empty;
       }
 
       let replyDate = '';
@@ -555,21 +483,28 @@ async function collectCurrentReviews(page, reviewMap) {
 
         if (isJunkReplyLine(line)) continue;
 
-        // 到這些文字代表已經離開業主回應區
+        // 離開業主回應區就停止
         if (/^由\s*Google\s*提供翻譯/i.test(line)) break;
         if (/^查看原文/i.test(line)) break;
         if (/^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)) break;
         if (/^\d+\s*星$/.test(line)) break;
-        if (/^Google\s/.test(line)) continue;
-        if (/排序|最相關|最新|評論/.test(line) && line.length < 12) continue;
-
-        // 避免吃到下一則評論作者資訊
         if (/在地嚮導/.test(line) && /則評論|張相片/.test(line)) break;
+
+        // 避免吃到 Google Maps UI 字樣
+        if (/^排序$|^最相關$|^最新$|^評論$/i.test(line)) break;
 
         replyLines.push(line);
       }
 
       const replyContent = cleanReplyText(replyLines.join('\n'));
+
+      // ✅ 重點：
+      // 一定要真的抓到回覆文字，才算已回覆。
+      // 不因為只有「業主回應」或日期就算。
+      // 不刪「謝謝分享！ :)」，真的抓到就會保留。
+      if (!replyContent) {
+        return empty;
+      }
 
       return {
         hasReply: true,
@@ -623,8 +558,7 @@ async function collectCurrentReviews(page, reviewMap) {
         !content.includes('sjsuid_') &&
         !content.includes(':root{')
       ) {
-        const blockText = getReviewBlockText(el);
-        const replyData = extractOwnerReplyFromText(blockText);
+        const replyData = extractOwnerReply(el);
 
         results.push({
           reviewId: id,
@@ -652,12 +586,14 @@ async function collectCurrentReviews(page, reviewMap) {
     } else {
       const old = reviewMap.get(key);
 
+      // ✅ 同一輪重複抓到同一張評論時，以最新 DOM 結果為準
+      // ❌ 不用 old.replyContent 補回來，避免舊誤判殘留
       reviewMap.set(key, {
         ...old,
         ...r,
-        hasReply: Boolean(r.hasReply || old.hasReply),
-        replyContent: r.replyContent || old.replyContent || '',
-        replyDate: r.replyDate || old.replyDate || ''
+        hasReply: Boolean(r.replyContent),
+        replyContent: r.replyContent || '',
+        replyDate: r.replyDate || ''
       });
     }
   });

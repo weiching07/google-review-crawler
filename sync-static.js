@@ -153,12 +153,19 @@ function isOldMatched(matchedOldKeys, old) {
   return false;
 }
 
+// ✅ 保留這個函式，但邏輯改安全：
+// 只判斷 scraper.js 這次是否有提供回覆欄位。
 function hasReplyField(r) {
   return Object.prototype.hasOwnProperty.call(r, 'hasReply') ||
     Object.prototype.hasOwnProperty.call(r, 'replyContent') ||
     Object.prototype.hasOwnProperty.call(r, 'replyDate');
 }
 
+// ✅ 重點修正：
+// 1. 沒有文字黑名單，所以不會刪「謝謝分享！ :)」。
+// 2. scraper 這次有回覆欄位時，以 scraper 這次結果為準。
+// 3. 不用 old.replyContent 補回來，避免舊錯誤回覆一直殘留在已重新爬到的評論上。
+// 4. 如果 scraper 真的沒提供回覆欄位，才保留 old，避免未支援欄位的舊版資料被清空。
 function getMergedReplyData(r, old) {
   const scraperHasReplyField = hasReplyField(r);
 
@@ -167,14 +174,14 @@ function getMergedReplyData(r, old) {
 
   if (scraperHasReplyField) {
     return {
-      hasReply: Boolean(r.hasReply || newReplyContent),
+      hasReply: Boolean(newReplyContent),
       replyContent: newReplyContent,
       replyDate: newReplyDate
     };
   }
 
   return {
-    hasReply: Boolean(old?.hasReply || old?.replyContent),
+    hasReply: Boolean(old?.replyContent),
     replyContent: old?.replyContent || '',
     replyDate: old?.replyDate || ''
   };
@@ -241,7 +248,7 @@ async function main() {
         isEditedText(r.editedText) ||
         Boolean(old?.isEdited),
 
-      // ✅ 商家 / 業主回應欄位：這三個就是之前漏掉的
+      // ✅ 商家 / 業主回應欄位
       hasReply: replyData.hasReply,
       replyContent: replyData.replyContent,
       replyDate: replyData.replyDate,
@@ -359,7 +366,7 @@ async function main() {
   console.log(`📦 寫入 comments.json ${nextComments.length} 筆`);
   console.log(`💾 新增 ${newCount} 筆，更新 ${updatedCount} 筆，保存舊版本 ${versionSavedCount} 筆`);
 
-  const replyCount = nextComments.filter(c => c.hasReply || c.replyContent).length;
+  const replyCount = nextComments.filter(c => text(c.replyContent)).length;
   console.log(`💬 已寫入有業主回應 ${replyCount} 筆`);
 }
 
