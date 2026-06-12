@@ -44,9 +44,8 @@ function getMaxRounds() {
   }
 
   return Math.floor(value);
-
-  
 }
+
 async function extractStoreRating(page) {
   return await page.evaluate(() => {
     function clean(value) {
@@ -69,20 +68,17 @@ async function extractStoreRating(page) {
 
     function isValidAverageRating(value) {
       const n = Number(value);
-
       return Number.isFinite(n) && n >= 1 && n <= 5 && String(value).includes('.');
     }
 
-    // ✅ 優先抓 Google Maps 平均星等區塊
-    // 常見 DOM：.F7nice 裡會同時有「4.6」和「470 篇評論」
     const ratingBlocks = Array.from(document.querySelectorAll('.F7nice'));
 
     for (const block of ratingBlocks) {
       if (!isVisible(block)) continue;
 
-      const spans = Array.from(block.querySelectorAll('span, div'));
+      const items = Array.from(block.querySelectorAll('span, div'));
 
-      for (const el of spans) {
+      for (const el of items) {
         if (!isVisible(el)) continue;
 
         const text = clean(el.innerText || el.textContent || '');
@@ -101,14 +97,11 @@ async function extractStoreRating(page) {
       }
     }
 
-    // ✅ 備援：找畫面上獨立顯示的 4.x / 3.x
-    // ❌ 不接受整數 5，避免抓到「5 星」分布
     const visibleElements = Array.from(document.querySelectorAll('span, div'))
       .filter(isVisible);
 
     for (const el of visibleElements) {
       const text = clean(el.innerText || el.textContent || '');
-
       const match = text.match(/^([1-5]\.\d)$/);
 
       if (match && isValidAverageRating(match[1])) {
@@ -116,7 +109,6 @@ async function extractStoreRating(page) {
       }
     }
 
-    // ✅ 最後備援：aria-label 可能有「4.6 顆星」
     for (const el of visibleElements) {
       const aria = clean(el.getAttribute('aria-label') || '');
       const title = clean(el.getAttribute('title') || '');
@@ -964,7 +956,7 @@ async function scrapeGoogleReviews() {
     await clickNewestSort(page);
 
     // ✅ 快速載入 + 邊抓邊存
-    // ✅ 抓 Google 店家平均星等
+  // ✅ 抓 Google 店家平均星等
 const storeRating = await extractStoreRating(page);
 
 console.log("⭐ Google 店家平均星等:", storeRating || "未抓到");
@@ -983,7 +975,6 @@ reviews.forEach(review => {
 });
 
 return reviews;
-
   } catch (err) {
     console.error("❌ 錯誤:", err);
     return [];

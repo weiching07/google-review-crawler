@@ -7,9 +7,9 @@ const DASHBOARD_TEMPLATE = {
       brandLabel: 'LILLA',
       stores: [
         {
-          store: 'DREAM PLAZA',
-          label: 'DREAM PLAZA 店',
-          title: 'LillA DREAM PLAZA店 評論分析儀表板'
+          store: '台北',
+          label: '台北 店',
+          title: 'LillA 台北店 評論分析儀表板'
         }
       ]
     },
@@ -39,8 +39,8 @@ function normalizeBrand(value) {
 
   if (
     raw === 'LILLA' ||
-    raw === 'LILLA DREAM PLAZA' ||
-    raw === 'LILLA_DREAM PLAZA'
+    raw === 'LILLA 台北' ||
+    raw === 'LILLA_TAIPEI'
   ) {
     return 'LILLA';
   }
@@ -68,12 +68,12 @@ function getCommentStore(c) {
   if (rawStore) {
     if (rawStore.includes('南港')) return '南港';
     if (rawStore.includes('101')) return '101';
-    if (rawStore.includes('DREAM PLAZA')) return 'DREAM PLAZA';
+    if (rawStore.includes('台北')) return '台北';
     return rawStore;
   }
 
   if (brand === 'LILLA') {
-    return 'DREAM PLAZA';
+    return '台北';
   }
 
   return '';
@@ -87,17 +87,27 @@ function getDisplayBrand(c) {
 function getDisplayStore(c) {
   const store = getCommentStore(c);
   return store || '未知';
+}
 
-  function getStoreAverageRatingFromData(brand, store) {
-  if (!Array.isArray(rawData)) {
+function getStoreAverageRatingFromData(brand, store) {
+  if (typeof rawData === 'undefined' || !Array.isArray(rawData)) {
     return '';
   }
 
   const matched = rawData.find(c => {
     if (!c) return false;
 
-    const sameBrand = brand === 'all' || getCommentBrand(c) === brand;
-    const sameStore = store === 'all' || getCommentStore(c) === store;
+    const commentBrand = getCommentBrand(c);
+    const commentStore = getCommentStore(c);
+
+    const sameBrand =
+      brand === 'all' ||
+      commentBrand === brand;
+
+    const sameStore =
+      store === 'all' ||
+      commentStore === store ||
+      (brand === 'LILLA' && commentBrand === 'LILLA');
 
     return sameBrand && sameStore && (
       c.storeRating ||
@@ -133,7 +143,6 @@ function renderStoreButtonContent(label, brand, store) {
       }
     </div>
   `;
-}
 }
 
 function getDashboardTitle() {
@@ -299,7 +308,8 @@ function updateStoreFilterButtons() {
         ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
         : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
 
-        btn.innerHTML = renderStoreButtonContent(
+
+      btn.innerHTML = renderStoreButtonContent(
   storeItem.label,
   brandGroup.brand,
   storeItem.store
