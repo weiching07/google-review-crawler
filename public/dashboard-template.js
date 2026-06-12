@@ -7,9 +7,9 @@ const DASHBOARD_TEMPLATE = {
       brandLabel: 'LILLA',
       stores: [
         {
-          store: '台北',
-          label: '台北 店',
-          title: 'LillA 台北店 評論分析儀表板'
+          store: 'DREAM PLAZA',
+          label: 'DREAM PLAZA 店',
+          title: 'LillA DREAM PLAZA店 評論分析儀表板'
         }
       ]
     },
@@ -39,7 +39,7 @@ function normalizeBrand(value) {
 
   if (
     raw === 'LILLA' ||
-    raw === 'LILLA 台北' ||
+    raw === 'LILLA DREAM PLAZA' ||
     raw === 'LILLA_TAIPEI'
   ) {
     return 'LILLA';
@@ -68,12 +68,12 @@ function getCommentStore(c) {
   if (rawStore) {
     if (rawStore.includes('南港')) return '南港';
     if (rawStore.includes('101')) return '101';
-    if (rawStore.includes('台北')) return '台北';
+    if (rawStore.includes('DREAM PLAZA')) return 'DREAM PLAZA';
     return rawStore;
   }
 
   if (brand === 'LILLA') {
-    return '台北';
+    return 'DREAM PLAZA';
   }
 
   return '';
