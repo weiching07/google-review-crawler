@@ -264,9 +264,9 @@ date: r.date || old?.date || '',
       replyContent: replyData.replyContent,
       replyDate: replyData.replyDate,
 
-      branch: old?.branch || 'LILLA',
-      brand: old?.brand || r.brand || '',
-      store: old?.store || r.store || '',
+      branch: r.branch || old?.branch || '',
+brand: r.brand || old?.brand || '',
+store: r.store || old?.store || '',
       scrapedAt: old?.scrapedAt || now,
       updatedAt: old?.updatedAt || '',
       lastSeenAt: now

@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const STORES = require('./stores');
 
 puppeteer.use(StealthPlugin());
 
@@ -807,6 +808,131 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   return reviews;
 }
 
+async function scrapeOneStore(page, storeConfig, maxRounds) {
+  console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
+
+  console.log("➡️ 前往 Google...");
+  await page.goto('https://www.google.com.tw/?hl=zh-TW', {
+    waitUntil: 'networkidle2',
+    timeout: 60000
+  });
+
+  await randomDelay(2000, 3000);
+
+  console.log(`🔍 搜尋 ${storeConfig.keyword}...`);
+
+  const searchBox = 'textarea[name="q"], input[name="q"]';
+
+  await page.waitForSelector(searchBox, {
+    timeout: 30000
+  });
+
+  await page.click(searchBox, { clickCount: 3 });
+  await page.keyboard.press('Backspace');
+
+  for (const char of storeConfig.keyword) {
+    await page.type(searchBox, char);
+    await randomDelay(100, 200);
+  }
+
+  await page.keyboard.press('Enter');
+  await randomDelay(5000, 6000);
+
+  console.log("🚀 嘗試進入 Google Maps...");
+
+  const opened = await page.evaluate(() => {
+    const els = Array.from(document.querySelectorAll('a, button, span'));
+
+    const target = els.find(el => {
+      const t = (el.innerText || '').toLowerCase();
+      return t.includes('地圖') || t.includes('google 地圖');
+    });
+
+    if (target) {
+      target.click();
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!opened) {
+    console.log("⚠️ 直接開地圖 fallback");
+
+    await page.goto(storeConfig.fallbackUrl, {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    });
+  }
+
+  await randomDelay(8000, 10000);
+
+  console.log("🎯 找評論按鈕...");
+
+  const tabClicked = await page.evaluate(() => {
+    const getText = (el) => {
+      return (
+        (el.innerText || '') +
+        (el.textContent || '') +
+        (el.getAttribute('aria-label') || '') +
+        (el.getAttribute('title') || '')
+      ).toLowerCase();
+    };
+
+    const keywords = [
+      '評論',
+      'reviews',
+      '查看評論',
+      '查看全部評論'
+    ];
+
+    const elements = Array.from(document.querySelectorAll('button, a, div'));
+
+    for (const el of elements) {
+      const text = getText(el);
+
+      if (keywords.some(k => text.includes(k))) {
+        el.click();
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+  console.log("🎯 review tab result:", tabClicked);
+
+  if (tabClicked) {
+    await randomDelay(6000, 8000);
+  } else {
+    console.log("⚠️ 沒點到評論");
+  }
+
+  await clickNewestSort(page);
+
+  const storeRating = await extractStoreRating(page);
+
+  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || "未抓到");
+  console.log("🔁 本次評論滑動輪數:", maxRounds);
+
+  const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+
+  reviews.forEach(review => {
+    review.brand = storeConfig.brand;
+    review.store = storeConfig.store;
+    review.branch = storeConfig.branch;
+
+    review.storeRating = storeRating;
+    review.averageRating = storeRating;
+  });
+
+  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`);
+
+  return reviews;
+}
+
+
+
 async function scrapeGoogleReviews() {
   let browser;
 
@@ -853,128 +979,23 @@ async function scrapeGoogleReviews() {
       '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     );
 
-    // 🚀 Step 1
-    console.log("➡️ 前往 Google...");
-    await page.goto('https://www.google.com.tw/?hl=zh-TW', {
-      waitUntil: 'networkidle2',
-      timeout: 60000
-    });
+   const maxRounds = getMaxRounds();
+const allReviews = [];
 
-    await randomDelay(2000, 3000);
+for (const storeConfig of STORES) {
+  try {
+    const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+    allReviews.push(...reviews);
+  } catch (err) {
+    console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
+  }
 
-    // 🚀 Step 2
-    console.log("🔍 搜尋 LillA 台北...");
-    const searchBox = 'textarea[name="q"], input[name="q"]';
+  await randomDelay(3000, 5000);
+}
 
-    await page.waitForSelector(searchBox, {
-      timeout: 30000
-    });
+console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
 
-    await page.click(searchBox);
-
-    for (const char of 'LillA 台北') {
-      await page.type(searchBox, char);
-      await randomDelay(100, 200);
-    }
-
-    await page.keyboard.press('Enter');
-    await randomDelay(5000, 6000);
-
-    // 🚀 Step 3（進地圖）
-    console.log("🚀 嘗試進入 Google Maps...");
-
-    const opened = await page.evaluate(() => {
-      const els = Array.from(document.querySelectorAll('a, button, span'));
-
-      const target = els.find(el => {
-        const t = (el.innerText || '').toLowerCase();
-        return t.includes('地圖') || t.includes('google 地圖');
-      });
-
-      if (target) {
-        target.click();
-        return true;
-      }
-
-      return false;
-    });
-
-    if (!opened) {
-      console.log("⚠️ 直接開地圖 fallback");
-
-      await page.goto('https://www.google.com/maps/search/LillA', {
-        waitUntil: 'networkidle2',
-        timeout: 60000
-      });
-    }
-
-    await randomDelay(8000, 10000);
-
-    // 🚀 Step 4（評論按鈕強化版）
-    console.log("🎯 找評論按鈕...");
-
-    const tabClicked = await page.evaluate(() => {
-      const getText = (el) => {
-        return (
-          (el.innerText || '') +
-          (el.textContent || '') +
-          (el.getAttribute('aria-label') || '') +
-          (el.getAttribute('title') || '')
-        ).toLowerCase();
-      };
-
-      const keywords = [
-        '評論',
-        'reviews',
-        '查看評論',
-        '查看全部評論'
-      ];
-
-      const elements = Array.from(document.querySelectorAll('button, a, div'));
-
-      for (const el of elements) {
-        const text = getText(el);
-
-        if (keywords.some(k => text.includes(k))) {
-          el.click();
-          return true;
-        }
-      }
-
-      return false;
-    });
-
-    console.log("🎯 review tab result:", tabClicked);
-
-    if (tabClicked) {
-      await randomDelay(6000, 8000);
-    } else {
-      console.log("⚠️ 沒點到評論");
-    }
-
-    // ✅ 切換最新排序
-    await clickNewestSort(page);
-
-    // ✅ 快速載入 + 邊抓邊存
-  // ✅ 抓 Google 店家平均星等
-const storeRating = await extractStoreRating(page);
-
-console.log("⭐ Google 店家平均星等:", storeRating || "未抓到");
-
-// ✅ 快速載入 + 邊抓邊存
-const maxRounds = getMaxRounds();
-
-console.log("🔁 本次評論滑動輪數:", maxRounds);
-
-const reviews = await fastLoadAndCollectReviews(page, maxRounds);
-
-// ✅ 把店家平均星等塞進每一筆評論
-reviews.forEach(review => {
-  review.storeRating = storeRating;
-  review.averageRating = storeRating;
-});
-
-return reviews;
+return allReviews;
   } catch (err) {
     console.error("❌ 錯誤:", err);
     return [];
