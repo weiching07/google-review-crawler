@@ -863,7 +863,7 @@ async function scrapeGoogleReviews() {
     await randomDelay(2000, 3000);
 
     // 🚀 Step 2
-    console.log("🔍 搜尋 LillA DREAM PLAZA...");
+    console.log("🔍 搜尋 LillA 台北...");
     const searchBox = 'textarea[name="q"], input[name="q"]';
 
     await page.waitForSelector(searchBox, {
@@ -872,7 +872,7 @@ async function scrapeGoogleReviews() {
 
     await page.click(searchBox);
 
-    for (const char of 'LillA DREAM PLAZA') {
+    for (const char of 'LillA 台北') {
       await page.type(searchBox, char);
       await randomDelay(100, 200);
     }
