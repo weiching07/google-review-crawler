@@ -247,7 +247,11 @@ async function main() {
       author: r.author || old?.author || '',
       content: r.content || '',
       rating: Number(r.rating || 0),
-      date: r.date || old?.date || '',
+
+storeRating: r.storeRating || r.averageRating || old?.storeRating || old?.averageRating || '',
+averageRating: r.averageRating || r.storeRating || old?.averageRating || old?.storeRating || '',
+
+date: r.date || old?.date || '',
       editedText: r.editedText || old?.editedText || '',
       isEdited:
         Boolean(r.isEdited) ||

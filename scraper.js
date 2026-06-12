@@ -44,6 +44,93 @@ function getMaxRounds() {
   }
 
   return Math.floor(value);
+
+  
+}
+async function extractStoreRating(page) {
+  return await page.evaluate(() => {
+    function clean(value) {
+      return String(value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function isVisible(el) {
+      if (!el) return false;
+
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    function isValidAverageRating(value) {
+      const n = Number(value);
+
+      return Number.isFinite(n) && n >= 1 && n <= 5 && String(value).includes('.');
+    }
+
+    // ✅ 優先抓 Google Maps 平均星等區塊
+    // 常見 DOM：.F7nice 裡會同時有「4.6」和「470 篇評論」
+    const ratingBlocks = Array.from(document.querySelectorAll('.F7nice'));
+
+    for (const block of ratingBlocks) {
+      if (!isVisible(block)) continue;
+
+      const spans = Array.from(block.querySelectorAll('span, div'));
+
+      for (const el of spans) {
+        if (!isVisible(el)) continue;
+
+        const text = clean(el.innerText || el.textContent || '');
+        const match = text.match(/^([1-5]\.\d)$/);
+
+        if (match && isValidAverageRating(match[1])) {
+          return match[1];
+        }
+      }
+
+      const blockText = clean(block.innerText || block.textContent || '');
+      const blockMatch = blockText.match(/\b([1-5]\.\d)\b/);
+
+      if (blockMatch && isValidAverageRating(blockMatch[1])) {
+        return blockMatch[1];
+      }
+    }
+
+    // ✅ 備援：找畫面上獨立顯示的 4.x / 3.x
+    // ❌ 不接受整數 5，避免抓到「5 星」分布
+    const visibleElements = Array.from(document.querySelectorAll('span, div'))
+      .filter(isVisible);
+
+    for (const el of visibleElements) {
+      const text = clean(el.innerText || el.textContent || '');
+
+      const match = text.match(/^([1-5]\.\d)$/);
+
+      if (match && isValidAverageRating(match[1])) {
+        return match[1];
+      }
+    }
+
+    // ✅ 最後備援：aria-label 可能有「4.6 顆星」
+    for (const el of visibleElements) {
+      const aria = clean(el.getAttribute('aria-label') || '');
+      const title = clean(el.getAttribute('title') || '');
+      const source = `${aria} ${title}`;
+
+      const match = source.match(/([1-5]\.\d)\s*(?:星|顆星|stars?)/i);
+
+      if (match && isValidAverageRating(match[1])) {
+        return match[1];
+      }
+    }
+
+    return '';
+  });
 }
 
 // ✅ 切換「最新排序」：維持你現在成功的版本
@@ -877,13 +964,25 @@ async function scrapeGoogleReviews() {
     await clickNewestSort(page);
 
     // ✅ 快速載入 + 邊抓邊存
-    const maxRounds = getMaxRounds();
+    // ✅ 抓 Google 店家平均星等
+const storeRating = await extractStoreRating(page);
 
-    console.log("🔁 本次評論滑動輪數:", maxRounds);
+console.log("⭐ Google 店家平均星等:", storeRating || "未抓到");
 
-    const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+// ✅ 快速載入 + 邊抓邊存
+const maxRounds = getMaxRounds();
 
-    return reviews;
+console.log("🔁 本次評論滑動輪數:", maxRounds);
+
+const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+
+// ✅ 把店家平均星等塞進每一筆評論
+reviews.forEach(review => {
+  review.storeRating = storeRating;
+  review.averageRating = storeRating;
+});
+
+return reviews;
 
   } catch (err) {
     console.error("❌ 錯誤:", err);
