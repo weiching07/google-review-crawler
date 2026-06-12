@@ -41,14 +41,13 @@
             class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
           >
             重新整理資料
-          </button>
-
           <button
-            onclick="enableAllReviewNotifications()"
-            class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
-          >
-            開啟網頁與手機背景評論通知
-          </button>
+          id="notificationToggleButton"
+          onclick="toggleAllReviewNotifications()"
+          class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+>
+  開啟網頁與手機背景評論通知
+</button>
 
           <select id="starFilter" onchange="render()" class="border p-2 rounded">
             <option value="all">顯示全部星等</option>
@@ -186,7 +185,7 @@
     let rawData = [];
     let allVersions = [];
 
-    const READ_STORAGE_KEY = 'lilla_read_review_ids_v1';
+    const NOTIFICATION_ENABLED_STORAGE_KEY = 'lilla_review_notification_enabled_v1';
 
     const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb2282.workers.dev';
     const SYNC_SECRET = 'sync-2026-change-this';
@@ -344,6 +343,95 @@
         console.error(err);
         status.textContent = '評論通知已開啟，但手機背景通知設定失敗：' + err.message;
       }
+
+      async function isPushNotificationEnabled() {
+  if (!('serviceWorker' in navigator)) {
+    return false;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('./');
+
+    if (!registration) {
+      return false;
+    }
+
+    const subscription = await registration.pushManager.getSubscription();
+
+    return Boolean(subscription);
+  } catch {
+    return false;
+  }
+}
+
+async function updateNotificationToggleButton() {
+  const button = document.getElementById('notificationToggleButton');
+
+  if (!button) return;
+
+  const enabled = await isPushNotificationEnabled();
+
+  localStorage.setItem(
+    NOTIFICATION_ENABLED_STORAGE_KEY,
+    enabled ? 'true' : 'false'
+  );
+
+  if (enabled) {
+    button.textContent = '關閉網頁與手機背景評論通知';
+    button.className = 'border p-2 rounded bg-zinc-600 text-white hover:bg-zinc-700';
+  } else {
+    button.textContent = '開啟網頁與手機背景評論通知';
+    button.className = 'border p-2 rounded bg-purple-600 text-white hover:bg-purple-700';
+  }
+}
+
+async function toggleAllReviewNotifications() {
+  const enabled = await isPushNotificationEnabled();
+
+  if (enabled) {
+    await disableAllReviewNotifications();
+  } else {
+    await enableAllReviewNotifications();
+  }
+
+  await updateNotificationToggleButton();
+}
+
+async function disableAllReviewNotifications() {
+  const status = document.getElementById('status');
+
+  if (!('serviceWorker' in navigator)) {
+    status.textContent = '這個瀏覽器不支援 Service Worker，無法關閉背景通知。';
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('./');
+
+    if (!registration) {
+      localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+      status.textContent = '目前沒有背景通知訂閱。';
+      return;
+    }
+
+    const subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+      status.textContent = '手機背景通知已是關閉狀態。';
+      return;
+    }
+
+    await subscription.unsubscribe();
+
+    localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+
+    status.textContent = '手機背景通知已關閉。';
+  } catch (err) {
+    console.error(err);
+    status.textContent = '關閉手機背景通知失敗：' + err.message;
+  }
+}
     }
 
     function getNotifyKey(c) {
@@ -1317,8 +1405,11 @@
     renderSidebar();
     updateDashboardTitle();
 
-    registerServiceWorker();
-    loadData();
+    registerServiceWorker().then(() => {
+  updateNotificationToggleButton();
+});
+
+loadData();
   </script>
 </body>
 </html>
