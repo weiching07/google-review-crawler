@@ -72,6 +72,7 @@ jobs:
           SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
 
       - name: Send push notifications
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.scrape_rounds == '5' }}
         run: npm run notify:push
         env:
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
