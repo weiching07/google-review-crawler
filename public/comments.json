@@ -1,5 +1,26 @@
 [
   {
+    "id": "1781267983593-165",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT21sV1NsSXdSbWxQVkcxaFRFNTZOMDV5UTJ0amEyYxAB",
+    "author": "Rebecca Hu",
+    "content": "食物很好吃，員工非常熱情周到，氣氛也很棒。是一家非常好的餐廳，下次還會再來。",
+    "rating": 5,
+    "storeRating": "4.6",
+    "averageRating": "4.6",
+    "date": "3 分鐘前",
+    "editedText": "",
+    "isEdited": false,
+    "hasReply": false,
+    "replyContent": "",
+    "replyDate": "",
+    "branch": "SALT&STONE",
+    "brand": "SALT&STONE",
+    "store": "101",
+    "scrapedAt": "2026-06-12T12:39:43.591Z",
+    "updatedAt": "",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z"
+  },
+  {
     "id": "1781259548654-252",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT25SdlNqVlNTazUwVDFobGQwVnpTSEIwT0hCNU5HYxAB",
     "author": "Elsie Lu",
@@ -39,7 +60,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-250",
@@ -60,7 +84,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-249",
@@ -81,7 +108,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-248",
@@ -102,7 +132,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-247",
@@ -123,7 +156,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-246",
@@ -144,7 +180,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-245",
@@ -165,7 +204,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-244",
@@ -186,7 +228,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-243",
@@ -207,7 +252,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-242",
@@ -228,7 +276,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-241",
@@ -249,7 +300,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-240",
@@ -270,7 +324,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-239",
@@ -291,7 +348,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-238",
@@ -312,7 +372,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-237",
@@ -333,7 +396,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-236",
@@ -354,7 +420,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-235",
@@ -375,7 +444,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-234",
@@ -396,7 +468,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-233",
@@ -406,7 +481,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -417,7 +492,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-232",
@@ -427,7 +505,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -438,7 +516,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-231",
@@ -448,7 +529,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -459,7 +540,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-230",
@@ -469,7 +553,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -480,7 +564,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-229",
@@ -490,7 +577,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -501,7 +588,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-228",
@@ -511,7 +601,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -522,7 +612,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-227",
@@ -543,7 +636,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-226",
@@ -564,7 +660,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-225",
@@ -585,7 +684,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-224",
@@ -606,7 +708,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-223",
@@ -627,7 +732,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-222",
@@ -648,7 +756,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-221",
@@ -669,7 +780,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-220",
@@ -690,7 +804,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-219",
@@ -711,7 +828,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-218",
@@ -732,7 +852,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-217",
@@ -753,7 +876,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-216",
@@ -774,7 +900,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-215",
@@ -795,7 +924,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-214",
@@ -816,7 +948,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-213",
@@ -837,7 +972,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-212",
@@ -858,7 +996,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-211",
@@ -879,7 +1020,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-210",
@@ -900,7 +1044,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-209",
@@ -921,7 +1068,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-208",
@@ -942,7 +1092,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-207",
@@ -963,7 +1116,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-206",
@@ -984,7 +1140,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-205",
@@ -1005,7 +1164,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-204",
@@ -1026,7 +1188,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-203",
@@ -1047,7 +1212,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-202",
@@ -1068,7 +1236,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-201",
@@ -1089,7 +1260,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-200",
@@ -1110,7 +1284,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-199",
@@ -1131,7 +1308,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-198",
@@ -1152,7 +1332,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-197",
@@ -1173,7 +1356,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-196",
@@ -1194,7 +1380,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-195",
@@ -1215,7 +1404,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-194",
@@ -1236,7 +1428,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-193",
@@ -1257,7 +1452,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-192",
@@ -1278,7 +1476,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-191",
@@ -1299,7 +1500,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-190",
@@ -1320,7 +1524,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-189",
@@ -1341,7 +1548,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-188",
@@ -1362,7 +1572,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-187",
@@ -1383,7 +1596,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-186",
@@ -1404,7 +1620,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-185",
@@ -1425,7 +1644,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-184",
@@ -1446,7 +1668,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-183",
@@ -1467,7 +1692,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-182",
@@ -1488,7 +1716,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-181",
@@ -1509,7 +1740,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-180",
@@ -1530,7 +1764,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-179",
@@ -1551,7 +1788,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-178",
@@ -1572,7 +1812,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-177",
@@ -1593,7 +1836,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-176",
@@ -1614,7 +1860,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-175",
@@ -1635,7 +1884,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-174",
@@ -1656,7 +1908,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-173",
@@ -1677,7 +1932,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-172",
@@ -1698,7 +1956,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-171",
@@ -1719,7 +1980,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-170",
@@ -1740,7 +2004,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-169",
@@ -1761,7 +2028,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-168",
@@ -1782,7 +2052,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-167",
@@ -1792,7 +2065,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "21 小時前",
+    "date": "1 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -1803,7 +2076,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-166",
@@ -1813,7 +2089,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "21 小時前",
+    "date": "1 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -1824,7 +2100,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-165",
@@ -1834,7 +2113,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "21 小時前",
+    "date": "1 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -1845,7 +2124,10 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-164",
@@ -1866,7 +2148,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-163",
@@ -1887,7 +2172,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-162",
@@ -1908,7 +2196,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-161",
@@ -1929,7 +2220,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-160",
@@ -1950,7 +2244,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-159",
@@ -1971,7 +2268,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-158",
@@ -1992,7 +2292,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-157",
@@ -2013,7 +2316,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-156",
@@ -2034,7 +2340,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-155",
@@ -2055,7 +2364,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-154",
@@ -2076,7 +2388,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-153",
@@ -2097,7 +2412,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-152",
@@ -2118,7 +2436,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-151",
@@ -2139,7 +2460,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-150",
@@ -2160,7 +2484,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-149",
@@ -2181,7 +2508,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-148",
@@ -2202,7 +2532,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-147",
@@ -2223,7 +2556,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-146",
@@ -2244,7 +2580,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-145",
@@ -2265,7 +2604,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-144",
@@ -2286,7 +2628,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-143",
@@ -2307,7 +2652,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-142",
@@ -2328,7 +2676,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-141",
@@ -2349,7 +2700,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-140",
@@ -2370,7 +2724,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-139",
@@ -2391,7 +2748,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-138",
@@ -2412,7 +2772,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-137",
@@ -2433,7 +2796,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-136",
@@ -2454,7 +2820,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-135",
@@ -2475,7 +2844,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-134",
@@ -2496,7 +2868,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-133",
@@ -2517,7 +2892,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-132",
@@ -2538,7 +2916,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-131",
@@ -2559,7 +2940,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-130",
@@ -2580,7 +2964,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-129",
@@ -2601,7 +2988,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-128",
@@ -2622,7 +3012,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-127",
@@ -2643,7 +3036,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-126",
@@ -2653,7 +3049,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "3 週前",
+    "date": "4 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -2664,7 +3060,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-125",
@@ -2685,7 +3084,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-124",
@@ -2706,7 +3108,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-123",
@@ -2727,7 +3132,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-122",
@@ -2748,7 +3156,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-121",
@@ -2769,7 +3180,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-120",
@@ -2790,7 +3204,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-119",
@@ -2811,7 +3228,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-118",
@@ -2832,7 +3252,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-117",
@@ -2853,7 +3276,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-116",
@@ -2874,7 +3300,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-115",
@@ -2895,7 +3324,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-114",
@@ -2916,7 +3348,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-113",
@@ -2937,7 +3372,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-112",
@@ -2958,7 +3396,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-111",
@@ -2979,7 +3420,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-110",
@@ -3000,7 +3444,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-109",
@@ -3021,7 +3468,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-108",
@@ -3042,7 +3492,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-107",
@@ -3063,7 +3516,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-106",
@@ -3084,7 +3540,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-105",
@@ -3105,7 +3564,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-104",
@@ -3126,7 +3588,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-103",
@@ -3147,7 +3612,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-102",
@@ -3168,7 +3636,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-101",
@@ -3178,7 +3649,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "5 天前",
+    "date": "6 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3189,7 +3660,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-100",
@@ -3199,7 +3673,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "5 天前",
+    "date": "6 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3210,7 +3684,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-99",
@@ -3220,7 +3697,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "5 天前",
+    "date": "6 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3231,7 +3708,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-98",
@@ -3241,7 +3721,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "5 天前",
+    "date": "6 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3252,7 +3732,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-97",
@@ -3262,7 +3745,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "5 天前",
+    "date": "6 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3273,7 +3756,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-96",
@@ -3283,6 +3769,30 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
+    "date": "6 天前",
+    "editedText": "",
+    "isEdited": false,
+    "hasReply": false,
+    "replyContent": "",
+    "replyDate": "",
+    "branch": "SALT&STONE",
+    "brand": "SALT&STONE",
+    "store": "南港",
+    "scrapedAt": "2026-06-12T10:19:08.651Z",
+    "updatedAt": "",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+  },
+  {
+    "id": "1781259548654-95",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2xSU1lqQnNUakpaU0Uxc1EwaGxlakpQY2tSbFZVRRAB",
+    "author": "YIHWEN WANG",
+    "content": "點了招牌的泰式牛排沙拉\n層次太豐富\n廚師真厲害\n頂級饗宴\n回不去了🤭",
+    "rating": 5,
+    "storeRating": "4.5",
+    "averageRating": "4.5",
     "date": "5 天前",
     "editedText": "",
     "isEdited": false,
@@ -3294,28 +3804,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
-  },
-  {
-    "id": "1781259548654-95",
-    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2xSU1lqQnNUakpaU0Uxc1EwaGxlakpQY2tSbFZVRRAB",
-    "author": "YIHWEN WANG",
-    "content": "點了招牌的泰式牛排沙拉\n層次太豐富\n廚師真厲害\n頂級饗宴\n回不去了🤭",
-    "rating": 5,
-    "storeRating": "4.5",
-    "averageRating": "4.5",
-    "date": "4 天前",
-    "editedText": "",
-    "isEdited": false,
-    "hasReply": false,
-    "replyContent": "",
-    "replyDate": "",
-    "branch": "SALT&STONE",
-    "brand": "SALT&STONE",
-    "store": "南港",
-    "scrapedAt": "2026-06-12T10:19:08.651Z",
-    "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-94",
@@ -3325,7 +3817,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "4 天前",
+    "date": "5 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3336,7 +3828,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-93",
@@ -3357,7 +3852,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-92",
@@ -3378,7 +3876,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-91",
@@ -3388,7 +3889,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "21 小時前",
+    "date": "23 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3399,7 +3900,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781259548654-90",
@@ -3409,7 +3913,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "21 小時前",
+    "date": "23 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3420,7 +3924,10 @@
     "store": "南港",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z"
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1781211748562-0",
@@ -3428,7 +3935,7 @@
     "author": "Emily Peng",
     "content": "雖然走錯店不知道LillA與LillE有沒有差別….\n但意外吃到很驚艷\n超好吃的鮭魚炒飯\n照燒鮭魚碗，鮭魚肉蠻大塊\n（天價貴但真的好吃）\n西西里氣泡咖啡沒在菜單上\n選至特調～居然沒有加糖超難喝！\n後來有服務生來服務再附上蜂蜜糖漿\n整杯飲品就復活了！\n不知道原本幫我點餐的服務人員在幹嘛（？\n看他點餐滿頭問號❓問個飲品冒冒失失的\n來高級餐廳有特調飲品是這樣的味道\n很不及格….\n除了飲品以為餐點是好吃的",
     "rating": 4,
-    "date": "14 小時前",
+    "date": "17 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3439,7 +3946,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-11T21:02:28.561Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3452,7 +3959,7 @@
     "author": "Kanyo Liu",
     "content": "餐廳位於dream plaza 一樓，看起來是新開幕！\n\n必須先稱讚服務人員！！！在門口報到時就正確且快速的引導入座，令人印象深刻。\n\n美式風格吧台挑高座位，燈光完美，隨便拍都很有韻味。\n\n我們點雙人套餐，再加一個漢堡。雖然餐點價格有些昂貴，但有良好的用餐氛圍跟貼心的桌邊服務，整體還是十分滿意👍畢竟很chill的感覺不是隨便一間餐廳都有的😂",
     "rating": 5,
-    "date": "18 小時前",
+    "date": "20 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3463,7 +3970,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-11T18:25:09.845Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3487,7 +3994,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-11T06:26:19.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3500,7 +4007,7 @@
     "author": "竹ㄣ",
     "content": "arod服務很好 新的水果調酒很好喝 希望能開到更晚",
     "rating": 5,
-    "date": "1 天前",
+    "date": "2 天前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3511,7 +4018,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-10T12:01:50.047Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3535,7 +4042,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-10T08:14:02.929Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3559,7 +4066,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-03T10:08:41.380Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3583,7 +4090,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3607,7 +4114,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3631,7 +4138,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3655,7 +4162,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3679,7 +4186,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3703,7 +4210,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3716,7 +4223,7 @@
     "author": "Chenchen",
     "content": "餐點很好吃，Arod服務超好👍👍👍",
     "rating": 5,
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3727,7 +4234,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3740,7 +4247,7 @@
     "author": "elvis fan",
     "content": "餐點好吃！服務人員Arod很熱情～推薦大家來吃！",
     "rating": 5,
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3751,7 +4258,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3764,7 +4271,7 @@
     "author": "Alan Yang",
     "content": "餐點好吃！服務員Arod親切",
     "rating": 5,
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3775,7 +4282,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3788,7 +4295,7 @@
     "author": "林小玉",
     "content": "Arod很可愛會主動介紹菜色還很親切，服務很有熱忱，會想再來的店",
     "rating": 5,
-    "date": "2 週前",
+    "date": "3 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -3799,7 +4306,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3823,7 +4330,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3847,7 +4354,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3871,7 +4378,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3895,7 +4402,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3919,7 +4426,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3943,7 +4450,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3967,7 +4474,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -3991,7 +4498,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4015,7 +4522,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4039,7 +4546,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4063,7 +4570,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4087,7 +4594,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4111,7 +4618,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4135,7 +4642,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4159,7 +4666,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4183,7 +4690,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4207,7 +4714,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4231,7 +4738,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4255,7 +4762,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4279,7 +4786,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4303,7 +4810,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4327,7 +4834,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4351,7 +4858,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4375,7 +4882,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4399,7 +4906,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4423,7 +4930,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4447,7 +4954,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4471,7 +4978,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4495,7 +5002,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4519,7 +5026,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4543,7 +5050,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4567,7 +5074,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4591,7 +5098,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4615,7 +5122,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4639,7 +5146,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4663,7 +5170,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4687,7 +5194,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4711,7 +5218,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4735,7 +5242,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4759,7 +5266,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4783,7 +5290,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4807,7 +5314,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4831,7 +5338,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4855,7 +5362,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4879,7 +5386,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4903,7 +5410,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4927,7 +5434,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4951,7 +5458,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4975,7 +5482,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -4999,7 +5506,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5023,7 +5530,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5047,7 +5554,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5071,7 +5578,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5095,7 +5602,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5119,7 +5626,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5143,7 +5650,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5167,7 +5674,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5191,7 +5698,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5215,7 +5722,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5239,7 +5746,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5263,7 +5770,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5287,7 +5794,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5311,7 +5818,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5335,7 +5842,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5359,7 +5866,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5383,7 +5890,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5407,7 +5914,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "2026-06-12T01:59:20.761Z",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5431,7 +5938,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5455,7 +5962,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5479,7 +5986,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5503,7 +6010,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5527,7 +6034,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-02T07:07:32.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5551,7 +6058,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-04T22:43:56.638Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -5575,7 +6082,7 @@
     "store": "DREAM PLAZA",
     "scrapedAt": "2026-06-04T22:43:56.638Z",
     "updatedAt": "2026-06-12T08:16:51.184Z",
-    "lastSeenAt": "2026-06-12T10:19:08.651Z",
+    "lastSeenAt": "2026-06-12T12:39:43.591Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
