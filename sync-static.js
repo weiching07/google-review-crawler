@@ -58,6 +58,37 @@ function getMaxRounds() {
   return Math.floor(value);
 }
 
+function getTargetBrand() {
+  return String(process.env.SCRAPE_TARGET_BRAND || 'all').trim() || 'all';
+}
+
+function getTargetStore() {
+  return String(process.env.SCRAPE_TARGET_STORE || 'all').trim() || 'all';
+}
+
+function isTargetedStoreSync(targetBrand, targetStore) {
+  return targetBrand !== 'all' || targetStore !== 'all';
+}
+
+function matchesTargetStore(comment, targetBrand, targetStore) {
+  if (!comment) {
+    return false;
+  }
+
+  const brand = String(comment.brand || '').trim();
+  const store = String(comment.store || '').trim();
+
+  const brandMatched =
+    targetBrand === 'all' ||
+    brand === targetBrand;
+
+  const storeMatched =
+    targetStore === 'all' ||
+    store === targetStore;
+
+  return brandMatched && storeMatched;
+}
+
 function makeKey(r, index) {
   return String(
     r.reviewId ||
@@ -165,9 +196,6 @@ function getMergedReplyData(r, old) {
   const newReplyContent = text(r.replyContent);
   const newReplyDate = text(r.replyDate);
 
-  // scraper 這次有提供回覆欄位，就以這次爬到的結果為準
-  // 不拿 old.replyContent 補回來，避免錯誤回覆殘留
-  // 不用任何文字黑名單，所以不會刪掉真正的「謝謝分享！ :)」
   if (scraperHasReplyField) {
     return {
       hasReply: Boolean(newReplyContent),
@@ -176,7 +204,6 @@ function getMergedReplyData(r, old) {
     };
   }
 
-  // 如果 scraper 沒提供回覆欄位，才保留舊資料
   return {
     hasReply: Boolean(old?.replyContent),
     replyContent: old?.replyContent || '',
@@ -207,10 +234,19 @@ async function main() {
 
   const isPartialSync = maxRounds <= 5;
 
+  const targetBrand = getTargetBrand();
+  const targetStore = getTargetStore();
+  const targetedStoreSync = isTargetedStoreSync(targetBrand, targetStore);
+
   console.log('🔥 開始同步 Google 評論...');
   console.log(`🔁 本次 sync-static.js 讀到 SCRAPE_MAX_ROUNDS=${maxRounds}`);
   console.log(`🔁 已重新寫入 process.env.SCRAPE_MAX_ROUNDS=${process.env.SCRAPE_MAX_ROUNDS}`);
+  console.log(`🎯 本次同步店別目標：${targetBrand} ${targetStore}`);
   console.log(isPartialSync ? '⚡ 快速同步模式：保留舊有評論' : '🧹 完整同步模式：以本次完整資料為準');
+
+  if (targetedStoreSync) {
+    console.log('🟡 單店 / 單品牌同步模式：其他店資料會原封不動保留，不會被標記刪除');
+  }
 
   const oldComments = readJson(COMMENTS_FILE, []);
   const oldVersions = readJson(VERSIONS_FILE, []);
@@ -248,10 +284,10 @@ async function main() {
       content: r.content || '',
       rating: Number(r.rating || 0),
 
-storeRating: r.storeRating || r.averageRating || old?.storeRating || old?.averageRating || '',
-averageRating: r.averageRating || r.storeRating || old?.averageRating || old?.storeRating || '',
+      storeRating: r.storeRating || r.averageRating || old?.storeRating || old?.averageRating || '',
+      averageRating: r.averageRating || r.storeRating || old?.averageRating || old?.storeRating || '',
 
-date: r.date || old?.date || '',
+      date: r.date || old?.date || '',
       editedText: r.editedText || old?.editedText || '',
       isEdited:
         Boolean(r.isEdited) ||
@@ -259,14 +295,13 @@ date: r.date || old?.date || '',
         isEditedText(r.editedText) ||
         Boolean(old?.isEdited),
 
-      // 商家 / 業主回應欄位
       hasReply: replyData.hasReply,
       replyContent: replyData.replyContent,
       replyDate: replyData.replyDate,
 
       branch: r.branch || old?.branch || '',
-brand: r.brand || old?.brand || '',
-store: r.store || old?.store || '',
+      brand: r.brand || old?.brand || '',
+      store: r.store || old?.store || '',
       scrapedAt: old?.scrapedAt || now,
       updatedAt: old?.updatedAt || '',
       lastSeenAt: now
@@ -300,7 +335,9 @@ store: r.store || old?.store || '',
           rating: old.rating || 0,
           date: old.date || '',
           editedText: old.editedText || '',
-          branch: old.branch || 'LILLA',
+          branch: old.branch || '',
+          brand: old.brand || '',
+          store: old.store || '',
           savedAt: now,
           replacedAt: now,
           reason: 'content_or_rating_changed'
@@ -323,11 +360,6 @@ store: r.store || old?.store || '',
   let nextComments;
 
   if (isPartialSync) {
-    // 手動同步 / 快速同步按鈕邏輯：
-    // 1. 舊 comments.json 全部保留
-    // 2. 這次爬到的評論只更新 / 新增
-    // 3. 這次沒爬到的舊評論完全不動
-    // 4. 絕對不因為只滑 5 次就把舊 300 多筆刪掉
     const mergedComments = [...oldComments];
 
     crawledComments.forEach((newComment, newIndex) => {
@@ -341,15 +373,11 @@ store: r.store || old?.store || '',
             ...old,
             ...newComment,
 
-            // 保留舊資料裡比較穩定的欄位
             id: old.id || newComment.id,
             reviewId: newComment.reviewId || old.reviewId,
             scrapedAt: old.scrapedAt || newComment.scrapedAt,
-
-            // 這次看到了，更新 lastSeenAt
             lastSeenAt: newComment.lastSeenAt || now,
 
-            // 快速同步不做刪除判斷
             isDeleted: false,
             deleted: false,
             deletedAt: ''
@@ -370,7 +398,18 @@ store: r.store || old?.store || '',
 
     console.log(`📌 快速同步模式：舊評論全部保留，本次爬到 ${crawledComments.length} 筆，合併後 ${nextComments.length} 筆`);
   } else {
-    const deletedOldComments = oldComments
+    // 完整同步邏輯：
+    // 全部店同步：沒被本次抓到的舊評論，可以標記刪除
+    // 單店 / 單品牌同步：只處理目標店；其他店原封不動保留，不能標記刪除
+    const oldCommentsInTarget = targetedStoreSync
+      ? oldComments.filter(old => matchesTargetStore(old, targetBrand, targetStore))
+      : oldComments;
+
+    const preservedOtherStoreComments = targetedStoreSync
+      ? oldComments.filter(old => !matchesTargetStore(old, targetBrand, targetStore))
+      : [];
+
+    const deletedOldComments = oldCommentsInTarget
       .filter(old => !isOldMatched(matchedOldKeys, old))
       .map(old => ({
         ...old,
@@ -388,10 +427,17 @@ store: r.store || old?.store || '',
         deleted: false,
         deletedAt: ''
       })),
-      ...deletedOldComments
+      ...deletedOldComments,
+      ...preservedOtherStoreComments
     ];
 
-    console.log(`🗑️ 完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
+    if (targetedStoreSync) {
+      console.log(`🟡 單店完整同步：${targetBrand} ${targetStore}`);
+      console.log(`📌 其他店保留 ${preservedOtherStoreComments.length} 筆，不處理刪除`);
+      console.log(`🗑️ 目標店別偵測到已刪除評論 ${deletedOldComments.length} 筆`);
+    } else {
+      console.log(`🗑️ 全部店完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
+    }
   }
 
   writeJson(COMMENTS_FILE, nextComments);
