@@ -583,10 +583,13 @@
             'X-Sync-Secret': SYNC_SECRET
           },
           body: JSON.stringify({
-            source: 'review-dashboard',
-            scrapeRounds: scrapeRounds,
-            scrape_rounds: String(scrapeRounds)
-          })
+  source: 'review-dashboard',
+  scrapeRounds: scrapeRounds,
+  scrape_rounds: String(scrapeRounds),
+
+  brand: currentBrandFilter,
+  store: currentStoreFilter
+})
         });
 
         const data = await res.json();
@@ -595,10 +598,15 @@
           throw new Error(data.message || '同步觸發失敗');
         }
 
-        status.textContent =
-          scrapeRounds >= 999
-            ? '已觸發完整同步。系統會滑到最底，完成後自動標記已刪除評論。'
-            : '已觸發快速同步。系統只會滑 5 次，不會判斷刪除。';
+        const targetText =
+  currentBrandFilter === 'all'
+    ? '全部店別'
+    : `${currentBrandFilter} ${currentStoreFilter === 'all' ? '全部店別' : currentStoreFilter}`;
+
+status.textContent =
+  scrapeRounds >= 999
+    ? `正在觸發完整同步：${targetText}`
+    : `正在觸發快速同步：${targetText}`;
 
         startFastReviewWatcher();
 
