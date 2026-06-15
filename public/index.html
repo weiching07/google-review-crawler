@@ -41,13 +41,15 @@
             class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
           >
             重新整理資料
+          </button>
+
           <button
-          id="notificationToggleButton"
-          onclick="toggleAllReviewNotifications()"
-          class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
->
-  開啟網頁與手機背景評論通知
-</button>
+            id="notificationToggleButton"
+            onclick="toggleAllReviewNotifications()"
+            class="border p-2 rounded bg-purple-600 text-white hover:bg-purple-700"
+          >
+            開啟網頁與手機背景評論通知
+          </button>
 
           <select id="starFilter" onchange="render()" class="border p-2 rounded">
             <option value="all">顯示全部星等</option>
@@ -337,101 +339,102 @@
           return;
         }
 
+        localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'true');
         status.textContent = '評論通知已開啟，手機背景通知也已開啟。';
 
       } catch (err) {
         console.error(err);
         status.textContent = '評論通知已開啟，但手機背景通知設定失敗：' + err.message;
       }
-
-      async function isPushNotificationEnabled() {
-  if (!('serviceWorker' in navigator)) {
-    return false;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.getRegistration('./');
-
-    if (!registration) {
-      return false;
     }
 
-    const subscription = await registration.pushManager.getSubscription();
+    async function isPushNotificationEnabled() {
+      if (!('serviceWorker' in navigator)) {
+        return false;
+      }
 
-    return Boolean(subscription);
-  } catch {
-    return false;
-  }
-}
+      try {
+        const registration = await navigator.serviceWorker.getRegistration('./');
 
-async function updateNotificationToggleButton() {
-  const button = document.getElementById('notificationToggleButton');
+        if (!registration) {
+          return false;
+        }
 
-  if (!button) return;
+        const subscription = await registration.pushManager.getSubscription();
 
-  const enabled = await isPushNotificationEnabled();
-
-  localStorage.setItem(
-    NOTIFICATION_ENABLED_STORAGE_KEY,
-    enabled ? 'true' : 'false'
-  );
-
-  if (enabled) {
-    button.textContent = '關閉網頁與手機背景評論通知';
-    button.className = 'border p-2 rounded bg-zinc-600 text-white hover:bg-zinc-700';
-  } else {
-    button.textContent = '開啟網頁與手機背景評論通知';
-    button.className = 'border p-2 rounded bg-purple-600 text-white hover:bg-purple-700';
-  }
-}
-
-async function toggleAllReviewNotifications() {
-  const enabled = await isPushNotificationEnabled();
-
-  if (enabled) {
-    await disableAllReviewNotifications();
-  } else {
-    await enableAllReviewNotifications();
-  }
-
-  await updateNotificationToggleButton();
-}
-
-async function disableAllReviewNotifications() {
-  const status = document.getElementById('status');
-
-  if (!('serviceWorker' in navigator)) {
-    status.textContent = '這個瀏覽器不支援 Service Worker，無法關閉背景通知。';
-    return;
-  }
-
-  try {
-    const registration = await navigator.serviceWorker.getRegistration('./');
-
-    if (!registration) {
-      localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
-      status.textContent = '目前沒有背景通知訂閱。';
-      return;
+        return Boolean(subscription);
+      } catch {
+        return false;
+      }
     }
 
-    const subscription = await registration.pushManager.getSubscription();
+    async function updateNotificationToggleButton() {
+      const button = document.getElementById('notificationToggleButton');
 
-    if (!subscription) {
-      localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
-      status.textContent = '手機背景通知已是關閉狀態。';
-      return;
+      if (!button) return;
+
+      const enabled = await isPushNotificationEnabled();
+
+      localStorage.setItem(
+        NOTIFICATION_ENABLED_STORAGE_KEY,
+        enabled ? 'true' : 'false'
+      );
+
+      if (enabled) {
+        button.textContent = '關閉網頁與手機背景評論通知';
+        button.className = 'border p-2 rounded bg-zinc-600 text-white hover:bg-zinc-700';
+      } else {
+        button.textContent = '開啟網頁與手機背景評論通知';
+        button.className = 'border p-2 rounded bg-purple-600 text-white hover:bg-purple-700';
+      }
     }
 
-    await subscription.unsubscribe();
+    async function toggleAllReviewNotifications() {
+      const enabled = await isPushNotificationEnabled();
 
-    localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+      if (enabled) {
+        await disableAllReviewNotifications();
+      } else {
+        await enableAllReviewNotifications();
+      }
 
-    status.textContent = '手機背景通知已關閉。';
-  } catch (err) {
-    console.error(err);
-    status.textContent = '關閉手機背景通知失敗：' + err.message;
-  }
-}
+      await updateNotificationToggleButton();
+    }
+
+    async function disableAllReviewNotifications() {
+      const status = document.getElementById('status');
+
+      if (!('serviceWorker' in navigator)) {
+        status.textContent = '這個瀏覽器不支援 Service Worker，無法關閉背景通知。';
+        return;
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.getRegistration('./');
+
+        if (!registration) {
+          localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+          status.textContent = '目前沒有背景通知訂閱。';
+          return;
+        }
+
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (!subscription) {
+          localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+          status.textContent = '手機背景通知已是關閉狀態。';
+          return;
+        }
+
+        await subscription.unsubscribe();
+
+        localStorage.setItem(NOTIFICATION_ENABLED_STORAGE_KEY, 'false');
+
+        status.textContent = '手機背景通知已關閉。';
+      } catch (err) {
+        console.error(err);
+        status.textContent = '關閉手機背景通知失敗：' + err.message;
+      }
     }
 
     function getNotifyKey(c) {
@@ -504,74 +507,6 @@ async function disableAllReviewNotifications() {
           versionsCount: getVersionListByKey(getReviewKey(item)).length,
           hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
         }));
-
-        function getSummaryFilteredData() {
-  const starFilter = document.getElementById('starFilter')?.value || 'all';
-  const historyFilter = document.getElementById('historyFilter')?.value || 'all';
-  const replyFilter = document.getElementById('replyFilter')?.value || 'all';
-  const keyword = (document.getElementById('keywordSearch')?.value || '').trim().toLowerCase();
-
-  let data = [...rawData];
-
-  if (currentBrandFilter !== 'all') {
-    data = data.filter(c => getCommentBrand(c) === currentBrandFilter);
-  }
-
-  if (currentStoreFilter !== 'all') {
-    data = data.filter(c => getCommentStore(c) === currentStoreFilter);
-  }
-
-  if (starFilter !== 'all') {
-    data = data.filter(c => String(c.rating) === String(starFilter));
-  }
-
-  if (keyword) {
-    data = data.filter(c => {
-      const searchText = [
-        c.author,
-        c.content,
-        c.date,
-        c.rating,
-        c.editedText,
-        c.status,
-        getReplyText(c),
-        getReplyDate(c),
-        getDisplayBrand(c),
-        getDisplayStore(c)
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      return searchText.includes(keyword);
-    });
-  }
-
-  if (historyFilter === 'edited') {
-    data = data.filter(c => isEditedReview(c) && isNotDeletedReview(c));
-  } else if (historyFilter === 'hasVersions') {
-    data = data.filter(c => hasVersions(c) && isNotDeletedReview(c));
-  } else if (historyFilter === 'deleted') {
-    data = data.filter(c => isDeletedReview(c));
-  } else {
-    data = data.filter(c => isNotDeletedReview(c));
-  }
-
-  if (replyFilter === 'replied') {
-    data = data.filter(c => hasOwnerReply(c) && isNotDeletedReview(c));
-  }
-
-  if (replyFilter === 'unreplied') {
-    data = data.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c));
-  }
-
-  if (currentReadFilter === 'unread') {
-    data = data.filter(c => isUnreadReview(c));
-  }
-
-  if (currentReadFilter === 'read') {
-    data = data.filter(c => isReadReview(c));
-  }
-
-  return data;
-}
 
         refreshSummaryStats();
         updateStoreFilterButtons();
@@ -881,23 +816,37 @@ async function disableAllReviewNotifications() {
       });
     }
 
+    function getSummaryFilteredData() {
+      let data = [...rawData];
+
+      if (currentBrandFilter !== 'all') {
+        data = data.filter(c => getCommentBrand(c) === currentBrandFilter);
+      }
+
+      if (currentStoreFilter !== 'all') {
+        data = data.filter(c => getCommentStore(c) === currentStoreFilter);
+      }
+
+      return data;
+    }
+
     function refreshSummaryStats() {
-  const data = getSummaryFilteredData();
+      const data = getSummaryFilteredData();
 
-  summaryStats = {
-    total: data.length,
-    editedCount: data.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length,
-    versionCount: data.filter(c => hasVersions(c) && isNotDeletedReview(c)).length,
-    unreadCount: data.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
-    readCount: data.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
-    deletedCount: data.filter(isDeletedReview).length,
-    repliedCount: data.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length,
-    unrepliedCount: data.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length,
-    latestSyncTime: getLatestSyncTime(data)
-  };
+      summaryStats = {
+        total: data.length,
+        editedCount: data.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length,
+        versionCount: data.filter(c => hasVersions(c) && isNotDeletedReview(c)).length,
+        unreadCount: data.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
+        readCount: data.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
+        deletedCount: data.filter(isDeletedReview).length,
+        repliedCount: data.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length,
+        unrepliedCount: data.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length,
+        latestSyncTime: getLatestSyncTime(data)
+      };
 
-  updateSummaryText();
-}
+      updateSummaryText();
+    }
 
     function updateSummaryText() {
       const summary = document.getElementById('summary');
@@ -1209,6 +1158,7 @@ async function disableAllReviewNotifications() {
     }
 
     function render() {
+      refreshSummaryStats();
       updateReadFilterButtons();
 
       const starFilter = document.getElementById('starFilter').value;
@@ -1291,15 +1241,13 @@ async function disableAllReviewNotifications() {
       });
 
       if (displayData.length === 0) {
-  container.innerHTML = `
-    <div class="bg-white p-5 rounded shadow text-slate-500">
-      目前沒有符合條件的評論。
-    </div>
-  `;
-
-  refreshSummaryStats();
-  return;
-}
+        container.innerHTML = `
+          <div class="bg-white p-5 rounded shadow text-slate-500">
+            目前沒有符合條件的評論。
+          </div>
+        `;
+        return;
+      }
 
       container.innerHTML = displayData.map(c => {
         const key = getReviewKey(c);
@@ -1376,8 +1324,6 @@ async function disableAllReviewNotifications() {
           </div>
         `;
       }).join('');
-
-      refreshSummaryStats();
     }
 
     async function openHistoryDialog(encodedKey) {
