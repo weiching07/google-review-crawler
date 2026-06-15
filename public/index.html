@@ -505,6 +505,74 @@ async function disableAllReviewNotifications() {
           hasVersions: getVersionListByKey(getReviewKey(item)).length > 0
         }));
 
+        function getSummaryFilteredData() {
+  const starFilter = document.getElementById('starFilter')?.value || 'all';
+  const historyFilter = document.getElementById('historyFilter')?.value || 'all';
+  const replyFilter = document.getElementById('replyFilter')?.value || 'all';
+  const keyword = (document.getElementById('keywordSearch')?.value || '').trim().toLowerCase();
+
+  let data = [...rawData];
+
+  if (currentBrandFilter !== 'all') {
+    data = data.filter(c => getCommentBrand(c) === currentBrandFilter);
+  }
+
+  if (currentStoreFilter !== 'all') {
+    data = data.filter(c => getCommentStore(c) === currentStoreFilter);
+  }
+
+  if (starFilter !== 'all') {
+    data = data.filter(c => String(c.rating) === String(starFilter));
+  }
+
+  if (keyword) {
+    data = data.filter(c => {
+      const searchText = [
+        c.author,
+        c.content,
+        c.date,
+        c.rating,
+        c.editedText,
+        c.status,
+        getReplyText(c),
+        getReplyDate(c),
+        getDisplayBrand(c),
+        getDisplayStore(c)
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      return searchText.includes(keyword);
+    });
+  }
+
+  if (historyFilter === 'edited') {
+    data = data.filter(c => isEditedReview(c) && isNotDeletedReview(c));
+  } else if (historyFilter === 'hasVersions') {
+    data = data.filter(c => hasVersions(c) && isNotDeletedReview(c));
+  } else if (historyFilter === 'deleted') {
+    data = data.filter(c => isDeletedReview(c));
+  } else {
+    data = data.filter(c => isNotDeletedReview(c));
+  }
+
+  if (replyFilter === 'replied') {
+    data = data.filter(c => hasOwnerReply(c) && isNotDeletedReview(c));
+  }
+
+  if (replyFilter === 'unreplied') {
+    data = data.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c));
+  }
+
+  if (currentReadFilter === 'unread') {
+    data = data.filter(c => isUnreadReview(c));
+  }
+
+  if (currentReadFilter === 'read') {
+    data = data.filter(c => isReadReview(c));
+  }
+
+  return data;
+}
+
         refreshSummaryStats();
         updateStoreFilterButtons();
         updateDashboardTitle();
@@ -814,20 +882,22 @@ async function disableAllReviewNotifications() {
     }
 
     function refreshSummaryStats() {
-      summaryStats = {
-        total: rawData.length,
-        editedCount: rawData.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length,
-        versionCount: rawData.filter(c => hasVersions(c) && isNotDeletedReview(c)).length,
-        unreadCount: rawData.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
-        readCount: rawData.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
-        deletedCount: rawData.filter(isDeletedReview).length,
-        repliedCount: rawData.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length,
-        unrepliedCount: rawData.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length,
-        latestSyncTime: getLatestSyncTime(rawData)
-      };
+  const data = getSummaryFilteredData();
 
-      updateSummaryText();
-    }
+  summaryStats = {
+    total: data.length,
+    editedCount: data.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length,
+    versionCount: data.filter(c => hasVersions(c) && isNotDeletedReview(c)).length,
+    unreadCount: data.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length,
+    readCount: data.filter(c => isReadReview(c) && isNotDeletedReview(c)).length,
+    deletedCount: data.filter(isDeletedReview).length,
+    repliedCount: data.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length,
+    unrepliedCount: data.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length,
+    latestSyncTime: getLatestSyncTime(data)
+  };
+
+  updateSummaryText();
+}
 
     function updateSummaryText() {
       const summary = document.getElementById('summary');
@@ -1221,13 +1291,15 @@ async function disableAllReviewNotifications() {
       });
 
       if (displayData.length === 0) {
-        container.innerHTML = `
-          <div class="bg-white p-5 rounded shadow text-slate-500">
-            目前沒有符合條件的評論。
-          </div>
-        `;
-        return;
-      }
+  container.innerHTML = `
+    <div class="bg-white p-5 rounded shadow text-slate-500">
+      目前沒有符合條件的評論。
+    </div>
+  `;
+
+  refreshSummaryStats();
+  return;
+}
 
       container.innerHTML = displayData.map(c => {
         const key = getReviewKey(c);
@@ -1304,6 +1376,8 @@ async function disableAllReviewNotifications() {
           </div>
         `;
       }).join('');
+
+      refreshSummaryStats();
     }
 
     async function openHistoryDialog(encodedKey) {
