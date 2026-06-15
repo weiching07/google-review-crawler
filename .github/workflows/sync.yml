@@ -8,6 +8,16 @@ on:
         required: false
         default: "5"
 
+      brand:
+        description: "品牌"
+        required: false
+        default: "all"
+
+      store:
+        description: "店別"
+        required: false
+        default: "all"
+
   schedule:
     - cron: "*/10 * * * *"
 
@@ -70,6 +80,8 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
           SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
+          SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
+          SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
 
       - name: Send push notifications
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.scrape_rounds == '5' }}
