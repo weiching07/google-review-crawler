@@ -982,7 +982,25 @@ async function scrapeGoogleReviews() {
    const maxRounds = getMaxRounds();
 const allReviews = [];
 
-for (const storeConfig of STORES) {
+const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
+const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+
+const targetStores = STORES.filter(storeConfig => {
+  const brandMatched =
+    targetBrand === 'all' ||
+    storeConfig.brand === targetBrand;
+
+  const storeMatched =
+    targetStore === 'all' ||
+    storeConfig.store === targetStore;
+
+  return brandMatched && storeMatched;
+});
+
+console.log("🎯 本次同步目標:", targetBrand, targetStore);
+console.log("🎯 本次店家數:", targetStores.length);
+
+for (const storeConfig of targetStores) {
   try {
     const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
     allReviews.push(...reviews);
