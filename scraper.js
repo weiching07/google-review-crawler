@@ -783,7 +783,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    if (stableCount >= 5) {
+    if (stableCount >= 15) {
       console.log("✅ 評論沒有再增加，停止");
       break;
     }
