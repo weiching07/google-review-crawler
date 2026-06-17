@@ -64,29 +64,6 @@ function getReviewKey(review) {
   );
 }
 
-async function waitForReviewsLoaded(page, timeout = 20000) {
-  try {
-    await page.waitForFunction(
-      () => document.querySelectorAll('div[data-review-id]').length > 0,
-      {
-        timeout,
-        polling: 500
-      }
-    );
-
-    const count = await page.evaluate(() => {
-      return document.querySelectorAll('div[data-review-id]').length;
-    });
-
-    console.log(`✅ 評論卡已載入：${count} 張`);
-
-    return true;
-  } catch (err) {
-    console.log("⚠️ 等待評論卡逾時，目前可能還沒載入評論");
-    return false;
-  }
-}
-
 async function extractStoreRating(page) {
   return await page.evaluate(() => {
     function clean(value) {
@@ -166,6 +143,7 @@ async function extractStoreRating(page) {
   });
 }
 
+// ✅ 保留你原本可用的最新排序版本
 async function clickNewestSort(page) {
   console.log("🔃 嘗試切換最新排序...");
 
@@ -219,8 +197,6 @@ async function clickNewestSort(page) {
     }
 
     function isVisible(el) {
-      if (!el) return false;
-
       const r = el.getBoundingClientRect();
       const s = window.getComputedStyle(el);
 
@@ -242,28 +218,23 @@ async function clickNewestSort(page) {
       if (!isVisible(el)) continue;
 
       const text = getText(el);
-      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
       const lower = text.toLowerCase();
 
-      const isRealSortButton =
+      if (
         text.includes('排序') ||
-        aria.includes('sort') ||
-        lower === 'sort' ||
-        lower.includes('sort reviews') ||
-        lower.includes('sort by');
+        text.includes('最相關') ||
+        lower.includes('sort') ||
+        lower.includes('most relevant')
+      ) {
+        const r = el.getBoundingClientRect();
 
-      // 重要：不要再用「最新」判斷排序按鈕
-      // 因為評論卡裡會出現「最新・2 天前」，會誤點評論卡。
-      if (!isRealSortButton) continue;
-
-      const r = el.getBoundingClientRect();
-
-      candidates.push({
-        el,
-        text,
-        top: r.top,
-        left: r.left
-      });
+        candidates.push({
+          el,
+          text,
+          top: r.top,
+          left: r.left
+        });
+      }
     }
 
     candidates.sort((a, b) => {
@@ -296,9 +267,8 @@ async function clickNewestSort(page) {
   console.log("🔃 sort result:", sortResult);
 
   if (!sortResult.success) {
-    console.log("⚠️ 找不到真正排序按鈕，可能已經是最新排序，繼續抓");
-    await randomDelay(1500, 2200);
-    return true;
+    console.log("❌ 找不到排序按鈕");
+    return false;
   }
 
   await randomDelay(1500, 2200);
@@ -317,8 +287,6 @@ async function clickNewestSort(page) {
     }
 
     function isVisible(el) {
-      if (!el) return false;
-
       const r = el.getBoundingClientRect();
       const s = window.getComputedStyle(el);
 
@@ -348,9 +316,9 @@ async function clickNewestSort(page) {
       for (const item of items) {
         if (!isVisible(item)) continue;
 
-        const text = getText(item).trim();
+        const text = getText(item);
 
-        if (text !== '最新' && text.toLowerCase() !== 'newest') continue;
+        if (text !== '最新') continue;
 
         let clickable = item;
         let p = item.parentElement;
@@ -396,8 +364,15 @@ async function clickNewestSort(page) {
   console.log("🆕 newest result:", newestResult);
 
   if (!newestResult.success) {
-    console.log("⚠️ DOM 沒點到最新，不用鍵盤亂選，直接繼續目前排序");
-    await randomDelay(3000, 4000);
+    console.log("⚠️ DOM 沒點到最新，改用鍵盤備援");
+
+    await page.keyboard.press('ArrowDown');
+    await randomDelay(300, 500);
+    await page.keyboard.press('Enter');
+
+    await randomDelay(5000, 7000);
+
+    console.log("✅ 已用鍵盤備援選最新");
     return true;
   }
 
@@ -460,9 +435,7 @@ async function getReviewScrollBox(page) {
             left: r.left,
             top: r.top,
             width: r.width,
-            height: r.height,
-            scrollHeight: el.scrollHeight,
-            clientHeight: el.clientHeight
+            height: r.height
           };
         })
         .filter(x => {
@@ -474,7 +447,7 @@ async function getReviewScrollBox(page) {
         })
         .sort((a, b) => {
           if (a.left !== b.left) return a.left - b.left;
-          return b.scrollHeight - a.scrollHeight;
+          return b.height - a.height;
         });
 
       if (candidates.length > 0) {
@@ -746,6 +719,7 @@ async function expandCurrentMore(page) {
   return count;
 }
 
+// ✅ 原本快滑 mouse-wheel，不用 DOM scroll
 async function fastScrollReviews(page) {
   try {
     const box = await withTimeout(
@@ -830,18 +804,18 @@ async function fastScrollReviews(page) {
   }
 }
 
+// ✅ 只改這裡：滑幾次沒動就等待幾秒再繼續，不改最新排序
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log("➡️ 開始快速載入並抓評論...");
 
   const reviewMap = new Map();
 
+  let stableCount = 0;
   let noMoveCount = 0;
-  let noNewReviewCount = 0;
   let timeoutCount = 0;
+  let lastTotal = 0;
 
   for (let round = 0; round < maxRounds; round++) {
-    const beforeTotal = reviewMap.size;
-
     const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
 
     const expanded = await expandCurrentMore(page);
@@ -852,18 +826,16 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
 
-    const afterTotal = reviewMap.size;
-    const hasNewReview = afterTotal > beforeTotal;
-
-    if (hasNewReview) {
-      noNewReviewCount = 0;
-    } else {
-      noNewReviewCount++;
-    }
-
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
     );
+
+    if (reviewMap.size === lastTotal) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+      lastTotal = reviewMap.size;
+    }
 
     const scrollResult = await fastScrollReviews(page);
 
@@ -871,7 +843,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
     );
 
-    const scrollMoved =
+    const moved =
       scrollResult.before >= 0 &&
       scrollResult.after >= 0 &&
       scrollResult.after !== scrollResult.before;
@@ -882,18 +854,14 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       timeoutCount = 0;
     }
 
-    if (scrollMoved) {
+    if (moved) {
       noMoveCount = 0;
     } else {
       noMoveCount++;
     }
 
-    if (hasNewReview) {
-      console.log(`✅ 本輪新增 ${afterTotal - beforeTotal} 筆，目前累積 ${reviewMap.size}`);
-    }
-
-    if (!hasNewReview && noNewReviewCount >= 5) {
-      console.log(`⚠️ 已 ${noNewReviewCount} 輪沒新增，但不停止，繼續往下拉`);
+    if (stableCount >= 5) {
+      console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
     }
 
     if (noMoveCount >= 3) {
@@ -917,7 +885,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       timeoutCount = 0;
     }
 
-    await randomDelay(800, 1200);
+    await randomDelay(1200, 1800);
   }
 
   const reviews = Array.from(reviewMap.values());
@@ -1031,11 +999,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     console.log("⚠️ 沒點到評論");
   }
 
-  await waitForReviewsLoaded(page, 20000);
-
   await clickNewestSort(page);
-
-  await waitForReviewsLoaded(page, 20000);
 
   const storeRating = await extractStoreRating(page);
 
