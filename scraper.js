@@ -5,9 +5,18 @@ const STORES = require('./stores');
 puppeteer.use(StealthPlugin());
 
 const randomDelay = (min, max) =>
-  new Promise(r =>
-    setTimeout(r, Math.floor(Math.random() * (max - min + 1)) + min)
+  new Promise(resolve =>
+    setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min)
   );
+
+function withTimeout(promise, ms, label = 'operation') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)
+    )
+  ]);
+}
 
 function isCloudEnv() {
   return (
@@ -45,6 +54,28 @@ function getMaxRounds() {
   }
 
   return Math.floor(value);
+}
+
+function getTargetStores() {
+  const targetBrand = String(process.env.SCRAPE_TARGET_BRAND || 'all').trim() || 'all';
+  const targetStore = String(process.env.SCRAPE_TARGET_STORE || 'all').trim() || 'all';
+
+  const targetStores = STORES.filter(storeConfig => {
+    const brandMatched =
+      targetBrand === 'all' ||
+      storeConfig.brand === targetBrand;
+
+    const storeMatched =
+      targetStore === 'all' ||
+      storeConfig.store === targetStore;
+
+    return brandMatched && storeMatched;
+  });
+
+  console.log("🎯 本次同步目標:", targetBrand, targetStore);
+  console.log("🎯 本次店家數:", targetStores.length);
+
+  return targetStores;
 }
 
 async function extractStoreRating(page) {
@@ -114,7 +145,6 @@ async function extractStoreRating(page) {
       const aria = clean(el.getAttribute('aria-label') || '');
       const title = clean(el.getAttribute('title') || '');
       const source = `${aria} ${title}`;
-
       const match = source.match(/([1-5]\.\d)\s*(?:星|顆星|stars?)/i);
 
       if (match && isValidAverageRating(match[1])) {
@@ -126,7 +156,6 @@ async function extractStoreRating(page) {
   });
 }
 
-// ✅ 切換「最新排序」：維持你現在成功的版本
 async function clickNewestSort(page) {
   console.log("🔃 嘗試切換最新排序...");
 
@@ -365,7 +394,6 @@ async function clickNewestSort(page) {
   return true;
 }
 
-// ✅ 找評論容器座標，給 mouse.wheel 用
 async function getReviewScrollBox(page) {
   return await page.evaluate(() => {
     function isScrollable(el) {
@@ -455,7 +483,6 @@ async function getReviewScrollBox(page) {
   });
 }
 
-// ✅ 抓目前 DOM 裡已載入的評論
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
@@ -516,9 +543,6 @@ async function collectCurrentReviews(page, reviewMap) {
 
       if (!el) return empty;
 
-      // ✅ 只抓目前這張評論卡內的文字
-      // ❌ 不抓 nextElementSibling
-      // ❌ 不抓 parentElement
       const sourceText = String(el.innerText || el.textContent || '')
         .replace(/\u00a0/g, ' ')
         .replace(/\r/g, '\n')
@@ -563,14 +587,11 @@ async function collectCurrentReviews(page, reviewMap) {
 
         if (isJunkReplyLine(line)) continue;
 
-        // 離開業主回應區就停止
         if (/^由\s*Google\s*提供翻譯/i.test(line)) break;
         if (/^查看原文/i.test(line)) break;
         if (/^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)) break;
         if (/^\d+\s*星$/.test(line)) break;
         if (/在地嚮導/.test(line) && /則評論|張相片/.test(line)) break;
-
-        // 避免吃到 Google Maps UI 字樣
         if (/^排序$|^最相關$|^最新$|^評論$/i.test(line)) break;
 
         replyLines.push(line);
@@ -578,8 +599,6 @@ async function collectCurrentReviews(page, reviewMap) {
 
       const replyContent = cleanReplyText(replyLines.join('\n'));
 
-      // ✅ 一定要真的抓到回覆文字才算已回覆
-      // ✅ 不用「謝謝分享」黑名單
       if (!replyContent) {
         return empty;
       }
@@ -627,15 +646,16 @@ async function collectCurrentReviews(page, reviewMap) {
         if (m) rating = parseInt(m[0], 10);
       }
 
-      if (
+      const hasValidReview =
         content &&
         !content.includes('function(){') &&
         !content.includes('window.tactilecsi') &&
         !content.includes('window.google') &&
         !content.includes('RegExp(') &&
         !content.includes('sjsuid_') &&
-        !content.includes(':root{')
-      ) {
+        !content.includes(':root{');
+
+      if (hasValidReview) {
         const replyData = extractOwnerReply(el);
 
         results.push({
@@ -644,8 +664,6 @@ async function collectCurrentReviews(page, reviewMap) {
           content,
           rating,
           date,
-
-          // 店家 / 業主回應
           hasReply: replyData.hasReply,
           replyContent: replyData.replyContent,
           replyDate: replyData.replyDate
@@ -664,8 +682,6 @@ async function collectCurrentReviews(page, reviewMap) {
     } else {
       const old = reviewMap.get(key);
 
-      // ✅ 同一輪重複抓到同一張評論時，以最新 DOM 結果為準
-      // ❌ 不用 old.replyContent 補回來
       reviewMap.set(key, {
         ...old,
         ...r,
@@ -679,7 +695,6 @@ async function collectCurrentReviews(page, reviewMap) {
   return current.length;
 }
 
-// ✅ 展開目前畫面評論全文，只點評論卡裡的更多
 async function expandCurrentMore(page) {
   const count = await page.evaluate(() => {
     const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
@@ -713,52 +728,121 @@ async function expandCurrentMore(page) {
   return count;
 }
 
-// ✅ 快速滾動下一批評論
 async function fastScrollReviews(page) {
-  const box = await getReviewScrollBox(page);
+  try {
+    const box = await withTimeout(
+      getReviewScrollBox(page),
+      15000,
+      'getReviewScrollBox'
+    );
 
-  if (!box) {
-    await page.mouse.wheel({
-      deltaY: 3000
-    });
+    if (!box) {
+      try {
+        await withTimeout(
+          page.keyboard.press('PageDown'),
+          5000,
+          'keyboard PageDown fallback'
+        );
+      } catch {}
+
+      await randomDelay(2500, 3500);
+
+      return {
+        success: false,
+        before: 0,
+        after: 0,
+        timeout: true,
+        method: 'keyboard-no-box'
+      };
+    }
+
+    const before = box.top;
+
+    try {
+      await withTimeout(
+        page.mouse.move(box.x, box.y),
+        5000,
+        'mouse move'
+      );
+    } catch (err) {
+      console.warn('⚠️ mouse.move 失敗，改用鍵盤:', err.message);
+
+      try {
+        await page.keyboard.press('PageDown');
+      } catch {}
+
+      await randomDelay(2500, 3500);
+
+      return {
+        success: false,
+        before,
+        after: before,
+        timeout: true,
+        method: 'keyboard-move-failed'
+      };
+    }
+
+    for (let i = 0; i < 4; i++) {
+      try {
+        await withTimeout(
+          page.mouse.wheel({
+            deltaY: 1200
+          }),
+          10000,
+          'mouse wheel'
+        );
+      } catch (err) {
+        console.warn('⚠️ mouse.wheel 逾時，改用 PageDown:', err.message);
+
+        try {
+          await page.keyboard.press('PageDown');
+        } catch {}
+      }
+
+      await randomDelay(800, 1200);
+    }
+
+    await randomDelay(3000, 4500);
+
+    const afterBox = await withTimeout(
+      getReviewScrollBox(page),
+      15000,
+      'getReviewScrollBox after scroll'
+    );
+
+    return {
+      success: true,
+      before,
+      after: afterBox ? afterBox.top : before,
+      timeout: false,
+      method: 'mouse-wheel'
+    };
+  } catch (err) {
+    console.warn('⚠️ fastScrollReviews 發生錯誤，改用鍵盤備援:', err.message);
+
+    try {
+      await page.keyboard.press('PageDown');
+    } catch {}
+
+    await randomDelay(2500, 3500);
 
     return {
       success: false,
       before: 0,
-      after: 0
+      after: 0,
+      timeout: true,
+      method: 'fallback'
     };
   }
-
-  await page.mouse.move(box.x, box.y);
-
-  const before = box.top;
-
-  for (let i = 0; i < 6; i++) {
-    await page.mouse.wheel({
-      deltaY: 2200
-    });
-
-    await randomDelay(200, 350);
-  }
-
-  await randomDelay(700, 1000);
-
-  const afterBox = await getReviewScrollBox(page);
-
-  return {
-    success: true,
-    before,
-    after: afterBox ? afterBox.top : before
-  };
 }
 
-// ✅ 快速載入 + 邊抓邊存
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log("➡️ 開始快速載入並抓評論...");
 
   const reviewMap = new Map();
 
   let stableCount = 0;
+  let stuckScrollCount = 0;
   let lastTotal = 0;
 
   for (let round = 0; round < maxRounds; round++) {
@@ -783,16 +867,31 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    if (stableCount >= 15) {
-      console.log("✅ 評論沒有再增加，停止");
+    if (stableCount >= 30) {
+      console.log(`✅ 連續 ${stableCount} 次評論沒有再增加，停止`);
       break;
     }
 
     const scrollResult = await fastScrollReviews(page);
 
     console.log(
-      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}`
+      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
     );
+
+    if (scrollResult.after === scrollResult.before) {
+      stuckScrollCount++;
+    } else {
+      stuckScrollCount = 0;
+    }
+
+    if (stuckScrollCount >= 10) {
+      console.log(`✅ 捲軸連續 ${stuckScrollCount} 次沒有移動，停止`);
+      break;
+    }
+
+    if (scrollResult.timeout) {
+      console.log('⚠️ 本輪滾動逾時，繼續下一輪，不讓 Actions 卡死');
+    }
 
     await randomDelay(1200, 1800);
   }
@@ -921,7 +1020,6 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     review.brand = storeConfig.brand;
     review.store = storeConfig.store;
     review.branch = storeConfig.branch;
-
     review.storeRating = storeRating;
     review.averageRating = storeRating;
   });
@@ -931,7 +1029,33 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   return reviews;
 }
 
+async function scrapeOneStoreWithRetry(page, storeConfig, maxRounds, retryCount = 2) {
+  let lastError = null;
 
+  for (let attempt = 1; attempt <= retryCount + 1; attempt++) {
+    try {
+      console.log(`🔁 ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次抓取`);
+
+      const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+
+      if (Array.isArray(reviews) && reviews.length > 0) {
+        return reviews;
+      }
+
+      lastError = new Error('抓到 0 筆');
+      console.warn(`⚠️ ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次抓到 0 筆`);
+    } catch (err) {
+      lastError = err;
+      console.warn(`⚠️ ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次失敗:`, err.message);
+    }
+
+    await randomDelay(5000, 8000);
+  }
+
+  console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 重試後仍失敗:`, lastError?.message || '未知錯誤');
+
+  return [];
+}
 
 async function scrapeGoogleReviews() {
   let browser;
@@ -947,13 +1071,11 @@ async function scrapeGoogleReviews() {
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
-
+      protocolTimeout: 180000,
       executablePath: chromePath,
-
       defaultViewport: isCloud
         ? { width: 1366, height: 768 }
         : null,
-
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -979,41 +1101,24 @@ async function scrapeGoogleReviews() {
       '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     );
 
-   const maxRounds = getMaxRounds();
-const allReviews = [];
+    const maxRounds = getMaxRounds();
+    const allReviews = [];
+    const targetStores = getTargetStores();
 
-const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
-const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+    for (const storeConfig of targetStores) {
+      try {
+        const reviews = await scrapeOneStoreWithRetry(page, storeConfig, maxRounds, 2);
+        allReviews.push(...reviews);
+      } catch (err) {
+        console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
+      }
 
-const targetStores = STORES.filter(storeConfig => {
-  const brandMatched =
-    targetBrand === 'all' ||
-    storeConfig.brand === targetBrand;
+      await randomDelay(3000, 5000);
+    }
 
-  const storeMatched =
-    targetStore === 'all' ||
-    storeConfig.store === targetStore;
+    console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
 
-  return brandMatched && storeMatched;
-});
-
-console.log("🎯 本次同步目標:", targetBrand, targetStore);
-console.log("🎯 本次店家數:", targetStores.length);
-
-for (const storeConfig of targetStores) {
-  try {
-    const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
-    allReviews.push(...reviews);
-  } catch (err) {
-    console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
-  }
-
-  await randomDelay(3000, 5000);
-}
-
-console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
-
-return allReviews;
+    return allReviews;
   } catch (err) {
     console.error("❌ 錯誤:", err);
     return [];
