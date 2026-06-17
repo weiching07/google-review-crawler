@@ -719,12 +719,11 @@ async function expandCurrentMore(page) {
   return count;
 }
 
-// ✅ 原本快滑 mouse-wheel，不用 DOM scroll
-async function fastScrollReviews(page) {
+async function fastScrollReviews(page, totalReviews = 0) {
   try {
     const box = await withTimeout(
       getReviewScrollBox(page),
-      8000,
+      10000,
       'getReviewScrollBox'
     );
 
@@ -735,7 +734,7 @@ async function fastScrollReviews(page) {
         await page.keyboard.press('PageDown');
       } catch {}
 
-      await randomDelay(700, 1000);
+      await randomDelay(1200, 1800);
 
       return {
         success: false,
@@ -749,37 +748,59 @@ async function fastScrollReviews(page) {
     const before = box.top;
 
     try {
-      await withTimeout(
-        page.mouse.move(box.x, box.y),
-        5000,
-        'mouse move'
-      );
+      await page.mouse.move(box.x, box.y);
     } catch (err) {
-      console.warn('⚠️ mouse.move 逾時，略過 move 直接 wheel:', err.message);
+      console.warn('⚠️ mouse.move 失敗，略過 move 直接 wheel:', err.message);
     }
 
-    for (let i = 0; i < 6; i++) {
+    let wheelTimes = 6;
+    let deltaY = 2200;
+    let wheelDelayMin = 200;
+    let wheelDelayMax = 350;
+    let afterDelayMin = 900;
+    let afterDelayMax = 1300;
+    let method = 'mouse-wheel-fast';
+
+    // ✅ 1000 筆後 Google Maps 會明顯變慢，改慢一點讓它載入
+    if (totalReviews >= 1000) {
+      wheelTimes = 4;
+      deltaY = 1500;
+      wheelDelayMin = 500;
+      wheelDelayMax = 800;
+      afterDelayMin = 2000;
+      afterDelayMax = 3000;
+      method = 'mouse-wheel-slow-1000';
+    }
+
+    // ✅ 1500 筆後更慢，避免後段虛滑 / timeout
+    if (totalReviews >= 1500) {
+      wheelTimes = 3;
+      deltaY = 1200;
+      wheelDelayMin = 800;
+      wheelDelayMax = 1200;
+      afterDelayMin = 3000;
+      afterDelayMax = 4500;
+      method = 'mouse-wheel-slow-1500';
+    }
+
+    for (let i = 0; i < wheelTimes; i++) {
       try {
-        await withTimeout(
-          page.mouse.wheel({
-            deltaY: 2200
-          }),
-          7000,
-          'mouse wheel'
-        );
+        await page.mouse.wheel({
+          deltaY
+        });
       } catch (err) {
-        console.warn('⚠️ mouse.wheel 逾時，本輪停止 wheel，下一輪繼續:', err.message);
+        console.warn('⚠️ mouse.wheel 失敗，本輪停止 wheel，下一輪繼續:', err.message);
         break;
       }
 
-      await randomDelay(200, 350);
+      await randomDelay(wheelDelayMin, wheelDelayMax);
     }
 
-    await randomDelay(700, 1000);
+    await randomDelay(afterDelayMin, afterDelayMax);
 
     const afterBox = await withTimeout(
       getReviewScrollBox(page),
-      8000,
+      10000,
       'getReviewScrollBox after'
     );
 
@@ -788,7 +809,7 @@ async function fastScrollReviews(page) {
       before,
       after: afterBox ? afterBox.top : before,
       timeout: false,
-      method: 'mouse-wheel'
+      method
     };
 
   } catch (err) {
@@ -804,7 +825,6 @@ async function fastScrollReviews(page) {
   }
 }
 
-// ✅ 只改這裡：滑幾次沒動就等待幾秒再繼續，不改最新排序
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   console.log("➡️ 開始快速載入並抓評論...");
 
@@ -837,7 +857,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    const scrollResult = await fastScrollReviews(page);
+    const scrollResult = await fastScrollReviews(page, reviewMap.size);
 
     console.log(
       `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
@@ -864,28 +884,34 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
     }
 
-    if (noMoveCount >= 3) {
-      console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，等待 8~12 秒後繼續拉`);
+    const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
 
-      await randomDelay(8000, 12000);
+    if (noMoveCount >= waitThreshold) {
+      console.log(`⏳ 目前 ${reviewMap.size} 筆，捲軸連續 ${noMoveCount} 次沒變，等待後繼續拉`);
+
+      if (reviewMap.size >= 1000) {
+        await randomDelay(10000, 15000);
+      } else {
+        await randomDelay(8000, 12000);
+      }
 
       try {
         await page.keyboard.press('PageDown');
-        await randomDelay(800, 1200);
+        await randomDelay(1200, 1800);
       } catch {}
 
       noMoveCount = 0;
     }
 
-    if (timeoutCount >= 3) {
-      console.log(`⏳ 連續 timeout ${timeoutCount} 次，等待 10~15 秒後繼續`);
+    if (timeoutCount >= 2) {
+      console.log(`⏳ 連續 timeout ${timeoutCount} 次，等待 15~25 秒後繼續`);
 
-      await randomDelay(10000, 15000);
+      await randomDelay(15000, 25000);
 
       timeoutCount = 0;
     }
 
-    await randomDelay(1200, 1800);
+    await randomDelay(1000, 1500);
   }
 
   const reviews = Array.from(reviewMap.values());
