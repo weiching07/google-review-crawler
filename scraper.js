@@ -483,6 +483,116 @@ async function getReviewScrollBox(page) {
   });
 }
 
+async function scrollReviewContainerByDom(page, distance = 9000) {
+  return await withTimeout(
+    page.evaluate((distance) => {
+      function isScrollable(el) {
+        if (!el) return false;
+
+        const s = window.getComputedStyle(el);
+
+        return (
+          el.scrollHeight > el.clientHeight + 100 &&
+          s.display !== 'none' &&
+          s.visibility !== 'hidden' &&
+          s.overflowY !== 'hidden'
+        );
+      }
+
+      let container =
+        document.querySelector('div[role="feed"]') ||
+        document.querySelector('.m6U62c');
+
+      if (!isScrollable(container)) {
+        container = null;
+      }
+
+      if (!container) {
+        const firstReview = document.querySelector('div[data-review-id]');
+
+        if (firstReview) {
+          let p = firstReview.parentElement;
+
+          while (p && p !== document.body) {
+            if (isScrollable(p)) {
+              container = p;
+              break;
+            }
+
+            p = p.parentElement;
+          }
+        }
+      }
+
+      if (!container) {
+        const divs = Array.from(document.querySelectorAll('div'));
+
+        const candidates = divs
+          .filter(isScrollable)
+          .map(el => {
+            const r = el.getBoundingClientRect();
+
+            return {
+              el,
+              left: r.left,
+              top: r.top,
+              width: r.width,
+              height: r.height
+            };
+          })
+          .filter(x => {
+            return (
+              x.width > 260 &&
+              x.height > 300 &&
+              x.left < window.innerWidth * 0.75
+            );
+          })
+          .sort((a, b) => {
+            if (a.left !== b.left) return a.left - b.left;
+            return b.height - a.height;
+          });
+
+        if (candidates.length > 0) {
+          container = candidates[0].el;
+        }
+      }
+
+      if (!container) {
+        window.scrollBy(0, distance);
+
+        return {
+          success: false,
+          before: window.scrollY,
+          after: window.scrollY,
+          height: document.body.scrollHeight,
+          clientHeight: window.innerHeight,
+          method: 'window-scroll'
+        };
+      }
+
+      const before = container.scrollTop;
+
+      container.scrollBy({
+        top: distance,
+        behavior: 'auto'
+      });
+
+      const after = container.scrollTop;
+
+      return {
+        success: true,
+        before,
+        after,
+        height: container.scrollHeight,
+        clientHeight: container.clientHeight,
+        method: 'dom-scroll'
+      };
+    }, distance),
+    10000,
+    'scrollReviewContainerByDom'
+  );
+}
+
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
@@ -730,109 +840,107 @@ async function expandCurrentMore(page) {
 
 async function fastScrollReviews(page) {
   try {
-    const box = await withTimeout(
+    const beforeBox = await withTimeout(
       getReviewScrollBox(page),
-      15000,
-      'getReviewScrollBox'
+      8000,
+      'getReviewScrollBox before'
     );
 
-    if (!box) {
-      try {
-        await withTimeout(
-          page.keyboard.press('PageDown'),
-          5000,
-          'keyboard PageDown fallback'
-        );
-      } catch {}
+    const domResult = await scrollReviewContainerByDom(page, 9000);
 
-      await randomDelay(2500, 3500);
-
-      return {
-        success: false,
-        before: 0,
-        after: 0,
-        timeout: true,
-        method: 'keyboard-no-box'
-      };
-    }
-
-    const before = box.top;
-
-    try {
-      await withTimeout(
-        page.mouse.move(box.x, box.y),
-        5000,
-        'mouse move'
-      );
-    } catch (err) {
-      console.warn('⚠️ mouse.move 失敗，改用鍵盤:', err.message);
-
-      try {
-        await page.keyboard.press('PageDown');
-      } catch {}
-
-      await randomDelay(2500, 3500);
-
-      return {
-        success: false,
-        before,
-        after: before,
-        timeout: true,
-        method: 'keyboard-move-failed'
-      };
-    }
-
-    for (let i = 0; i < 4; i++) {
-      try {
-        await withTimeout(
-          page.mouse.wheel({
-            deltaY: 1200
-          }),
-          10000,
-          'mouse wheel'
-        );
-      } catch (err) {
-        console.warn('⚠️ mouse.wheel 逾時，改用 PageDown:', err.message);
-
-        try {
-          await page.keyboard.press('PageDown');
-        } catch {}
-      }
-
-      await randomDelay(800, 1200);
-    }
-
-    await randomDelay(3000, 4500);
+    await randomDelay(900, 1300);
 
     const afterBox = await withTimeout(
       getReviewScrollBox(page),
-      15000,
-      'getReviewScrollBox after scroll'
+      8000,
+      'getReviewScrollBox after'
     );
+
+    const before = beforeBox ? beforeBox.top : domResult.before;
+    const after = afterBox ? afterBox.top : domResult.after;
 
     return {
       success: true,
       before,
-      after: afterBox ? afterBox.top : before,
+      after,
       timeout: false,
-      method: 'mouse-wheel'
+      method: domResult.method || 'dom-scroll'
     };
+
   } catch (err) {
-    console.warn('⚠️ fastScrollReviews 發生錯誤，改用鍵盤備援:', err.message);
+    console.warn('⚠️ DOM 捲動失敗，改用滑鼠備援:', err.message);
 
     try {
-      await page.keyboard.press('PageDown');
-    } catch {}
+      const box = await withTimeout(
+        getReviewScrollBox(page),
+        8000,
+        'getReviewScrollBox mouse fallback'
+      );
 
-    await randomDelay(2500, 3500);
+      if (!box) {
+        return {
+          success: false,
+          before: 0,
+          after: 0,
+          timeout: true,
+          method: 'no-scroll-box'
+        };
+      }
 
-    return {
-      success: false,
-      before: 0,
-      after: 0,
-      timeout: true,
-      method: 'fallback'
-    };
+      const before = box.top;
+
+      try {
+        await withTimeout(
+          page.mouse.move(box.x, box.y),
+          3000,
+          'mouse move'
+        );
+      } catch {}
+
+      for (let i = 0; i < 3; i++) {
+        try {
+          await withTimeout(
+            page.mouse.wheel({
+              deltaY: 2200
+            }),
+            4000,
+            'mouse wheel'
+          );
+        } catch (wheelErr) {
+          console.warn('⚠️ mouse.wheel 逾時，略過這次:', wheelErr.message);
+          break;
+        }
+
+        await randomDelay(150, 250);
+      }
+
+      await randomDelay(700, 1000);
+
+      const afterBox = await withTimeout(
+        getReviewScrollBox(page),
+        8000,
+        'getReviewScrollBox mouse after'
+      );
+
+      return {
+        success: true,
+        before,
+        after: afterBox ? afterBox.top : before,
+        timeout: false,
+        method: 'mouse-fallback'
+      };
+
+    } catch (fallbackErr) {
+      console.warn('⚠️ fastScrollReviews 全部失敗，本輪略過:', fallbackErr.message);
+
+      return {
+        success: false,
+        before: -1,
+        after: -1,
+        timeout: true,
+        method: 'scroll-failed'
+      };
+    }
   }
 }
 
@@ -843,6 +951,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   let stableCount = 0;
   let stuckScrollCount = 0;
+  let timeoutCount = 0;
   let lastTotal = 0;
 
   for (let round = 0; round < maxRounds; round++) {
@@ -851,7 +960,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     const expanded = await expandCurrentMore(page);
 
     if (expanded > 0) {
-      await randomDelay(700, 1000);
+      await randomDelay(500, 800);
     }
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
@@ -867,7 +976,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    if (stableCount >= 30) {
+    if (stableCount >= 18) {
       console.log(`✅ 連續 ${stableCount} 次評論沒有再增加，停止`);
       break;
     }
@@ -875,25 +984,41 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     const scrollResult = await fastScrollReviews(page);
 
     console.log(
-      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
+      `⬇️ 捲動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
     );
 
-    if (scrollResult.after === scrollResult.before) {
+    if (scrollResult.timeout) {
+      timeoutCount++;
+
+      console.log(`⚠️ 本輪捲動逾時，第 ${timeoutCount} 次，繼續嘗試，不直接停止`);
+
+      if (timeoutCount >= 5) {
+        console.log(`✅ 連續 timeout ${timeoutCount} 次，停止避免 Actions 卡死`);
+        break;
+      }
+
+      await randomDelay(800, 1200);
+      continue;
+    }
+
+    timeoutCount = 0;
+
+    if (
+      scrollResult.before >= 0 &&
+      scrollResult.after >= 0 &&
+      scrollResult.after === scrollResult.before
+    ) {
       stuckScrollCount++;
     } else {
       stuckScrollCount = 0;
     }
 
-    if (stuckScrollCount >= 10) {
+    if (stuckScrollCount >= 8) {
       console.log(`✅ 捲軸連續 ${stuckScrollCount} 次沒有移動，停止`);
       break;
     }
 
-    if (scrollResult.timeout) {
-      console.log('⚠️ 本輪滾動逾時，繼續下一輪，不讓 Actions 卡死');
-    }
-
-    await randomDelay(1200, 1800);
+    await randomDelay(500, 800);
   }
 
   const reviews = Array.from(reviewMap.values());
