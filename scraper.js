@@ -56,26 +56,27 @@ function getMaxRounds() {
   return Math.floor(value);
 }
 
-function getTargetStores() {
-  const targetBrand = String(process.env.SCRAPE_TARGET_BRAND || 'all').trim() || 'all';
-  const targetStore = String(process.env.SCRAPE_TARGET_STORE || 'all').trim() || 'all';
+function getReviewKey(review) {
+  return (
+    review.reviewId ||
+    review.id ||
+    `${review.author || ''}-${review.date || ''}-${review.rating || ''}-${String(review.content || '').slice(0, 120)}`
+  );
+}
 
-  const targetStores = STORES.filter(storeConfig => {
-    const brandMatched =
-      targetBrand === 'all' ||
-      storeConfig.brand === targetBrand;
+function getSortModes(maxRounds) {
+  if (process.env.SCRAPE_SORT_MODES) {
+    return process.env.SCRAPE_SORT_MODES
+      .split(',')
+      .map(x => x.trim())
+      .filter(Boolean);
+  }
 
-    const storeMatched =
-      targetStore === 'all' ||
-      storeConfig.store === targetStore;
+  if (maxRounds <= 5) {
+    return ['最新'];
+  }
 
-    return brandMatched && storeMatched;
-  });
-
-  console.log("🎯 本次同步目標:", targetBrand, targetStore);
-  console.log("🎯 本次店家數:", targetStores.length);
-
-  return targetStores;
+  return ['最新', '最相關', '評分最高', '評分最低'];
 }
 
 async function extractStoreRating(page) {
@@ -145,6 +146,7 @@ async function extractStoreRating(page) {
       const aria = clean(el.getAttribute('aria-label') || '');
       const title = clean(el.getAttribute('title') || '');
       const source = `${aria} ${title}`;
+
       const match = source.match(/([1-5]\.\d)\s*(?:星|顆星|stars?)/i);
 
       if (match && isValidAverageRating(match[1])) {
@@ -156,15 +158,28 @@ async function extractStoreRating(page) {
   });
 }
 
-async function clickNewestSort(page) {
-  console.log("🔃 嘗試切換最新排序...");
-
-  await randomDelay(1000, 1500);
-
+async function resetReviewScrollTop(page) {
   await page.evaluate(() => {
+    function isScrollable(el) {
+      if (!el) return false;
+
+      const s = window.getComputedStyle(el);
+
+      return (
+        el.scrollHeight > el.clientHeight + 100 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden' &&
+        s.overflowY !== 'hidden'
+      );
+    }
+
     let container =
       document.querySelector('div[role="feed"]') ||
       document.querySelector('.m6U62c');
+
+    if (!isScrollable(container)) {
+      container = null;
+    }
 
     if (!container) {
       const firstReview = document.querySelector('div[data-review-id]');
@@ -172,13 +187,8 @@ async function clickNewestSort(page) {
       if (firstReview) {
         let p = firstReview.parentElement;
 
-        while (p) {
-          const style = window.getComputedStyle(p);
-
-          if (
-            p.scrollHeight > p.clientHeight &&
-            ['auto', 'scroll', 'overlay'].includes(style.overflowY)
-          ) {
+        while (p && p !== document.body) {
+          if (isScrollable(p)) {
             container = p;
             break;
           }
@@ -192,7 +202,35 @@ async function clickNewestSort(page) {
       container.scrollTop = 0;
     }
   });
+}
 
+function getSortAliases(sortMode) {
+  const mode = String(sortMode || '').trim();
+
+  if (mode === '最新') {
+    return ['最新', 'newest', 'newest first'];
+  }
+
+  if (mode === '最相關') {
+    return ['最相關', 'most relevant', 'relevant'];
+  }
+
+  if (mode === '評分最高') {
+    return ['評分最高', '最高評分', 'highest rating', 'highest rated'];
+  }
+
+  if (mode === '評分最低') {
+    return ['評分最低', '最低評分', 'lowest rating', 'lowest rated'];
+  }
+
+  return [mode];
+}
+
+async function clickReviewSort(page, sortMode = '最新') {
+  console.log(`🔃 嘗試切換排序：${sortMode}`);
+
+  await randomDelay(1000, 1500);
+  await resetReviewScrollTop(page);
   await randomDelay(1200, 1800);
 
   const sortResult = await page.evaluate(() => {
@@ -235,8 +273,10 @@ async function clickNewestSort(page) {
       if (
         text.includes('排序') ||
         text.includes('最相關') ||
+        text.includes('最新') ||
         lower.includes('sort') ||
-        lower.includes('most relevant')
+        lower.includes('most relevant') ||
+        lower.includes('newest')
       ) {
         const r = el.getBoundingClientRect();
 
@@ -285,7 +325,16 @@ async function clickNewestSort(page) {
 
   await randomDelay(1500, 2200);
 
-  const newestResult = await page.evaluate(() => {
+  const aliases = getSortAliases(sortMode);
+
+  const optionResult = await page.evaluate((aliases) => {
+    function normalize(value) {
+      return String(value || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
     function getText(el) {
       return (
         (el.innerText || '') +
@@ -314,6 +363,8 @@ async function clickNewestSort(page) {
       );
     }
 
+    const normalizedAliases = aliases.map(normalize);
+
     const menuRoots = Array.from(document.querySelectorAll(
       '[role="menu"], [role="listbox"], [role="presentation"], div[aria-modal="true"]'
     )).filter(isVisible);
@@ -329,8 +380,13 @@ async function clickNewestSort(page) {
         if (!isVisible(item)) continue;
 
         const text = getText(item);
+        const normalizedText = normalize(text);
 
-        if (text !== '最新') continue;
+        const matched = normalizedAliases.some(alias => {
+          return normalizedText === alias || normalizedText.includes(alias);
+        });
+
+        if (!matched) continue;
 
         let clickable = item;
         let p = item.parentElement;
@@ -371,27 +427,23 @@ async function clickNewestSort(page) {
       success: false,
       text: ''
     };
-  });
+  }, aliases);
 
-  console.log("🆕 newest result:", newestResult);
+  console.log(`🆕 ${sortMode} result:`, optionResult);
 
-  if (!newestResult.success) {
-    console.log("⚠️ DOM 沒點到最新，改用鍵盤備援");
-
-    await page.keyboard.press('ArrowDown');
-    await randomDelay(300, 500);
-    await page.keyboard.press('Enter');
-
-    await randomDelay(5000, 7000);
-
-    console.log("✅ 已用鍵盤備援選最新");
-    return true;
+  if (!optionResult.success) {
+    console.log(`⚠️ DOM 沒點到 ${sortMode}，若是預設排序則繼續`);
+    return false;
   }
 
   await randomDelay(5000, 7000);
 
-  console.log("✅ 已切換最新排序");
+  console.log(`✅ 已切換排序：${sortMode}`);
   return true;
+}
+
+async function clickNewestSort(page) {
+  return await clickReviewSort(page, '最新');
 }
 
 async function getReviewScrollBox(page) {
@@ -481,116 +533,6 @@ async function getReviewScrollBox(page) {
       clientHeight: container.clientHeight
     };
   });
-}
-
-async function scrollReviewContainerByDom(page, distance = 9000) {
-  return await withTimeout(
-    page.evaluate((distance) => {
-      function isScrollable(el) {
-        if (!el) return false;
-
-        const s = window.getComputedStyle(el);
-
-        return (
-          el.scrollHeight > el.clientHeight + 100 &&
-          s.display !== 'none' &&
-          s.visibility !== 'hidden' &&
-          s.overflowY !== 'hidden'
-        );
-      }
-
-      let container =
-        document.querySelector('div[role="feed"]') ||
-        document.querySelector('.m6U62c');
-
-      if (!isScrollable(container)) {
-        container = null;
-      }
-
-      if (!container) {
-        const firstReview = document.querySelector('div[data-review-id]');
-
-        if (firstReview) {
-          let p = firstReview.parentElement;
-
-          while (p && p !== document.body) {
-            if (isScrollable(p)) {
-              container = p;
-              break;
-            }
-
-            p = p.parentElement;
-          }
-        }
-      }
-
-      if (!container) {
-        const divs = Array.from(document.querySelectorAll('div'));
-
-        const candidates = divs
-          .filter(isScrollable)
-          .map(el => {
-            const r = el.getBoundingClientRect();
-
-            return {
-              el,
-              left: r.left,
-              top: r.top,
-              width: r.width,
-              height: r.height
-            };
-          })
-          .filter(x => {
-            return (
-              x.width > 260 &&
-              x.height > 300 &&
-              x.left < window.innerWidth * 0.75
-            );
-          })
-          .sort((a, b) => {
-            if (a.left !== b.left) return a.left - b.left;
-            return b.height - a.height;
-          });
-
-        if (candidates.length > 0) {
-          container = candidates[0].el;
-        }
-      }
-
-      if (!container) {
-        window.scrollBy(0, distance);
-
-        return {
-          success: false,
-          before: window.scrollY,
-          after: window.scrollY,
-          height: document.body.scrollHeight,
-          clientHeight: window.innerHeight,
-          method: 'window-scroll'
-        };
-      }
-
-      const before = container.scrollTop;
-
-      container.scrollBy({
-        top: distance,
-        behavior: 'auto'
-      });
-
-      const after = container.scrollTop;
-
-      return {
-        success: true,
-        before,
-        after,
-        height: container.scrollHeight,
-        clientHeight: container.clientHeight,
-        method: 'dom-scroll'
-      };
-    }, distance),
-    10000,
-    'scrollReviewContainerByDom'
-  );
 }
 
 async function collectCurrentReviews(page, reviewMap) {
@@ -756,16 +698,15 @@ async function collectCurrentReviews(page, reviewMap) {
         if (m) rating = parseInt(m[0], 10);
       }
 
-      const hasValidReview =
+      if (
         content &&
         !content.includes('function(){') &&
         !content.includes('window.tactilecsi') &&
         !content.includes('window.google') &&
         !content.includes('RegExp(') &&
         !content.includes('sjsuid_') &&
-        !content.includes(':root{');
-
-      if (hasValidReview) {
+        !content.includes(':root{')
+      ) {
         const replyData = extractOwnerReply(el);
 
         results.push({
@@ -785,7 +726,11 @@ async function collectCurrentReviews(page, reviewMap) {
   });
 
   current.forEach(r => {
-    const key = r.reviewId || `${r.author}-${r.date}-${r.content}`;
+    const key = getReviewKey(r);
+
+    if (!key) {
+      return;
+    }
 
     if (!reviewMap.has(key)) {
       reviewMap.set(key, r);
@@ -795,9 +740,9 @@ async function collectCurrentReviews(page, reviewMap) {
       reviewMap.set(key, {
         ...old,
         ...r,
-        hasReply: Boolean(r.replyContent),
-        replyContent: r.replyContent || '',
-        replyDate: r.replyDate || ''
+        hasReply: Boolean(r.replyContent || old.replyContent),
+        replyContent: r.replyContent || old.replyContent || '',
+        replyDate: r.replyDate || old.replyDate || ''
       });
     }
   });
@@ -840,13 +785,58 @@ async function expandCurrentMore(page) {
 
 async function fastScrollReviews(page) {
   try {
-    const beforeBox = await withTimeout(
+    const box = await withTimeout(
       getReviewScrollBox(page),
       8000,
-      'getReviewScrollBox before'
+      'getReviewScrollBox'
     );
 
-    const domResult = await scrollReviewContainerByDom(page, 9000);
+    if (!box) {
+      console.log("⚠️ 找不到評論捲動容器，改用 PageDown");
+
+      try {
+        await page.keyboard.press('PageDown');
+      } catch {}
+
+      await randomDelay(700, 1000);
+
+      return {
+        success: false,
+        before: -1,
+        after: -1,
+        timeout: false,
+        method: 'keyboard'
+      };
+    }
+
+    const before = box.top;
+
+    try {
+      await withTimeout(
+        page.mouse.move(box.x, box.y),
+        5000,
+        'mouse move'
+      );
+    } catch (err) {
+      console.warn('⚠️ mouse.move 逾時，略過 move 直接 wheel:', err.message);
+    }
+
+    for (let i = 0; i < 6; i++) {
+      try {
+        await withTimeout(
+          page.mouse.wheel({
+            deltaY: 2200
+          }),
+          7000,
+          'mouse wheel'
+        );
+      } catch (err) {
+        console.warn('⚠️ mouse.wheel 逾時，本輪停止 wheel，但不讓整店失敗:', err.message);
+        break;
+      }
+
+      await randomDelay(200, 350);
+    }
 
     await randomDelay(900, 1300);
 
@@ -856,91 +846,24 @@ async function fastScrollReviews(page) {
       'getReviewScrollBox after'
     );
 
-    const before = beforeBox ? beforeBox.top : domResult.before;
-    const after = afterBox ? afterBox.top : domResult.after;
-
     return {
       success: true,
       before,
-      after,
+      after: afterBox ? afterBox.top : before,
       timeout: false,
-      method: domResult.method || 'dom-scroll'
+      method: 'mouse-wheel'
     };
 
   } catch (err) {
-    console.warn('⚠️ DOM 捲動失敗，改用滑鼠備援:', err.message);
+    console.warn('⚠️ fastScrollReviews 失敗，本輪略過:', err.message);
 
-    try {
-      const box = await withTimeout(
-        getReviewScrollBox(page),
-        8000,
-        'getReviewScrollBox mouse fallback'
-      );
-
-      if (!box) {
-        return {
-          success: false,
-          before: 0,
-          after: 0,
-          timeout: true,
-          method: 'no-scroll-box'
-        };
-      }
-
-      const before = box.top;
-
-      try {
-        await withTimeout(
-          page.mouse.move(box.x, box.y),
-          3000,
-          'mouse move'
-        );
-      } catch {}
-
-      for (let i = 0; i < 3; i++) {
-        try {
-          await withTimeout(
-            page.mouse.wheel({
-              deltaY: 2200
-            }),
-            4000,
-            'mouse wheel'
-          );
-        } catch (wheelErr) {
-          console.warn('⚠️ mouse.wheel 逾時，略過這次:', wheelErr.message);
-          break;
-        }
-
-        await randomDelay(150, 250);
-      }
-
-      await randomDelay(700, 1000);
-
-      const afterBox = await withTimeout(
-        getReviewScrollBox(page),
-        8000,
-        'getReviewScrollBox mouse after'
-      );
-
-      return {
-        success: true,
-        before,
-        after: afterBox ? afterBox.top : before,
-        timeout: false,
-        method: 'mouse-fallback'
-      };
-
-    } catch (fallbackErr) {
-      console.warn('⚠️ fastScrollReviews 全部失敗，本輪略過:', fallbackErr.message);
-
-      return {
-        success: false,
-        before: -1,
-        after: -1,
-        timeout: true,
-        method: 'scroll-failed'
-      };
-    }
+    return {
+      success: false,
+      before: -1,
+      after: -1,
+      timeout: true,
+      method: 'scroll-timeout'
+    };
   }
 }
 
@@ -949,76 +872,76 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   const reviewMap = new Map();
 
-  let stableCount = 0;
+  let noNewReviewCount = 0;
   let stuckScrollCount = 0;
   let timeoutCount = 0;
-  let lastTotal = 0;
 
   for (let round = 0; round < maxRounds; round++) {
+    const beforeTotal = reviewMap.size;
+
     const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
 
     const expanded = await expandCurrentMore(page);
 
     if (expanded > 0) {
-      await randomDelay(500, 800);
+      await randomDelay(700, 1000);
     }
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
+
+    const afterTotal = reviewMap.size;
+    const hasNewReview = afterTotal > beforeTotal;
+
+    if (hasNewReview) {
+      noNewReviewCount = 0;
+    } else {
+      noNewReviewCount++;
+    }
 
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
     );
 
-    if (reviewMap.size === lastTotal) {
-      stableCount++;
-    } else {
-      stableCount = 0;
-      lastTotal = reviewMap.size;
-    }
-
-    if (stableCount >= 18) {
-      console.log(`✅ 連續 ${stableCount} 次評論沒有再增加，停止`);
-      break;
-    }
-
     const scrollResult = await fastScrollReviews(page);
 
     console.log(
-      `⬇️ 捲動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
+      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
     );
+
+    const scrollMoved =
+      scrollResult.before >= 0 &&
+      scrollResult.after >= 0 &&
+      scrollResult.after !== scrollResult.before;
 
     if (scrollResult.timeout) {
       timeoutCount++;
-
-      console.log(`⚠️ 本輪捲動逾時，第 ${timeoutCount} 次，繼續嘗試，不直接停止`);
-
-      if (timeoutCount >= 5) {
-        console.log(`✅ 連續 timeout ${timeoutCount} 次，停止避免 Actions 卡死`);
-        break;
-      }
-
-      await randomDelay(800, 1200);
-      continue;
-    }
-
-    timeoutCount = 0;
-
-    if (
-      scrollResult.before >= 0 &&
-      scrollResult.after >= 0 &&
-      scrollResult.after === scrollResult.before
-    ) {
-      stuckScrollCount++;
     } else {
-      stuckScrollCount = 0;
+      timeoutCount = 0;
     }
 
-    if (stuckScrollCount >= 8) {
-      console.log(`✅ 捲軸連續 ${stuckScrollCount} 次沒有移動，停止`);
+    if (scrollMoved) {
+      stuckScrollCount = 0;
+
+      if (!hasNewReview && noNewReviewCount >= 10) {
+        console.log(`⚠️ 已 ${noNewReviewCount} 輪沒新增，但捲軸仍在移動，繼續往下滑`);
+      }
+    } else {
+      stuckScrollCount++;
+    }
+
+    if (timeoutCount >= 5) {
+      console.log(`✅ 連續 timeout ${timeoutCount} 次，停止避免 Actions 卡死`);
       break;
     }
 
-    await randomDelay(500, 800);
+    if (noNewReviewCount >= 8 && stuckScrollCount >= 5) {
+      console.log(
+        `✅ 評論連續 ${noNewReviewCount} 輪沒新增，且捲軸連續 ${stuckScrollCount} 輪不動，判定到底，停止`
+      );
+      break;
+    }
+
+    await randomDelay(800, 1200);
   }
 
   const reviews = Array.from(reviewMap.values());
@@ -1030,6 +953,33 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   }
 
   return reviews;
+}
+
+function mergeReviewsIntoMap(targetMap, reviews) {
+  let gain = 0;
+
+  for (const review of reviews) {
+    const key = getReviewKey(review);
+
+    if (!key) continue;
+
+    if (!targetMap.has(key)) {
+      targetMap.set(key, review);
+      gain++;
+    } else {
+      const old = targetMap.get(key);
+
+      targetMap.set(key, {
+        ...old,
+        ...review,
+        hasReply: Boolean(review.replyContent || old.replyContent),
+        replyContent: review.replyContent || old.replyContent || '',
+        replyDate: review.replyDate || old.replyDate || ''
+      });
+    }
+  }
+
+  return gain;
 }
 
 async function scrapeOneStore(page, storeConfig, maxRounds) {
@@ -1132,54 +1082,53 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     console.log("⚠️ 沒點到評論");
   }
 
-  await clickNewestSort(page);
-
   const storeRating = await extractStoreRating(page);
 
   console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || "未抓到");
   console.log("🔁 本次評論滑動輪數:", maxRounds);
 
-  const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+  const sortModes = getSortModes(maxRounds);
+  const mergedMap = new Map();
 
-  reviews.forEach(review => {
-    review.brand = storeConfig.brand;
-    review.store = storeConfig.store;
-    review.branch = storeConfig.branch;
-    review.storeRating = storeRating;
-    review.averageRating = storeRating;
-  });
+  console.log(`🧭 本次排序模式：${sortModes.join(' / ')}`);
 
-  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`);
+  for (const sortMode of sortModes) {
+    console.log(`==============================`);
+    console.log(`🧭 ${storeConfig.brand} ${storeConfig.store} 開始抓排序：${sortMode}`);
 
-  return reviews;
-}
+    const sortClicked = await clickReviewSort(page, sortMode);
 
-async function scrapeOneStoreWithRetry(page, storeConfig, maxRounds, retryCount = 2) {
-  let lastError = null;
-
-  for (let attempt = 1; attempt <= retryCount + 1; attempt++) {
-    try {
-      console.log(`🔁 ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次抓取`);
-
-      const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
-
-      if (Array.isArray(reviews) && reviews.length > 0) {
-        return reviews;
-      }
-
-      lastError = new Error('抓到 0 筆');
-      console.warn(`⚠️ ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次抓到 0 筆`);
-    } catch (err) {
-      lastError = err;
-      console.warn(`⚠️ ${storeConfig.brand} ${storeConfig.store} 第 ${attempt} 次失敗:`, err.message);
+    if (!sortClicked && sortMode !== '最相關') {
+      console.log(`⚠️ 排序 ${sortMode} 切換失敗，仍繼續嘗試抓目前畫面`);
     }
 
-    await randomDelay(5000, 8000);
+    await randomDelay(2000, 3000);
+
+    const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+
+    reviews.forEach(review => {
+      review.brand = storeConfig.brand;
+      review.store = storeConfig.store;
+      review.branch = storeConfig.branch;
+      review.storeRating = storeRating;
+      review.averageRating = storeRating;
+      review.sortMode = sortMode;
+    });
+
+    const gain = mergeReviewsIntoMap(mergedMap, reviews);
+
+    console.log(
+      `📦 ${storeConfig.brand} ${storeConfig.store} 排序 ${sortMode} 完成：本輪 ${reviews.length} 筆，新增 ${gain} 筆，累積 ${mergedMap.size} 筆`
+    );
+
+    await randomDelay(3000, 5000);
   }
 
-  console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 重試後仍失敗:`, lastError?.message || '未知錯誤');
+  const finalReviews = Array.from(mergedMap.values());
 
-  return [];
+  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${finalReviews.length} 筆`);
+
+  return finalReviews;
 }
 
 async function scrapeGoogleReviews() {
@@ -1228,11 +1177,28 @@ async function scrapeGoogleReviews() {
 
     const maxRounds = getMaxRounds();
     const allReviews = [];
-    const targetStores = getTargetStores();
+
+    const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
+    const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+
+    const targetStores = STORES.filter(storeConfig => {
+      const brandMatched =
+        targetBrand === 'all' ||
+        storeConfig.brand === targetBrand;
+
+      const storeMatched =
+        targetStore === 'all' ||
+        storeConfig.store === targetStore;
+
+      return brandMatched && storeMatched;
+    });
+
+    console.log("🎯 本次同步目標:", targetBrand, targetStore);
+    console.log("🎯 本次店家數:", targetStores.length);
 
     for (const storeConfig of targetStores) {
       try {
-        const reviews = await scrapeOneStoreWithRetry(page, storeConfig, maxRounds, 2);
+        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
         allReviews.push(...reviews);
       } catch (err) {
         console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
