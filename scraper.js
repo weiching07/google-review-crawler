@@ -1092,6 +1092,28 @@ async function jsScrollReviewList(page, options = {}) {
   }
 }
 
+// 等待 Maps batchexecute network 回應（用於判斷是否有新評論載入）
+async function waitForBatchExecute(page, maxWait = 12000) {
+  try {
+    await page.waitForResponse(res => {
+      try {
+        const u = res.url();
+        return (
+          typeof u === 'string' &&
+          u.includes('/MapsWizUi/data/batchexecute') &&
+          res.status() === 200
+        );
+      } catch (e) {
+        return false;
+      }
+    }, { timeout: maxWait });
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function normalMouseScroll(page) {
   try {
     const box = await withTimeout(
@@ -1175,24 +1197,21 @@ async function normalMouseScroll(page) {
 }
 
 async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
-  // ⚠️ 終極版本：300+ 永遠用超激進的固定參數，沒有例外，每輪都一樣激進
-  if (totalReviews >= 300) {
-    // 固定用最激進的參數組合，永遠不改變
+  // 回退到原本策略：1000 條後才切換到激進 JS 滾動
+  if (totalReviews >= 1000) {
     return await jsScrollReviewList(page, {
       label: 'ultimate-fixed-aggressive',
-      step: 2100,           // 大幅滾動
-      times: 10,            // 多次滾動
-      delay: 1200,          // 適當間隔
-      waitAfter: 8000,      // 充分的 JS 執行時間
-      backtrack: 20000,     // 大幅回溯，讓 Google 加載新評論
-      timeout: 65000        // 充分時間（65 秒）
+      step: 1800,
+      times: 7,
+      delay: 900,
+      waitAfter: 3500,
+      backtrack: 10000,
+      timeout: 40000
     });
   }
 
-  // < 300 時用 mouse
-  if (totalReviews < 300) {
-    return await normalMouseScroll(page);
-  }
+  // < 1000 時保留 mouse 策略（較符合原先邏輯）
+  return await normalMouseScroll(page);
 }
 
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
@@ -1253,26 +1272,25 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
     }
 
-    // 更激進的長等待策略，幫助突破各個瓶頸
-    if (reviewMap.size >= 2000 && stableCount > 0 && stableCount % 15 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，定期長休息 45~60 秒`);
-      await randomDelay(45000, 60000);
-    }
+    // 替換：使用 network-driven 檢查代替固定長等待
+    if (stableCount > 0) {
+      console.log(`🔎 stable=${stableCount}，嘗試等待 batchexecute 回應（短暫等待）`);
+      const sawBatch = await waitForBatchExecute(page, 12000);
 
-    if (reviewMap.size >= 1500 && stableCount > 0 && stableCount % 20 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，超長等待 90~120 秒`);
-      await randomDelay(90000, 120000);
-    }
-
-    // 新增：500-1000 區間的激進等待（這是第一個瓶頸）
-    if (reviewMap.size >= 500 && reviewMap.size < 1000 && stableCount > 0 && stableCount % 15 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，500-1000 區間長等待 45~60 秒`);
-      await randomDelay(45000, 60000);
-    }
-
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 30 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，1000+ 區間長等待 60~75 秒`);
-      await randomDelay(60000, 75000);
+      if (sawBatch) {
+        console.log('✅ 偵測到 batchexecute 回應，繼續下一輪');
+      } else {
+        console.log('⚠️ 未偵測到 batchexecute，使用短退避後重試');
+        if (reviewMap.size >= 2000) {
+          await randomDelay(8000, 12000);
+        } else if (reviewMap.size >= 1000) {
+          await randomDelay(6000, 9000);
+        } else if (reviewMap.size >= 500) {
+          await randomDelay(4000, 6000);
+        } else {
+          await randomDelay(2000, 3500);
+        }
+      }
     }
 
     const scrollResult = await fastScrollReviews(page, reviewMap.size, stableCount);
