@@ -821,6 +821,9 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
             success: false,
             before,
             after: window.scrollY,
+            height: document.documentElement.scrollHeight || 0,
+            clientHeight: window.innerHeight || 0,
+            remaining: -1,
             timeout: false,
             method: 'window-js-fallback'
           };
@@ -852,10 +855,16 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
 
         await sleep(3000);
 
+        const after = container.scrollTop;
+        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
+
         return {
           success: true,
           before,
-          after: container.scrollTop,
+          after,
+          height: container.scrollHeight,
+          clientHeight: container.clientHeight,
+          remaining,
           timeout: false,
           method: 'js-fallback-1000'
         };
@@ -872,8 +881,163 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
       success: false,
       before: -1,
       after: -1,
+      height: -1,
+      clientHeight: -1,
+      remaining: -1,
       timeout: true,
       method: 'js-fallback-timeout'
+    };
+  }
+}
+
+async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
+  console.log(`🛠️ hard wake 啟動：已連續 ${stableCount} 輪沒新增，目前 ${totalReviews} 筆`);
+
+  try {
+    const result = await withTimeout(
+      page.evaluate(async () => {
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function isScrollable(el) {
+          if (!el) return false;
+
+          const s = window.getComputedStyle(el);
+
+          return (
+            el.scrollHeight > el.clientHeight + 100 &&
+            s.display !== 'none' &&
+            s.visibility !== 'hidden' &&
+            s.overflowY !== 'hidden'
+          );
+        }
+
+        function findReviewContainer() {
+          let container =
+            document.querySelector('div[role="feed"]') ||
+            document.querySelector('.m6U62c');
+
+          if (isScrollable(container)) {
+            return container;
+          }
+
+          const firstReview = document.querySelector('div[data-review-id]');
+
+          if (firstReview) {
+            let p = firstReview.parentElement;
+
+            while (p && p !== document.body) {
+              if (isScrollable(p)) {
+                return p;
+              }
+
+              p = p.parentElement;
+            }
+          }
+
+          const candidates = Array.from(document.querySelectorAll('div'))
+            .filter(isScrollable)
+            .map(el => {
+              const r = el.getBoundingClientRect();
+
+              return {
+                el,
+                left: r.left,
+                top: r.top,
+                width: r.width,
+                height: r.height,
+                scrollHeight: el.scrollHeight,
+                clientHeight: el.clientHeight
+              };
+            })
+            .filter(x => {
+              return (
+                x.width > 260 &&
+                x.height > 300 &&
+                x.left < window.innerWidth * 0.75
+              );
+            })
+            .sort((a, b) => {
+              if (a.left !== b.left) return a.left - b.left;
+              return b.scrollHeight - a.scrollHeight;
+            });
+
+          return candidates.length > 0 ? candidates[0].el : null;
+        }
+
+        const container = findReviewContainer();
+
+        if (!container) {
+          return {
+            success: false,
+            before: -1,
+            after: -1,
+            height: -1,
+            clientHeight: -1,
+            remaining: -1,
+            method: 'hard-wake-no-container'
+          };
+        }
+
+        const before = container.scrollTop;
+
+        // 先小幅往上退，讓 Google 虛擬列表重新渲染
+        container.scrollTop = Math.max(0, container.scrollTop - 12000);
+        container.dispatchEvent(new Event('scroll', { bubbles: true }));
+        await sleep(2500);
+
+        // 再往下推
+        for (let i = 0; i < 5; i++) {
+          container.dispatchEvent(
+            new WheelEvent('wheel', {
+              deltaY: 1800,
+              deltaMode: 0,
+              bubbles: true,
+              cancelable: true,
+              view: window
+            })
+          );
+
+          container.scrollTop += 1800;
+          container.dispatchEvent(new Event('scroll', { bubbles: true }));
+
+          await sleep(1200);
+        }
+
+        await sleep(5000);
+
+        const after = container.scrollTop;
+        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
+
+        return {
+          success: true,
+          before,
+          after,
+          height: container.scrollHeight,
+          clientHeight: container.clientHeight,
+          remaining,
+          method: 'hard-wake-up-down'
+        };
+      }),
+      35000,
+      'hardWakeReviewList'
+    );
+
+    console.log(`🛠️ hard wake 結果 top=${result.before}->${result.after} remaining=${result.remaining} ${result.method}`);
+
+    return result;
+  } catch (err) {
+    console.warn('⚠️ hard wake 失敗:', err.message);
+
+    return {
+      success: false,
+      before: -1,
+      after: -1,
+      height: -1,
+      clientHeight: -1,
+      remaining: -1,
+      method: 'hard-wake-timeout'
     };
   }
 }
@@ -957,6 +1121,12 @@ async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
     );
 
     const after = afterBox ? afterBox.top : before;
+    const height = afterBox ? afterBox.height : -1;
+    const clientHeight = afterBox ? afterBox.clientHeight : -1;
+    const remaining =
+      afterBox && after >= 0
+        ? Math.max(0, afterBox.height - afterBox.clientHeight - after)
+        : -1;
 
     if (after >= 0 && before >= 0 && after < before - 50000) {
       console.warn(`⚠️ 捲軸疑似跳回前面 ${before}->${after}，等待 20 秒後改用 JS fallback`);
@@ -970,6 +1140,9 @@ async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
       success: true,
       before,
       after,
+      height,
+      clientHeight,
+      remaining,
       timeout: false,
       method
     };
@@ -992,8 +1165,12 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   let noMoveCount = 0;
   let timeoutCount = 0;
   let lastTotal = 0;
+  let completedByBottom = false;
+  let lastRemaining = -1;
 
   for (let round = 0; round < maxRounds; round++) {
+    const beforeTotal = reviewMap.size;
+
     const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
 
     const expanded = await expandCurrentMore(page);
@@ -1003,6 +1180,9 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
+
+    const afterTotal = reviewMap.size;
+    const gained = afterTotal - beforeTotal;
 
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
@@ -1026,8 +1206,12 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
     const scrollResult = await fastScrollReviews(page, reviewMap.size, forceMouse);
 
+    if (typeof scrollResult.remaining === 'number') {
+      lastRemaining = scrollResult.remaining;
+    }
+
     console.log(
-      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
+      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}${scrollResult.remaining >= 0 ? ` remaining=${scrollResult.remaining}` : ''}`
     );
 
     const moved =
@@ -1047,10 +1231,47 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       noMoveCount++;
     }
 
+    if (gained > 0) {
+      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
+    }
+
     if (stableCount >= 5) {
       console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
     }
 
+    // ✅ 完成偵測：真的接近容器底部，而且多輪沒新增、捲軸也不動，才判定爬完
+    const nearBottom =
+      typeof scrollResult.remaining === 'number' &&
+      scrollResult.remaining >= 0 &&
+      scrollResult.remaining <= 2500;
+
+    if (nearBottom && stableCount >= 15 && noMoveCount >= 2) {
+      console.log(`🧪 疑似到底：remaining=${scrollResult.remaining}，stable=${stableCount}，noMove=${noMoveCount}，啟動最後確認`);
+
+      await hardWakeReviewList(page, stableCount, reviewMap.size);
+      await randomDelay(8000, 12000);
+
+      const beforeConfirmTotal = reviewMap.size;
+      const confirmVisible = await collectCurrentReviews(page, reviewMap);
+      const afterConfirmTotal = reviewMap.size;
+      const confirmBox = await getReviewScrollBox(page).catch(() => null);
+      const confirmRemaining =
+        confirmBox && confirmBox.top >= 0
+          ? Math.max(0, confirmBox.height - confirmBox.clientHeight - confirmBox.top)
+          : -1;
+
+      console.log(
+        `🧪 到底確認：畫面 ${confirmVisible}，新增 ${afterConfirmTotal - beforeConfirmTotal}，remaining=${confirmRemaining}`
+      );
+
+      if (afterConfirmTotal === beforeConfirmTotal && confirmRemaining >= 0 && confirmRemaining <= 3000) {
+        completedByBottom = true;
+        console.log(`✅ 判定已滑到評論列表底部，停止。總計 ${reviewMap.size} 筆`);
+        break;
+      }
+    }
+
+    // ✅ 停滯處理：避免同一位置空滑 70 幾輪
     if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 20 === 0) {
       console.log(`⏳ ${reviewMap.size} 筆後已連續 ${stableCount} 輪沒新增，等待 25~40 秒讓 Google 載入`);
 
@@ -1060,6 +1281,27 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
         await page.keyboard.press('PageDown');
         await randomDelay(1500, 2500);
       } catch {}
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 30 === 0) {
+      await hardWakeReviewList(page, stableCount, reviewMap.size);
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 50 === 0) {
+      console.log(`🧊 已連續 ${stableCount} 輪沒新增，長等待 60~75 秒`);
+
+      await randomDelay(60000, 75000);
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 70 === 0) {
+      console.log(`🧪 已連續 ${stableCount} 輪沒新增，強制 mouse probe + PageDown`);
+
+      try {
+        await page.keyboard.press('PageDown');
+        await randomDelay(2000, 3000);
+      } catch {}
+
+      await fastScrollReviews(page, reviewMap.size, true);
     }
 
     const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
@@ -1093,6 +1335,10 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   }
 
   const reviews = Array.from(reviewMap.values());
+
+  if (!completedByBottom && reviews.length > 0) {
+    console.log(`⚠️ 已跑完滑動輪數或被流程中斷，未明確偵測到底。最後 remaining=${lastRemaining}`);
+  }
 
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
@@ -1239,7 +1485,7 @@ async function scrapeGoogleReviews() {
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
-      protocolTimeout: 180000,
+      protocolTimeout: 600000,
       executablePath: chromePath,
       defaultViewport: isCloud
         ? { width: 1366, height: 768 }
