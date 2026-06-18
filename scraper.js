@@ -48,7 +48,9 @@ function getMaxRounds() {
 
   // 完整同步：原本前台丟 999，這裡改跑 5000 輪。
   // 注意：這不是保證 Google 前台吐滿 5000 則，而是避免程式太早自己停。
-  if (value >= 999) return 5000;
+  // 改進：如果值 >= 100，就返回較高的輪數以支持更多評論爬取
+  if (value >= 999) return 8000;
+  if (value >= 100) return 5000;
 
   return Math.min(Math.floor(value), 5000);
 }
@@ -1181,6 +1183,21 @@ async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
   }
 
   // 1000 筆以上：完全不走 Puppeteer mouse，避免 Input.dispatchMouseEvent 卡死
+  // 改進：更激進的滾動策略以突破 1000+ 評論瓶頸
+  
+  if (stableCount > 0 && stableCount % 50 === 0) {
+    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，超激進 JS wake`);
+    return await jsScrollReviewList(page, {
+      label: 'super-js-wake-50',
+      step: 2200,
+      times: 8,
+      delay: 1400,
+      waitAfter: 8000,
+      backtrack: 15000,
+      timeout: 50000
+    });
+  }
+
   if (stableCount > 0 && stableCount % 70 === 0) {
     console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，hard JS wake`);
     return await jsScrollReviewList(page, {
@@ -1220,13 +1237,14 @@ async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
     });
   }
 
+  // 改進：默認滾動參數更激進
   return await jsScrollReviewList(page, {
-    label: 'js-fallback-1000',
-    step: 900,
-    times: 4,
-    delay: 900,
-    waitAfter: 3000,
-    timeout: 30000
+    label: 'js-fallback-1000-enhanced',
+    step: 1100,
+    times: 5,
+    delay: 1000,
+    waitAfter: 3500,
+    timeout: 32000
   });
 }
 
@@ -1279,6 +1297,18 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       await randomDelay(60000, 75000);
     }
 
+    // 改進：在 1500+ 評論時使用超長等待，幫助突破瓶頸
+    if (reviewMap.size >= 1500 && stableCount > 0 && stableCount % 25 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，超長等待 90~120 秒`);
+      await randomDelay(90000, 120000);
+    }
+
+    // 改進：在 2000+ 評論時添加定期長休息
+    if (reviewMap.size >= 2000 && stableCount > 0 && stableCount % 20 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，定期長休息 45~60 秒`);
+      await randomDelay(45000, 60000);
+    }
+
     const scrollResult = await fastScrollReviews(page, reviewMap.size, stableCount);
 
     if (typeof scrollResult.remaining === 'number') {
@@ -1310,13 +1340,18 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     // Google Maps 的 remaining=0 只代表目前虛擬列表到底，不代表全部 5000 則到底。
     // 所以完整同步只會跑滿 maxRounds，或由 GitHub Actions / 外部流程中斷。
 
-    const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
+    // 改進：根據當前評論數調整等待閾值，1000+ 時更容易觸發等待
+    let waitThreshold = 3;
+    if (reviewMap.size >= 2000) waitThreshold = 2;
+    if (reviewMap.size >= 1000) waitThreshold = 2;
 
     if (noMoveCount >= waitThreshold) {
       console.log(`⏳ 目前 ${reviewMap.size} 筆，捲軸連續 ${noMoveCount} 次沒變，等待後繼續拉`);
 
-      if (reviewMap.size >= 1000) {
-        await randomDelay(10000, 15000);
+      if (reviewMap.size >= 2000) {
+        await randomDelay(15000, 20000);
+      } else if (reviewMap.size >= 1000) {
+        await randomDelay(12000, 18000);
       } else {
         await randomDelay(8000, 12000);
       }
