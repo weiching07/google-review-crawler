@@ -27,17 +27,9 @@ function isCloudEnv() {
 }
 
 function getChromeExecutablePath(isCloud) {
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-    return process.env.PUPPETEER_EXECUTABLE_PATH;
-  }
-
-  if (process.env.CHROME_PATH) {
-    return process.env.CHROME_PATH;
-  }
-
-  if (process.env.GOOGLE_CHROME_BIN) {
-    return process.env.GOOGLE_CHROME_BIN;
-  }
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  if (process.env.GOOGLE_CHROME_BIN) return process.env.GOOGLE_CHROME_BIN;
 
   if (!isCloud) {
     return 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
@@ -49,22 +41,14 @@ function getChromeExecutablePath(isCloud) {
 function getMaxRounds() {
   const value = Number(process.env.SCRAPE_MAX_ROUNDS || 5);
 
-  if (!Number.isFinite(value) || value <= 0) {
-    return 5;
-  }
+  if (!Number.isFinite(value) || value <= 0) return 5;
+  if (value <= 5) return Math.floor(value);
 
-  // ✅ 快速同步維持 5
-  if (value <= 5) {
-    return Math.floor(value);
-  }
+  // 完整同步：原本前台丟 999，這裡放大成 5000 輪，避免還沒到底就停。
+  // 注意：Google 前台不一定會吐滿 5000 則，但程式不會因幾十輪沒新增就自己停。
+  if (value >= 999) return 5000;
 
-  // ✅ 完整同步原本常用 999，這裡統一拉到 2000
-  if (value >= 999) {
-    return 2000;
-  }
-
-  // ✅ 其他手動輸入最多也不超過 2000
-  return Math.min(Math.floor(value), 2000);
+  return Math.min(Math.floor(value), 5000);
 }
 
 function getReviewKey(review) {
@@ -154,7 +138,7 @@ async function extractStoreRating(page) {
   });
 }
 
-// ✅ 保留你原本可用的最新排序版本
+// 保留你原本可以用的「最新排序」邏輯
 async function clickNewestSort(page) {
   console.log("🔃 嘗試切換最新排序...");
 
@@ -278,7 +262,7 @@ async function clickNewestSort(page) {
   console.log("🔃 sort result:", sortResult);
 
   if (!sortResult.success) {
-    console.log("❌ 找不到排序按鈕");
+    console.log("❌ 找不到排序按鈕，繼續用目前排序");
     return false;
   }
 
@@ -446,7 +430,9 @@ async function getReviewScrollBox(page) {
             left: r.left,
             top: r.top,
             width: r.width,
-            height: r.height
+            height: r.height,
+            scrollHeight: el.scrollHeight,
+            clientHeight: el.clientHeight
           };
         })
         .filter(x => {
@@ -458,7 +444,7 @@ async function getReviewScrollBox(page) {
         })
         .sort((a, b) => {
           if (a.left !== b.left) return a.left - b.left;
-          return b.height - a.height;
+          return b.scrollHeight - a.scrollHeight;
         });
 
       if (candidates.length > 0) {
@@ -477,7 +463,8 @@ async function getReviewScrollBox(page) {
       y: r.top + r.height / 2,
       top: container.scrollTop,
       height: container.scrollHeight,
-      clientHeight: container.clientHeight
+      clientHeight: container.clientHeight,
+      remaining: Math.max(0, container.scrollHeight - container.clientHeight - container.scrollTop)
     };
   });
 }
@@ -675,9 +662,7 @@ async function collectCurrentReviews(page, reviewMap) {
   current.forEach(r => {
     const key = getReviewKey(r);
 
-    if (!key) {
-      return;
-    }
+    if (!key) return;
 
     if (!reviewMap.has(key)) {
       reviewMap.set(key, r);
@@ -730,10 +715,20 @@ async function expandCurrentMore(page) {
   return count;
 }
 
-async function jsWheelFallbackScroll(page, totalReviews = 0) {
+async function jsScrollReviewList(page, options = {}) {
+  const {
+    label = 'js-scroll',
+    step = 900,
+    times = 4,
+    delay = 900,
+    waitAfter = 3000,
+    backtrack = 0,
+    timeout = 35000
+  } = options;
+
   try {
     const result = await withTimeout(
-      page.evaluate(async (totalReviews) => {
+      page.evaluate(async ({ label, step, times, delay, waitAfter, backtrack }) => {
         function sleep(ms) {
           return new Promise(resolve => setTimeout(resolve, ms));
         }
@@ -756,9 +751,7 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
             document.querySelector('div[role="feed"]') ||
             document.querySelector('.m6U62c');
 
-          if (isScrollable(container)) {
-            return container;
-          }
+          if (isScrollable(container)) return container;
 
           const firstReview = document.querySelector('div[data-review-id]');
 
@@ -766,172 +759,7 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
             let p = firstReview.parentElement;
 
             while (p && p !== document.body) {
-              if (isScrollable(p)) {
-                return p;
-              }
-
-              p = p.parentElement;
-            }
-          }
-
-          const candidates = Array.from(document.querySelectorAll('div'))
-            .filter(isScrollable)
-            .map(el => {
-              const r = el.getBoundingClientRect();
-
-              return {
-                el,
-                left: r.left,
-                top: r.top,
-                width: r.width,
-                height: r.height,
-                scrollHeight: el.scrollHeight,
-                clientHeight: el.clientHeight
-              };
-            })
-            .filter(x => {
-              return (
-                x.width > 260 &&
-                x.height > 300 &&
-                x.left < window.innerWidth * 0.75
-              );
-            })
-            .sort((a, b) => {
-              if (a.left !== b.left) return a.left - b.left;
-              return b.scrollHeight - a.scrollHeight;
-            });
-
-          if (candidates.length > 0) {
-            return candidates[0].el;
-          }
-
-          return null;
-        }
-
-        const container = findReviewContainer();
-
-        if (!container) {
-          const before = window.scrollY;
-
-          window.scrollBy(0, 1200);
-
-          await sleep(1800);
-
-          return {
-            success: false,
-            before,
-            after: window.scrollY,
-            height: document.documentElement.scrollHeight || 0,
-            clientHeight: window.innerHeight || 0,
-            remaining: -1,
-            timeout: false,
-            method: 'window-js-fallback'
-          };
-        }
-
-        const before = container.scrollTop;
-
-        const step = 900;
-        const times = 4;
-        const delay = 900;
-
-        for (let i = 0; i < times; i++) {
-          container.dispatchEvent(
-            new WheelEvent('wheel', {
-              deltaY: step,
-              deltaMode: 0,
-              bubbles: true,
-              cancelable: true,
-              view: window
-            })
-          );
-
-          container.scrollTop += step;
-
-          container.dispatchEvent(new Event('scroll', { bubbles: true }));
-
-          await sleep(delay);
-        }
-
-        await sleep(3000);
-
-        const after = container.scrollTop;
-        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
-
-        return {
-          success: true,
-          before,
-          after,
-          height: container.scrollHeight,
-          clientHeight: container.clientHeight,
-          remaining,
-          timeout: false,
-          method: 'js-fallback-1000'
-        };
-      }, totalReviews),
-      25000,
-      'jsWheelFallbackScroll'
-    );
-
-    return result;
-  } catch (err) {
-    console.warn('⚠️ JS fallback 捲動失敗:', err.message);
-
-    return {
-      success: false,
-      before: -1,
-      after: -1,
-      height: -1,
-      clientHeight: -1,
-      remaining: -1,
-      timeout: true,
-      method: 'js-fallback-timeout'
-    };
-  }
-}
-
-async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
-  console.log(`🛠️ hard wake 啟動：已連續 ${stableCount} 輪沒新增，目前 ${totalReviews} 筆`);
-
-  try {
-    const result = await withTimeout(
-      page.evaluate(async () => {
-        function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function isScrollable(el) {
-          if (!el) return false;
-
-          const s = window.getComputedStyle(el);
-
-          return (
-            el.scrollHeight > el.clientHeight + 100 &&
-            s.display !== 'none' &&
-            s.visibility !== 'hidden' &&
-            s.overflowY !== 'hidden'
-          );
-        }
-
-        function findReviewContainer() {
-          let container =
-            document.querySelector('div[role="feed"]') ||
-            document.querySelector('.m6U62c');
-
-          if (isScrollable(container)) {
-            return container;
-          }
-
-          const firstReview = document.querySelector('div[data-review-id]');
-
-          if (firstReview) {
-            let p = firstReview.parentElement;
-
-            while (p && p !== document.body) {
-              if (isScrollable(p)) {
-                return p;
-              }
-
+              if (isScrollable(p)) return p;
               p = p.parentElement;
             }
           }
@@ -969,29 +797,34 @@ async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
         const container = findReviewContainer();
 
         if (!container) {
+          const before = window.scrollY;
+          window.scrollBy(0, step);
+          await sleep(waitAfter);
+
           return {
             success: false,
-            before: -1,
-            after: -1,
-            height: -1,
-            clientHeight: -1,
+            before,
+            after: window.scrollY,
+            height: document.documentElement.scrollHeight || 0,
+            clientHeight: window.innerHeight || 0,
             remaining: -1,
-            method: 'hard-wake-no-container'
+            timeout: false,
+            method: `${label}-window`
           };
         }
 
         const before = container.scrollTop;
 
-        // 先小幅往上退，讓 Google 虛擬列表重新渲染
-        container.scrollTop = Math.max(0, container.scrollTop - 12000);
-        container.dispatchEvent(new Event('scroll', { bubbles: true }));
-        await sleep(2500);
+        if (backtrack > 0) {
+          container.scrollTop = Math.max(0, container.scrollTop - backtrack);
+          container.dispatchEvent(new Event('scroll', { bubbles: true }));
+          await sleep(1500);
+        }
 
-        // 再往下推
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < times; i++) {
           container.dispatchEvent(
             new WheelEvent('wheel', {
-              deltaY: 1800,
+              deltaY: step,
               deltaMode: 0,
               bubbles: true,
               cancelable: true,
@@ -999,13 +832,13 @@ async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
             })
           );
 
-          container.scrollTop += 1800;
+          container.scrollTop += step;
           container.dispatchEvent(new Event('scroll', { bubbles: true }));
 
-          await sleep(1200);
+          await sleep(delay);
         }
 
-        await sleep(5000);
+        await sleep(waitAfter);
 
         const after = container.scrollTop;
         const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
@@ -1017,18 +850,17 @@ async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
           height: container.scrollHeight,
           clientHeight: container.clientHeight,
           remaining,
-          method: 'hard-wake-up-down'
+          timeout: false,
+          method: label
         };
-      }),
-      35000,
-      'hardWakeReviewList'
+      }, { label, step, times, delay, waitAfter, backtrack }),
+      timeout,
+      label
     );
-
-    console.log(`🛠️ hard wake 結果 top=${result.before}->${result.after} remaining=${result.remaining} ${result.method}`);
 
     return result;
   } catch (err) {
-    console.warn('⚠️ hard wake 失敗:', err.message);
+    console.warn(`⚠️ ${label} 失敗:`, err.message);
 
     return {
       success: false,
@@ -1037,17 +869,13 @@ async function hardWakeReviewList(page, stableCount = 0, totalReviews = 0) {
       height: -1,
       clientHeight: -1,
       remaining: -1,
-      method: 'hard-wake-timeout'
+      timeout: true,
+      method: `${label}-timeout`
     };
   }
 }
 
-async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
-  // ✅ 1000 筆以上：平常用 JS fallback；連續 10 輪沒新增時 forceMouse=true，強制 mouse probe
-  if (totalReviews >= 1000 && !forceMouse) {
-    return await jsWheelFallbackScroll(page, totalReviews);
-  }
-
+async function normalMouseScroll(page) {
   try {
     const box = await withTimeout(
       getReviewScrollBox(page),
@@ -1056,8 +884,14 @@ async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
     );
 
     if (!box) {
-      console.log("⚠️ 找不到評論捲動容器，改用 JS fallback");
-      return await jsWheelFallbackScroll(page, totalReviews);
+      console.log("⚠️ 找不到評論捲動容器，改用 JS");
+      return await jsScrollReviewList(page, {
+        label: 'js-no-container',
+        step: 1200,
+        times: 5,
+        delay: 600,
+        waitAfter: 2000
+      });
     }
 
     const before = box.top;
@@ -1068,51 +902,25 @@ async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
       console.warn('⚠️ mouse.move 失敗，略過 move 直接 wheel:', err.message);
     }
 
-    let wheelTimes = 6;
-    let deltaY = 2200;
-    let wheelDelayMin = 200;
-    let wheelDelayMax = 350;
-    let afterDelayMin = 900;
-    let afterDelayMax = 1300;
-    let method = 'mouse-wheel-fast';
-
-    if (totalReviews >= 1000) {
-      wheelTimes = 2;
-      deltaY = 1200;
-      wheelDelayMin = 1200;
-      wheelDelayMax = 1800;
-      afterDelayMin = 5000;
-      afterDelayMax = 7000;
-      method = 'mouse-wheel-probe-1000';
-    }
-
-    if (totalReviews >= 1500) {
-      wheelTimes = 1;
-      deltaY = 900;
-      wheelDelayMin = 1800;
-      wheelDelayMax = 2500;
-      afterDelayMin = 7000;
-      afterDelayMax = 10000;
-      method = 'mouse-wheel-probe-1500';
-    }
-
-    for (let i = 0; i < wheelTimes; i++) {
+    for (let i = 0; i < 6; i++) {
       try {
-        await page.mouse.wheel({
-          deltaY
-        });
+        await page.mouse.wheel({ deltaY: 2200 });
       } catch (err) {
-        console.warn('⚠️ mouse.wheel 失敗，等待 20 秒後改回 JS fallback:', err.message);
+        console.warn('⚠️ mouse.wheel 失敗，改用 JS:', err.message);
 
-        await randomDelay(20000, 22000);
-
-        return await jsWheelFallbackScroll(page, totalReviews);
+        return await jsScrollReviewList(page, {
+          label: 'js-after-mouse-failed',
+          step: 1200,
+          times: 5,
+          delay: 700,
+          waitAfter: 2500
+        });
       }
 
-      await randomDelay(wheelDelayMin, wheelDelayMax);
+      await randomDelay(200, 350);
     }
 
-    await randomDelay(afterDelayMin, afterDelayMax);
+    await randomDelay(900, 1300);
 
     const afterBox = await withTimeout(
       getReviewScrollBox(page),
@@ -1121,39 +929,88 @@ async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
     );
 
     const after = afterBox ? afterBox.top : before;
-    const height = afterBox ? afterBox.height : -1;
-    const clientHeight = afterBox ? afterBox.clientHeight : -1;
     const remaining =
       afterBox && after >= 0
         ? Math.max(0, afterBox.height - afterBox.clientHeight - after)
         : -1;
 
-    if (after >= 0 && before >= 0 && after < before - 50000) {
-      console.warn(`⚠️ 捲軸疑似跳回前面 ${before}->${after}，等待 20 秒後改用 JS fallback`);
-
-      await randomDelay(20000, 22000);
-
-      return await jsWheelFallbackScroll(page, totalReviews);
-    }
-
     return {
       success: true,
       before,
       after,
-      height,
-      clientHeight,
+      height: afterBox ? afterBox.height : -1,
+      clientHeight: afterBox ? afterBox.clientHeight : -1,
       remaining,
       timeout: false,
-      method
+      method: 'mouse-wheel-fast'
     };
-
   } catch (err) {
-    console.warn('⚠️ fastScrollReviews 失敗，等待 20 秒後改用 JS fallback:', err.message);
+    console.warn('⚠️ normalMouseScroll 失敗，改用 JS:', err.message);
 
-    await randomDelay(20000, 22000);
-
-    return await jsWheelFallbackScroll(page, totalReviews);
+    return await jsScrollReviewList(page, {
+      label: 'js-after-mouse-error',
+      step: 1200,
+      times: 5,
+      delay: 700,
+      waitAfter: 2500
+    });
   }
+}
+
+async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
+  // 1000 筆以前：用 mouse，因為比較容易觸發 Google 吐新評論
+  if (totalReviews < 1000) {
+    return await normalMouseScroll(page);
+  }
+
+  // 1000 筆以上：完全不走 Puppeteer mouse，避免 Input.dispatchMouseEvent 卡死
+  if (stableCount > 0 && stableCount % 70 === 0) {
+    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，hard JS wake`);
+    return await jsScrollReviewList(page, {
+      label: 'hard-js-wake-70',
+      step: 1800,
+      times: 7,
+      delay: 1200,
+      waitAfter: 6000,
+      backtrack: 12000,
+      timeout: 45000
+    });
+  }
+
+  if (stableCount > 0 && stableCount % 30 === 0) {
+    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，medium JS wake`);
+    return await jsScrollReviewList(page, {
+      label: 'medium-js-wake-30',
+      step: 1500,
+      times: 6,
+      delay: 1000,
+      waitAfter: 5000,
+      backtrack: 5000,
+      timeout: 40000
+    });
+  }
+
+  if (stableCount > 0 && stableCount % 10 === 0) {
+    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，soft JS probe`);
+    return await jsScrollReviewList(page, {
+      label: 'soft-js-probe-10',
+      step: 1300,
+      times: 6,
+      delay: 900,
+      waitAfter: 4000,
+      backtrack: 2500,
+      timeout: 35000
+    });
+  }
+
+  return await jsScrollReviewList(page, {
+    label: 'js-fallback-1000',
+    step: 900,
+    times: 4,
+    delay: 900,
+    waitAfter: 3000,
+    timeout: 30000
+  });
 }
 
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
@@ -1180,9 +1037,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
-
-    const afterTotal = reviewMap.size;
-    const gained = afterTotal - beforeTotal;
+    const gained = reviewMap.size - beforeTotal;
 
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
@@ -1195,16 +1050,20 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    const forceMouse =
-      reviewMap.size >= 1000 &&
-      stableCount > 0 &&
-      stableCount % 10 === 0;
-
-    if (forceMouse) {
-      console.log(`🧪 已連續 ${stableCount} 輪沒新增，強制用 mouse-wheel probe 觸發載入`);
+    if (gained > 0) {
+      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
     }
 
-    const scrollResult = await fastScrollReviews(page, reviewMap.size, forceMouse);
+    if (stableCount >= 5) {
+      console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 50 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，長等待 60~75 秒`);
+      await randomDelay(60000, 75000);
+    }
+
+    const scrollResult = await fastScrollReviews(page, reviewMap.size, stableCount);
 
     if (typeof scrollResult.remaining === 'number') {
       lastRemaining = scrollResult.remaining;
@@ -1231,29 +1090,29 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       noMoveCount++;
     }
 
-    if (gained > 0) {
-      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
-    }
-
-    if (stableCount >= 5) {
-      console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
-    }
-
-    // ✅ 完成偵測：真的接近容器底部，而且多輪沒新增、捲軸也不動，才判定爬完
+    // 真的接近底部才允許停止，避免卡中段誤判完成
     const nearBottom =
       typeof scrollResult.remaining === 'number' &&
       scrollResult.remaining >= 0 &&
       scrollResult.remaining <= 2500;
 
-    if (nearBottom && stableCount >= 15 && noMoveCount >= 2) {
-      console.log(`🧪 疑似到底：remaining=${scrollResult.remaining}，stable=${stableCount}，noMove=${noMoveCount}，啟動最後確認`);
-
-      await hardWakeReviewList(page, stableCount, reviewMap.size);
-      await randomDelay(8000, 12000);
+    if (nearBottom && stableCount >= 20 && noMoveCount >= 2) {
+      console.log(`🧪 疑似到底：remaining=${scrollResult.remaining}，stable=${stableCount}，noMove=${noMoveCount}，最後確認`);
 
       const beforeConfirmTotal = reviewMap.size;
-      const confirmVisible = await collectCurrentReviews(page, reviewMap);
-      const afterConfirmTotal = reviewMap.size;
+
+      await jsScrollReviewList(page, {
+        label: 'bottom-confirm-wake',
+        step: 1600,
+        times: 6,
+        delay: 1000,
+        waitAfter: 6000,
+        backtrack: 5000,
+        timeout: 40000
+      });
+
+      await collectCurrentReviews(page, reviewMap);
+
       const confirmBox = await getReviewScrollBox(page).catch(() => null);
       const confirmRemaining =
         confirmBox && confirmBox.top >= 0
@@ -1261,47 +1120,14 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
           : -1;
 
       console.log(
-        `🧪 到底確認：畫面 ${confirmVisible}，新增 ${afterConfirmTotal - beforeConfirmTotal}，remaining=${confirmRemaining}`
+        `🧪 到底確認：新增 ${reviewMap.size - beforeConfirmTotal}，remaining=${confirmRemaining}`
       );
 
-      if (afterConfirmTotal === beforeConfirmTotal && confirmRemaining >= 0 && confirmRemaining <= 3000) {
+      if (reviewMap.size === beforeConfirmTotal && confirmRemaining >= 0 && confirmRemaining <= 3000) {
         completedByBottom = true;
         console.log(`✅ 判定已滑到評論列表底部，停止。總計 ${reviewMap.size} 筆`);
         break;
       }
-    }
-
-    // ✅ 停滯處理：避免同一位置空滑 70 幾輪
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 20 === 0) {
-      console.log(`⏳ ${reviewMap.size} 筆後已連續 ${stableCount} 輪沒新增，等待 25~40 秒讓 Google 載入`);
-
-      await randomDelay(25000, 40000);
-
-      try {
-        await page.keyboard.press('PageDown');
-        await randomDelay(1500, 2500);
-      } catch {}
-    }
-
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 30 === 0) {
-      await hardWakeReviewList(page, stableCount, reviewMap.size);
-    }
-
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 50 === 0) {
-      console.log(`🧊 已連續 ${stableCount} 輪沒新增，長等待 60~75 秒`);
-
-      await randomDelay(60000, 75000);
-    }
-
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 70 === 0) {
-      console.log(`🧪 已連續 ${stableCount} 輪沒新增，強制 mouse probe + PageDown`);
-
-      try {
-        await page.keyboard.press('PageDown');
-        await randomDelay(2000, 3000);
-      } catch {}
-
-      await fastScrollReviews(page, reviewMap.size, true);
     }
 
     const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
@@ -1315,19 +1141,12 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
         await randomDelay(8000, 12000);
       }
 
-      try {
-        await page.keyboard.press('PageDown');
-        await randomDelay(1200, 1800);
-      } catch {}
-
       noMoveCount = 0;
     }
 
     if (timeoutCount >= 2) {
       console.log(`⏳ 連續 timeout ${timeoutCount} 次，等待 15~25 秒後繼續`);
-
       await randomDelay(15000, 25000);
-
       timeoutCount = 0;
     }
 
@@ -1337,7 +1156,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   const reviews = Array.from(reviewMap.values());
 
   if (!completedByBottom && reviews.length > 0) {
-    console.log(`⚠️ 已跑完滑動輪數或被流程中斷，未明確偵測到底。最後 remaining=${lastRemaining}`);
+    console.log(`⚠️ 已跑完滑動輪數或 Google 前台不再吐資料，未明確偵測到底。最後 remaining=${lastRemaining}`);
   }
 
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
