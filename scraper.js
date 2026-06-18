@@ -46,13 +46,11 @@ function getMaxRounds() {
   if (!Number.isFinite(value) || value <= 0) return 5;
   if (value <= 5) return Math.floor(value);
 
-  // 完整同步：原本前台丟 999，這裡改跑 5000 輪。
-  // 注意：這不是保證 Google 前台吐滿 5000 則，而是避免程式太早自己停。
-  // 改進：如果值 >= 100，就返回較高的輪數以支持更多評論爬取
-  if (value >= 999) return 8000;
-  if (value >= 100) return 5000;
+  // 完整同步：支持爬取 5000+ 評論
+  if (value >= 999) return 15000;   // 終極輪數：給足夠的時間爬 5000+
+  if (value >= 100) return 10000;   // 完整爬取
 
-  return Math.min(Math.floor(value), 5000);
+  return Math.min(Math.floor(value), 15000);
 }
 
 function getReviewKey(review) {
@@ -1177,114 +1175,24 @@ async function normalMouseScroll(page) {
 }
 
 async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
-  // 500+ 筆時開始使用激進策略
-  if (totalReviews >= 500 && totalReviews < 1000) {
-    // 500-1000 區間：用激進 JS 滾動
-    if (stableCount > 0 && stableCount % 30 === 0) {
-      console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，500-1000 激進喚醒`);
-      return await jsScrollReviewList(page, {
-        label: 'aggressive-500-1000-30',
-        step: 1600,
-        times: 7,
-        delay: 1100,
-        waitAfter: 5000,
-        backtrack: 8000,
-        timeout: 40000
-      });
-    }
-
-    if (stableCount > 0 && stableCount % 15 === 0) {
-      console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，500-1000 中等喚醒`);
-      return await jsScrollReviewList(page, {
-        label: 'medium-500-1000-15',
-        step: 1400,
-        times: 6,
-        delay: 1000,
-        waitAfter: 4000,
-        backtrack: 5000,
-        timeout: 38000
-      });
-    }
-
+  // ⚠️ 終極版本：300+ 永遠用超激進的固定參數，沒有例外，每輪都一樣激進
+  if (totalReviews >= 300) {
+    // 固定用最激進的參數組合，永遠不改變
     return await jsScrollReviewList(page, {
-      label: 'js-500-1000-default',
-      step: 1200,
-      times: 5,
-      delay: 900,
-      waitAfter: 3500,
-      timeout: 35000
+      label: 'ultimate-fixed-aggressive',
+      step: 2100,           // 大幅滾動
+      times: 10,            // 多次滾動
+      delay: 1200,          // 適當間隔
+      waitAfter: 8000,      // 充分的 JS 執行時間
+      backtrack: 20000,     // 大幅回溯，讓 Google 加載新評論
+      timeout: 65000        // 充分時間（65 秒）
     });
   }
 
-  // 1000 筆以前：用 mouse，因為比較容易觸發 Google 吐新評論
-  if (totalReviews < 500) {
+  // < 300 時用 mouse
+  if (totalReviews < 300) {
     return await normalMouseScroll(page);
   }
-
-  // 1000 筆以上：完全不走 Puppeteer mouse，避免 Input.dispatchMouseEvent 卡死
-  // 改進：更激進的滾動策略以突破 1000+ 評論瓶頸
-  
-  if (stableCount > 0 && stableCount % 50 === 0) {
-    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，超激進 JS wake`);
-    return await jsScrollReviewList(page, {
-      label: 'super-js-wake-50',
-      step: 2200,
-      times: 8,
-      delay: 1400,
-      waitAfter: 8000,
-      backtrack: 15000,
-      timeout: 50000
-    });
-  }
-
-  if (stableCount > 0 && stableCount % 70 === 0) {
-    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，hard JS wake`);
-    return await jsScrollReviewList(page, {
-      label: 'hard-js-wake-70',
-      step: 1800,
-      times: 7,
-      delay: 1200,
-      waitAfter: 6000,
-      backtrack: 12000,
-      timeout: 45000
-    });
-  }
-
-  if (stableCount > 0 && stableCount % 30 === 0) {
-    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，medium JS wake`);
-    return await jsScrollReviewList(page, {
-      label: 'medium-js-wake-30',
-      step: 1500,
-      times: 6,
-      delay: 1000,
-      waitAfter: 5000,
-      backtrack: 5000,
-      timeout: 40000
-    });
-  }
-
-  if (stableCount > 0 && stableCount % 10 === 0) {
-    console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，soft JS probe`);
-    return await jsScrollReviewList(page, {
-      label: 'soft-js-probe-10',
-      step: 1300,
-      times: 6,
-      delay: 900,
-      waitAfter: 4000,
-      backtrack: 2500,
-      timeout: 35000
-    });
-  }
-
-  // 改進：默認滾動參數更激進
-  return await jsScrollReviewList(page, {
-    label: 'js-fallback-1000-enhanced',
-    step: 1100,
-    times: 5,
-    delay: 1000,
-    waitAfter: 3500,
-    timeout: 32000
-  });
 }
 
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
