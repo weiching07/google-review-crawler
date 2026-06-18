@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const STORES = require('./stores');
+const fs = require('fs');
+const path = require('path');
 
 puppeteer.use(StealthPlugin());
 
@@ -44,8 +46,8 @@ function getMaxRounds() {
   if (!Number.isFinite(value) || value <= 0) return 5;
   if (value <= 5) return Math.floor(value);
 
-  // 完整同步：原本前台丟 999，這裡放大成 5000 輪，避免還沒到底就停。
-  // 注意：Google 前台不一定會吐滿 5000 則，但程式不會因幾十輪沒新增就自己停。
+  // 完整同步：原本前台丟 999，這裡改跑 5000 輪。
+  // 注意：這不是保證 Google 前台吐滿 5000 則，而是避免程式太早自己停。
   if (value >= 999) return 5000;
 
   return Math.min(Math.floor(value), 5000);
@@ -57,6 +59,222 @@ function getReviewKey(review) {
     review.id ||
     `${review.author || ''}-${review.date || ''}-${review.rating || ''}-${String(review.content || '').slice(0, 120)}`
   );
+}
+
+function safeJsonString(value) {
+  return JSON.stringify(value, null, 2);
+}
+
+function normalizeNetworkText(text) {
+  return String(text || '')
+    .replace(/^\)\]\}'\s*/, '')
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => {
+      try {
+        return String.fromCharCode(parseInt(hex, 16));
+      } catch {
+        return _;
+      }
+    });
+}
+
+function looksLikeReviewResponse(url, text, contentType = '') {
+  const u = String(url || '');
+  const ct = String(contentType || '').toLowerCase();
+  const body = String(text || '');
+
+  const urlHit =
+    u.includes('batchexecute') ||
+    u.includes('listentitiesreviews') ||
+    u.includes('preview/review') ||
+    u.includes('/rpc/') ||
+    u.includes('/_/Maps') ||
+    u.includes('LocalReviews') ||
+    u.includes('ReviewService') ||
+    u.includes('listReviews') ||
+    u.includes('ugc');
+
+  if (!urlHit) return false;
+
+  if (
+    ct.includes('image/') ||
+    ct.includes('font/') ||
+    ct.includes('video/') ||
+    ct.includes('octet-stream')
+  ) {
+    return false;
+  }
+
+  const bodyHit =
+    body.includes('review') ||
+    body.includes('Review') ||
+    body.includes('評論') ||
+    body.includes('星') ||
+    body.includes('店家回覆') ||
+    body.includes('商家回覆') ||
+    body.includes('Response from the owner') ||
+    body.includes('ChZDS') ||
+    body.includes('Ci9D') ||
+    body.includes('Google Maps');
+
+  return bodyHit;
+}
+
+function extractPossibleReviewIdsFromNetworkText(text) {
+  const body = normalizeNetworkText(text);
+  const ids = new Set();
+
+  const patterns = [
+    /(?:ChZDS|Ci9D|ChdDS)[A-Za-z0-9_-]{20,}/g,
+    /0x[0-9a-fA-F]+:0x[0-9a-fA-F]+/g,
+    /reviewId["'\\:\s]+([A-Za-z0-9_-]{20,})/g
+  ];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(body)) !== null) {
+      ids.add(match[1] || match[0]);
+    }
+  }
+
+  return Array.from(ids);
+}
+
+function createNetworkReviewCapture() {
+  const rawItems = [];
+  const seenKeys = new Set();
+  const possibleReviewIds = new Set();
+
+  let currentStore = null;
+  let attached = false;
+
+  const maxItems = Number(process.env.NETWORK_RAW_MAX_ITEMS || 800);
+  const bodyLimit = Number(process.env.NETWORK_RAW_BODY_LIMIT || 220000);
+
+  function setStore(storeConfig) {
+    currentStore = storeConfig || null;
+  }
+
+  async function attach(page) {
+    if (attached) return;
+    attached = true;
+
+    page.on('response', async (response) => {
+      try {
+        const url = response.url();
+        const status = response.status();
+        const headers = response.headers ? response.headers() : {};
+        const contentType = headers['content-type'] || '';
+
+        if (!(
+          url.includes('batchexecute') ||
+          url.includes('listentitiesreviews') ||
+          url.includes('preview/review') ||
+          url.includes('/rpc/') ||
+          url.includes('/_/Maps') ||
+          url.includes('LocalReviews') ||
+          url.includes('ReviewService') ||
+          url.includes('listReviews') ||
+          url.includes('ugc')
+        )) {
+          return;
+        }
+
+        if (rawItems.length >= maxItems) return;
+
+        const text = await response.text().catch(() => '');
+
+        if (!looksLikeReviewResponse(url, text, contentType)) return;
+
+        const normalized = normalizeNetworkText(text);
+        const possibleIds = extractPossibleReviewIdsFromNetworkText(normalized);
+        possibleIds.forEach(id => possibleReviewIds.add(id));
+
+        const bodySample = normalized.slice(0, bodyLimit);
+        const key = `${url.slice(0, 220)}::${bodySample.slice(0, 600)}`;
+
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
+
+        const item = {
+          capturedAt: new Date().toISOString(),
+          brand: currentStore ? currentStore.brand : '',
+          store: currentStore ? currentStore.store : '',
+          branch: currentStore ? currentStore.branch : '',
+          status,
+          contentType,
+          url,
+          bodyLength: normalized.length,
+          possibleReviewIds: possibleIds.slice(0, 120),
+          bodySample
+        };
+
+        rawItems.push(item);
+
+        console.log(
+          `🧪 Network疑似評論資料 #${rawItems.length} ids=${possibleIds.length} len=${normalized.length} url=${url.slice(0, 140)}`
+        );
+      } catch (err) {
+        console.warn('⚠️ Network response 捕捉失敗:', err.message);
+      }
+    });
+  }
+
+  function getSummary() {
+    return {
+      rawItems: rawItems.length,
+      possibleReviewIds: possibleReviewIds.size
+    };
+  }
+
+  function getRawItems() {
+    return rawItems;
+  }
+
+  function getPossibleReviewIds() {
+    return Array.from(possibleReviewIds);
+  }
+
+  return {
+    attach,
+    setStore,
+    getSummary,
+    getRawItems,
+    getPossibleReviewIds
+  };
+}
+
+function saveNetworkRawCapture(networkCapture) {
+  try {
+    if (!networkCapture) return;
+
+    const rawItems = networkCapture.getRawItems();
+    const possibleReviewIds = networkCapture.getPossibleReviewIds();
+
+    if (!rawItems.length) {
+      console.log('⚠️ 沒有捕捉到 Network raw review response');
+      return;
+    }
+
+    const publicDir = path.join(__dirname, 'public');
+    fs.mkdirSync(publicDir, { recursive: true });
+
+    const file = path.join(publicDir, 'network-review-raw.json');
+    const payload = {
+      savedAt: new Date().toISOString(),
+      note: 'Google Maps Network response 原始樣本，用來分析真正評論資料格式；不是最終 comments.json。',
+      totalRawItems: rawItems.length,
+      totalPossibleReviewIds: possibleReviewIds.length,
+      possibleReviewIds,
+      items: rawItems
+    };
+
+    fs.writeFileSync(file, safeJsonString(payload), 'utf8');
+
+    console.log(`🧪 已輸出 Network raw：${file}`);
+    console.log(`🧪 Network raw items=${rawItems.length}, possibleReviewIds=${possibleReviewIds.length}`);
+  } catch (err) {
+    console.warn('⚠️ 儲存 Network raw 失敗:', err.message);
+  }
 }
 
 async function extractStoreRating(page) {
@@ -138,9 +356,8 @@ async function extractStoreRating(page) {
   });
 }
 
-// 保留你原本可以用的「最新排序」邏輯
 async function clickNewestSort(page) {
-  console.log("🔃 嘗試切換最新排序...");
+  console.log('🔃 嘗試切換最新排序...');
 
   await randomDelay(1000, 1500);
 
@@ -259,10 +476,10 @@ async function clickNewestSort(page) {
     };
   });
 
-  console.log("🔃 sort result:", sortResult);
+  console.log('🔃 sort result:', sortResult);
 
   if (!sortResult.success) {
-    console.log("❌ 找不到排序按鈕，繼續用目前排序");
+    console.log('❌ 找不到排序按鈕，繼續用目前排序');
     return false;
   }
 
@@ -356,10 +573,10 @@ async function clickNewestSort(page) {
     };
   });
 
-  console.log("🆕 newest result:", newestResult);
+  console.log('🆕 newest result:', newestResult);
 
   if (!newestResult.success) {
-    console.log("⚠️ DOM 沒點到最新，改用鍵盤備援");
+    console.log('⚠️ DOM 沒點到最新，改用鍵盤備援');
 
     await page.keyboard.press('ArrowDown');
     await randomDelay(300, 500);
@@ -367,13 +584,13 @@ async function clickNewestSort(page) {
 
     await randomDelay(5000, 7000);
 
-    console.log("✅ 已用鍵盤備援選最新");
+    console.log('✅ 已用鍵盤備援選最新');
     return true;
   }
 
   await randomDelay(5000, 7000);
 
-  console.log("✅ 已切換最新排序");
+  console.log('✅ 已切換最新排序');
   return true;
 }
 
@@ -884,7 +1101,7 @@ async function normalMouseScroll(page) {
     );
 
     if (!box) {
-      console.log("⚠️ 找不到評論捲動容器，改用 JS");
+      console.log('⚠️ 找不到評論捲動容器，改用 JS');
       return await jsScrollReviewList(page, {
         label: 'js-no-container',
         step: 1200,
@@ -1014,7 +1231,7 @@ async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
 }
 
 async function fastLoadAndCollectReviews(page, maxRounds = 30) {
-  console.log("➡️ 開始快速載入並抓評論...");
+  console.log('➡️ 開始快速載入並抓評論...');
 
   const reviewMap = new Map();
 
@@ -1022,7 +1239,6 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   let noMoveCount = 0;
   let timeoutCount = 0;
   let lastTotal = 0;
-  let completedByBottom = false;
   let lastRemaining = -1;
 
   for (let round = 0; round < maxRounds; round++) {
@@ -1090,45 +1306,9 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       noMoveCount++;
     }
 
-    // 真的接近底部才允許停止，避免卡中段誤判完成
-    const nearBottom =
-      typeof scrollResult.remaining === 'number' &&
-      scrollResult.remaining >= 0 &&
-      scrollResult.remaining <= 2500;
-
-    if (nearBottom && stableCount >= 20 && noMoveCount >= 2) {
-      console.log(`🧪 疑似到底：remaining=${scrollResult.remaining}，stable=${stableCount}，noMove=${noMoveCount}，最後確認`);
-
-      const beforeConfirmTotal = reviewMap.size;
-
-      await jsScrollReviewList(page, {
-        label: 'bottom-confirm-wake',
-        step: 1600,
-        times: 6,
-        delay: 1000,
-        waitAfter: 6000,
-        backtrack: 5000,
-        timeout: 40000
-      });
-
-      await collectCurrentReviews(page, reviewMap);
-
-      const confirmBox = await getReviewScrollBox(page).catch(() => null);
-      const confirmRemaining =
-        confirmBox && confirmBox.top >= 0
-          ? Math.max(0, confirmBox.height - confirmBox.clientHeight - confirmBox.top)
-          : -1;
-
-      console.log(
-        `🧪 到底確認：新增 ${reviewMap.size - beforeConfirmTotal}，remaining=${confirmRemaining}`
-      );
-
-      if (reviewMap.size === beforeConfirmTotal && confirmRemaining >= 0 && confirmRemaining <= 3000) {
-        completedByBottom = true;
-        console.log(`✅ 判定已滑到評論列表底部，停止。總計 ${reviewMap.size} 筆`);
-        break;
-      }
-    }
+    // ⚠️ 不再用 remaining 判斷完成。
+    // Google Maps 的 remaining=0 只代表目前虛擬列表到底，不代表全部 5000 則到底。
+    // 所以完整同步只會跑滿 maxRounds，或由 GitHub Actions / 外部流程中斷。
 
     const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
 
@@ -1155,23 +1335,27 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   const reviews = Array.from(reviewMap.values());
 
-  if (!completedByBottom && reviews.length > 0) {
-    console.log(`⚠️ 已跑完滑動輪數或 Google 前台不再吐資料，未明確偵測到底。最後 remaining=${lastRemaining}`);
+  if (reviews.length > 0) {
+    console.log(`⚠️ 前台滑動結束。Google Maps remaining 不可靠，抓到 ${reviews.length} 筆不代表全部評論。最後 remaining=${lastRemaining}`);
   }
 
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
   if (reviews.length > 0) {
-    console.log("✅ 第一筆範例:", reviews[0]);
+    console.log('✅ 第一筆範例:', reviews[0]);
   }
 
   return reviews;
 }
 
-async function scrapeOneStore(page, storeConfig, maxRounds) {
+async function scrapeOneStore(page, storeConfig, maxRounds, networkCapture) {
+  if (networkCapture) {
+    networkCapture.setStore(storeConfig);
+  }
+
   console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
 
-  console.log("➡️ 前往 Google...");
+  console.log('➡️ 前往 Google...');
   await page.goto('https://www.google.com.tw/?hl=zh-TW', {
     waitUntil: 'networkidle2',
     timeout: 60000
@@ -1198,7 +1382,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   await page.keyboard.press('Enter');
   await randomDelay(5000, 6000);
 
-  console.log("🚀 嘗試進入 Google Maps...");
+  console.log('🚀 嘗試進入 Google Maps...');
 
   const opened = await page.evaluate(() => {
     const els = Array.from(document.querySelectorAll('a, button, span'));
@@ -1217,7 +1401,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   });
 
   if (!opened) {
-    console.log("⚠️ 直接開地圖 fallback");
+    console.log('⚠️ 直接開地圖 fallback');
 
     await page.goto(storeConfig.fallbackUrl, {
       waitUntil: 'networkidle2',
@@ -1227,7 +1411,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
 
   await randomDelay(8000, 10000);
 
-  console.log("🎯 找評論按鈕...");
+  console.log('🎯 找評論按鈕...');
 
   const tabClicked = await page.evaluate(() => {
     const getText = (el) => {
@@ -1260,22 +1444,27 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     return false;
   });
 
-  console.log("🎯 review tab result:", tabClicked);
+  console.log('🎯 review tab result:', tabClicked);
 
   if (tabClicked) {
     await randomDelay(6000, 8000);
   } else {
-    console.log("⚠️ 沒點到評論");
+    console.log('⚠️ 沒點到評論');
   }
 
   await clickNewestSort(page);
 
   const storeRating = await extractStoreRating(page);
 
-  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || "未抓到");
-  console.log("🔁 本次評論滑動輪數:", maxRounds);
+  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || '未抓到');
+  console.log('🔁 本次評論滑動輪數:', maxRounds);
 
   const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+
+  if (networkCapture) {
+    const networkSummary = networkCapture.getSummary();
+    console.log(`🧪 Network捕捉摘要：rawItems=${networkSummary.rawItems}, possibleReviewIds=${networkSummary.possibleReviewIds}`);
+  }
 
   reviews.forEach(review => {
     review.brand = storeConfig.brand;
@@ -1294,13 +1483,13 @@ async function scrapeGoogleReviews() {
   let browser;
 
   try {
-    console.log("➡️ 啟動防偵測 Chrome...");
+    console.log('➡️ 啟動防偵測 Chrome...');
 
     const isCloud = isCloudEnv();
     const chromePath = getChromeExecutablePath(isCloud);
 
-    console.log("☁️ isCloud:", isCloud);
-    console.log("🧭 Chrome executablePath:", chromePath || "使用 Puppeteer 預設");
+    console.log('☁️ isCloud:', isCloud);
+    console.log('🧭 Chrome executablePath:', chromePath || '使用 Puppeteer 預設');
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
@@ -1322,6 +1511,9 @@ async function scrapeGoogleReviews() {
     });
 
     const page = (await browser.pages())[0] || await browser.newPage();
+
+    const networkCapture = createNetworkReviewCapture();
+    await networkCapture.attach(page);
 
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'webdriver', {
@@ -1352,12 +1544,12 @@ async function scrapeGoogleReviews() {
       return brandMatched && storeMatched;
     });
 
-    console.log("🎯 本次同步目標:", targetBrand, targetStore);
-    console.log("🎯 本次店家數:", targetStores.length);
+    console.log('🎯 本次同步目標:', targetBrand, targetStore);
+    console.log('🎯 本次店家數:', targetStores.length);
 
     for (const storeConfig of targetStores) {
       try {
-        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+        const reviews = await scrapeOneStore(page, storeConfig, maxRounds, networkCapture);
         allReviews.push(...reviews);
       } catch (err) {
         console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
@@ -1368,9 +1560,11 @@ async function scrapeGoogleReviews() {
 
     console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
 
+    saveNetworkRawCapture(networkCapture);
+
     return allReviews;
   } catch (err) {
-    console.error("❌ 錯誤:", err);
+    console.error('❌ 錯誤:', err);
     return [];
   } finally {
     if (browser) {
