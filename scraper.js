@@ -1177,8 +1177,47 @@ async function normalMouseScroll(page) {
 }
 
 async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
+  // 500+ 筆時開始使用激進策略
+  if (totalReviews >= 500 && totalReviews < 1000) {
+    // 500-1000 區間：用激進 JS 滾動
+    if (stableCount > 0 && stableCount % 30 === 0) {
+      console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，500-1000 激進喚醒`);
+      return await jsScrollReviewList(page, {
+        label: 'aggressive-500-1000-30',
+        step: 1600,
+        times: 7,
+        delay: 1100,
+        waitAfter: 5000,
+        backtrack: 8000,
+        timeout: 40000
+      });
+    }
+
+    if (stableCount > 0 && stableCount % 15 === 0) {
+      console.log(`🧪 ${totalReviews} 筆後 stable=${stableCount}，500-1000 中等喚醒`);
+      return await jsScrollReviewList(page, {
+        label: 'medium-500-1000-15',
+        step: 1400,
+        times: 6,
+        delay: 1000,
+        waitAfter: 4000,
+        backtrack: 5000,
+        timeout: 38000
+      });
+    }
+
+    return await jsScrollReviewList(page, {
+      label: 'js-500-1000-default',
+      step: 1200,
+      times: 5,
+      delay: 900,
+      waitAfter: 3500,
+      timeout: 35000
+    });
+  }
+
   // 1000 筆以前：用 mouse，因為比較容易觸發 Google 吐新評論
-  if (totalReviews < 1000) {
+  if (totalReviews < 500) {
     return await normalMouseScroll(page);
   }
 
@@ -1288,25 +1327,44 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
     }
 
-    if (stableCount >= 5) {
+    // 強制唤醒機制：連續太多輪沒有新增，執行超激進滾動
+    if (stableCount >= 10 && reviewMap.size >= 500) {
+      console.log(`💥 強制唤醒！已連續 ${stableCount} 輪沒新增，執行超激進滾動`);
+      const wakeupResult = await jsScrollReviewList(page, {
+        label: 'force-wakeup',
+        step: 2500,
+        times: 10,
+        delay: 1500,
+        waitAfter: 10000,
+        backtrack: 20000,
+        timeout: 55000
+      });
+      console.log(`🎯 強制唤醒完成：${wakeupResult.success ? '成功' : '失敗'}`);
+      await randomDelay(8000, 12000);
+    } else if (stableCount >= 5) {
       console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
     }
 
-    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 50 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，長等待 60~75 秒`);
-      await randomDelay(60000, 75000);
+    // 更激進的長等待策略，幫助突破各個瓶頸
+    if (reviewMap.size >= 2000 && stableCount > 0 && stableCount % 15 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，定期長休息 45~60 秒`);
+      await randomDelay(45000, 60000);
     }
 
-    // 改進：在 1500+ 評論時使用超長等待，幫助突破瓶頸
-    if (reviewMap.size >= 1500 && stableCount > 0 && stableCount % 25 === 0) {
+    if (reviewMap.size >= 1500 && stableCount > 0 && stableCount % 20 === 0) {
       console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，超長等待 90~120 秒`);
       await randomDelay(90000, 120000);
     }
 
-    // 改進：在 2000+ 評論時添加定期長休息
-    if (reviewMap.size >= 2000 && stableCount > 0 && stableCount % 20 === 0) {
-      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，定期長休息 45~60 秒`);
+    // 新增：500-1000 區間的激進等待（這是第一個瓶頸）
+    if (reviewMap.size >= 500 && reviewMap.size < 1000 && stableCount > 0 && stableCount % 15 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，500-1000 區間長等待 45~60 秒`);
       await randomDelay(45000, 60000);
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 30 === 0) {
+      console.log(`🧊 ${reviewMap.size} 筆後 stable=${stableCount}，1000+ 區間長等待 60~75 秒`);
+      await randomDelay(60000, 75000);
     }
 
     const scrollResult = await fastScrollReviews(page, reviewMap.size, stableCount);
@@ -1340,10 +1398,11 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     // Google Maps 的 remaining=0 只代表目前虛擬列表到底，不代表全部 5000 則到底。
     // 所以完整同步只會跑滿 maxRounds，或由 GitHub Actions / 外部流程中斷。
 
-    // 改進：根據當前評論數調整等待閾值，1000+ 時更容易觸發等待
+    // 改進：根據當前評論數調整等待閾值，500+ 時更容易觸發等待
     let waitThreshold = 3;
     if (reviewMap.size >= 2000) waitThreshold = 2;
     if (reviewMap.size >= 1000) waitThreshold = 2;
+    if (reviewMap.size >= 500) waitThreshold = 2;  // 500+ 時更容易觸發
 
     if (noMoveCount >= waitThreshold) {
       console.log(`⏳ 目前 ${reviewMap.size} 筆，捲軸連續 ${noMoveCount} 次沒變，等待後繼續拉`);
@@ -1352,6 +1411,8 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
         await randomDelay(15000, 20000);
       } else if (reviewMap.size >= 1000) {
         await randomDelay(12000, 18000);
+      } else if (reviewMap.size >= 500) {
+        await randomDelay(10000, 15000);  // 500+ 時較長等待
       } else {
         await randomDelay(8000, 12000);
       }
