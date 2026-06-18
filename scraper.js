@@ -53,7 +53,18 @@ function getMaxRounds() {
     return 5;
   }
 
-  return Math.floor(value);
+  // ✅ 快速同步維持 5
+  if (value <= 5) {
+    return Math.floor(value);
+  }
+
+  // ✅ 完整同步原本常用 999，這裡統一拉到 2000
+  if (value >= 999) {
+    return 2000;
+  }
+
+  // ✅ 其他手動輸入最多也不超過 2000
+  return Math.min(Math.floor(value), 2000);
 }
 
 function getReviewKey(review) {
@@ -867,9 +878,9 @@ async function jsWheelFallbackScroll(page, totalReviews = 0) {
   }
 }
 
-async function fastScrollReviews(page, totalReviews = 0) {
-  // ✅ 1000 筆以上直接用 JS fallback，不走 Puppeteer mouse wheel
-  if (totalReviews >= 1000) {
+async function fastScrollReviews(page, totalReviews = 0, forceMouse = false) {
+  // ✅ 1000 筆以上：平常用 JS fallback；連續 10 輪沒新增時 forceMouse=true，強制 mouse probe
+  if (totalReviews >= 1000 && !forceMouse) {
     return await jsWheelFallbackScroll(page, totalReviews);
   }
 
@@ -881,21 +892,8 @@ async function fastScrollReviews(page, totalReviews = 0) {
     );
 
     if (!box) {
-      console.log("⚠️ 找不到評論捲動容器，改用 PageDown");
-
-      try {
-        await page.keyboard.press('PageDown');
-      } catch {}
-
-      await randomDelay(1200, 1800);
-
-      return {
-        success: false,
-        before: -1,
-        after: -1,
-        timeout: false,
-        method: 'keyboard'
-      };
+      console.log("⚠️ 找不到評論捲動容器，改用 JS fallback");
+      return await jsWheelFallbackScroll(page, totalReviews);
     }
 
     const before = box.top;
@@ -906,20 +904,51 @@ async function fastScrollReviews(page, totalReviews = 0) {
       console.warn('⚠️ mouse.move 失敗，略過 move 直接 wheel:', err.message);
     }
 
-    for (let i = 0; i < 6; i++) {
-      try {
-        await page.mouse.wheel({
-          deltaY: 2200
-        });
-      } catch (err) {
-        console.warn('⚠️ mouse.wheel 失敗，本輪停止 wheel，下一輪繼續:', err.message);
-        break;
-      }
+    let wheelTimes = 6;
+    let deltaY = 2200;
+    let wheelDelayMin = 200;
+    let wheelDelayMax = 350;
+    let afterDelayMin = 900;
+    let afterDelayMax = 1300;
+    let method = 'mouse-wheel-fast';
 
-      await randomDelay(200, 350);
+    if (totalReviews >= 1000) {
+      wheelTimes = 2;
+      deltaY = 1200;
+      wheelDelayMin = 1200;
+      wheelDelayMax = 1800;
+      afterDelayMin = 5000;
+      afterDelayMax = 7000;
+      method = 'mouse-wheel-probe-1000';
     }
 
-    await randomDelay(900, 1300);
+    if (totalReviews >= 1500) {
+      wheelTimes = 1;
+      deltaY = 900;
+      wheelDelayMin = 1800;
+      wheelDelayMax = 2500;
+      afterDelayMin = 7000;
+      afterDelayMax = 10000;
+      method = 'mouse-wheel-probe-1500';
+    }
+
+    for (let i = 0; i < wheelTimes; i++) {
+      try {
+        await page.mouse.wheel({
+          deltaY
+        });
+      } catch (err) {
+        console.warn('⚠️ mouse.wheel 失敗，等待 20 秒後改回 JS fallback:', err.message);
+
+        await randomDelay(20000, 22000);
+
+        return await jsWheelFallbackScroll(page, totalReviews);
+      }
+
+      await randomDelay(wheelDelayMin, wheelDelayMax);
+    }
+
+    await randomDelay(afterDelayMin, afterDelayMax);
 
     const afterBox = await withTimeout(
       getReviewScrollBox(page),
@@ -927,24 +956,30 @@ async function fastScrollReviews(page, totalReviews = 0) {
       'getReviewScrollBox after'
     );
 
+    const after = afterBox ? afterBox.top : before;
+
+    if (after >= 0 && before >= 0 && after < before - 50000) {
+      console.warn(`⚠️ 捲軸疑似跳回前面 ${before}->${after}，等待 20 秒後改用 JS fallback`);
+
+      await randomDelay(20000, 22000);
+
+      return await jsWheelFallbackScroll(page, totalReviews);
+    }
+
     return {
       success: true,
       before,
-      after: afterBox ? afterBox.top : before,
+      after,
       timeout: false,
-      method: 'mouse-wheel-fast'
+      method
     };
 
   } catch (err) {
-    console.warn('⚠️ fastScrollReviews 失敗，本輪略過:', err.message);
+    console.warn('⚠️ fastScrollReviews 失敗，等待 20 秒後改用 JS fallback:', err.message);
 
-    return {
-      success: false,
-      before: -1,
-      after: -1,
-      timeout: true,
-      method: 'scroll-timeout'
-    };
+    await randomDelay(20000, 22000);
+
+    return await jsWheelFallbackScroll(page, totalReviews);
   }
 }
 
@@ -980,7 +1015,16 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       lastTotal = reviewMap.size;
     }
 
-    const scrollResult = await fastScrollReviews(page, reviewMap.size);
+    const forceMouse =
+      reviewMap.size >= 1000 &&
+      stableCount > 0 &&
+      stableCount % 10 === 0;
+
+    if (forceMouse) {
+      console.log(`🧪 已連續 ${stableCount} 輪沒新增，強制用 mouse-wheel probe 觸發載入`);
+    }
+
+    const scrollResult = await fastScrollReviews(page, reviewMap.size, forceMouse);
 
     console.log(
       `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}`
@@ -1005,6 +1049,17 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
     if (stableCount >= 5) {
       console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
+    }
+
+    if (reviewMap.size >= 1000 && stableCount > 0 && stableCount % 20 === 0) {
+      console.log(`⏳ ${reviewMap.size} 筆後已連續 ${stableCount} 輪沒新增，等待 25~40 秒讓 Google 載入`);
+
+      await randomDelay(25000, 40000);
+
+      try {
+        await page.keyboard.press('PageDown');
+        await randomDelay(1500, 2500);
+      } catch {}
     }
 
     const waitThreshold = reviewMap.size >= 1000 ? 2 : 3;
