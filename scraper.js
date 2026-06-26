@@ -1,8 +1,6 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const STORES = require('./stores');
-const fs = require('fs');
-const path = require('path');
 
 puppeteer.use(StealthPlugin());
 
@@ -46,9 +44,8 @@ function getMaxRounds() {
   if (!Number.isFinite(value) || value <= 0) return 5;
   if (value <= 5) return Math.floor(value);
 
-  // 完整同步：支持爬取 5000+ 評論
-  if (value >= 999) return 15000;   // 終極輪數：給足夠的時間爬 5000+
-  if (value >= 100) return 10000;   // 完整爬取
+  if (value >= 999) return 15000;
+  if (value >= 100) return 10000;
 
   return Math.min(Math.floor(value), 15000);
 }
@@ -59,222 +56,6 @@ function getReviewKey(review) {
     review.id ||
     `${review.author || ''}-${review.date || ''}-${review.rating || ''}-${String(review.content || '').slice(0, 120)}`
   );
-}
-
-function safeJsonString(value) {
-  return JSON.stringify(value, null, 2);
-}
-
-function normalizeNetworkText(text) {
-  return String(text || '')
-    .replace(/^\)\]\}'\s*/, '')
-    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => {
-      try {
-        return String.fromCharCode(parseInt(hex, 16));
-      } catch {
-        return _;
-      }
-    });
-}
-
-function looksLikeReviewResponse(url, text, contentType = '') {
-  const u = String(url || '');
-  const ct = String(contentType || '').toLowerCase();
-  const body = String(text || '');
-
-  const urlHit =
-    u.includes('batchexecute') ||
-    u.includes('listentitiesreviews') ||
-    u.includes('preview/review') ||
-    u.includes('/rpc/') ||
-    u.includes('/_/Maps') ||
-    u.includes('LocalReviews') ||
-    u.includes('ReviewService') ||
-    u.includes('listReviews') ||
-    u.includes('ugc');
-
-  if (!urlHit) return false;
-
-  if (
-    ct.includes('image/') ||
-    ct.includes('font/') ||
-    ct.includes('video/') ||
-    ct.includes('octet-stream')
-  ) {
-    return false;
-  }
-
-  const bodyHit =
-    body.includes('review') ||
-    body.includes('Review') ||
-    body.includes('評論') ||
-    body.includes('星') ||
-    body.includes('店家回覆') ||
-    body.includes('商家回覆') ||
-    body.includes('Response from the owner') ||
-    body.includes('ChZDS') ||
-    body.includes('Ci9D') ||
-    body.includes('Google Maps');
-
-  return bodyHit;
-}
-
-function extractPossibleReviewIdsFromNetworkText(text) {
-  const body = normalizeNetworkText(text);
-  const ids = new Set();
-
-  const patterns = [
-    /(?:ChZDS|Ci9D|ChdDS)[A-Za-z0-9_-]{20,}/g,
-    /0x[0-9a-fA-F]+:0x[0-9a-fA-F]+/g,
-    /reviewId["'\\:\s]+([A-Za-z0-9_-]{20,})/g
-  ];
-
-  for (const pattern of patterns) {
-    let match;
-    while ((match = pattern.exec(body)) !== null) {
-      ids.add(match[1] || match[0]);
-    }
-  }
-
-  return Array.from(ids);
-}
-
-function createNetworkReviewCapture() {
-  const rawItems = [];
-  const seenKeys = new Set();
-  const possibleReviewIds = new Set();
-
-  let currentStore = null;
-  let attached = false;
-
-  const maxItems = Number(process.env.NETWORK_RAW_MAX_ITEMS || 800);
-  const bodyLimit = Number(process.env.NETWORK_RAW_BODY_LIMIT || 220000);
-
-  function setStore(storeConfig) {
-    currentStore = storeConfig || null;
-  }
-
-  async function attach(page) {
-    if (attached) return;
-    attached = true;
-
-    page.on('response', async (response) => {
-      try {
-        const url = response.url();
-        const status = response.status();
-        const headers = response.headers ? response.headers() : {};
-        const contentType = headers['content-type'] || '';
-
-        if (!(
-          url.includes('batchexecute') ||
-          url.includes('listentitiesreviews') ||
-          url.includes('preview/review') ||
-          url.includes('/rpc/') ||
-          url.includes('/_/Maps') ||
-          url.includes('LocalReviews') ||
-          url.includes('ReviewService') ||
-          url.includes('listReviews') ||
-          url.includes('ugc')
-        )) {
-          return;
-        }
-
-        if (rawItems.length >= maxItems) return;
-
-        const text = await response.text().catch(() => '');
-
-        if (!looksLikeReviewResponse(url, text, contentType)) return;
-
-        const normalized = normalizeNetworkText(text);
-        const possibleIds = extractPossibleReviewIdsFromNetworkText(normalized);
-        possibleIds.forEach(id => possibleReviewIds.add(id));
-
-        const bodySample = normalized.slice(0, bodyLimit);
-        const key = `${url.slice(0, 220)}::${bodySample.slice(0, 600)}`;
-
-        if (seenKeys.has(key)) return;
-        seenKeys.add(key);
-
-        const item = {
-          capturedAt: new Date().toISOString(),
-          brand: currentStore ? currentStore.brand : '',
-          store: currentStore ? currentStore.store : '',
-          branch: currentStore ? currentStore.branch : '',
-          status,
-          contentType,
-          url,
-          bodyLength: normalized.length,
-          possibleReviewIds: possibleIds.slice(0, 120),
-          bodySample
-        };
-
-        rawItems.push(item);
-
-        console.log(
-          `🧪 Network疑似評論資料 #${rawItems.length} ids=${possibleIds.length} len=${normalized.length} url=${url.slice(0, 140)}`
-        );
-      } catch (err) {
-        console.warn('⚠️ Network response 捕捉失敗:', err.message);
-      }
-    });
-  }
-
-  function getSummary() {
-    return {
-      rawItems: rawItems.length,
-      possibleReviewIds: possibleReviewIds.size
-    };
-  }
-
-  function getRawItems() {
-    return rawItems;
-  }
-
-  function getPossibleReviewIds() {
-    return Array.from(possibleReviewIds);
-  }
-
-  return {
-    attach,
-    setStore,
-    getSummary,
-    getRawItems,
-    getPossibleReviewIds
-  };
-}
-
-function saveNetworkRawCapture(networkCapture) {
-  try {
-    if (!networkCapture) return;
-
-    const rawItems = networkCapture.getRawItems();
-    const possibleReviewIds = networkCapture.getPossibleReviewIds();
-
-    if (!rawItems.length) {
-      console.log('⚠️ 沒有捕捉到 Network raw review response');
-      return;
-    }
-
-    const publicDir = path.join(__dirname, 'public');
-    fs.mkdirSync(publicDir, { recursive: true });
-
-    const file = path.join(publicDir, 'network-review-raw.json');
-    const payload = {
-      savedAt: new Date().toISOString(),
-      note: 'Google Maps Network response 原始樣本，用來分析真正評論資料格式；不是最終 comments.json。',
-      totalRawItems: rawItems.length,
-      totalPossibleReviewIds: possibleReviewIds.length,
-      possibleReviewIds,
-      items: rawItems
-    };
-
-    fs.writeFileSync(file, safeJsonString(payload), 'utf8');
-
-    console.log(`🧪 已輸出 Network raw：${file}`);
-    console.log(`🧪 Network raw items=${rawItems.length}, possibleReviewIds=${possibleReviewIds.length}`);
-  } catch (err) {
-    console.warn('⚠️ 儲存 Network raw 失敗:', err.message);
-  }
 }
 
 async function extractStoreRating(page) {
@@ -1092,28 +873,6 @@ async function jsScrollReviewList(page, options = {}) {
   }
 }
 
-// 等待 Maps batchexecute network 回應（用於判斷是否有新評論載入）
-async function waitForBatchExecute(page, maxWait = 12000) {
-  try {
-    await page.waitForResponse(res => {
-      try {
-        const u = res.url();
-        return (
-          typeof u === 'string' &&
-          u.includes('/MapsWizUi/data/batchexecute') &&
-          res.status() === 200
-        );
-      } catch (e) {
-        return false;
-      }
-    }, { timeout: maxWait });
-
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
 async function normalMouseScroll(page) {
   try {
     const box = await withTimeout(
@@ -1124,6 +883,7 @@ async function normalMouseScroll(page) {
 
     if (!box) {
       console.log('⚠️ 找不到評論捲動容器，改用 JS');
+
       return await jsScrollReviewList(page, {
         label: 'js-no-container',
         step: 1200,
@@ -1196,11 +956,10 @@ async function normalMouseScroll(page) {
   }
 }
 
-async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
-  // 回退到原本策略：1000 條後才切換到激進 JS 滾動
+async function fastScrollReviews(page, totalReviews = 0) {
   if (totalReviews >= 1000) {
     return await jsScrollReviewList(page, {
-      label: 'ultimate-fixed-aggressive',
+      label: 'js-after-1000',
       step: 1800,
       times: 7,
       delay: 900,
@@ -1210,7 +969,6 @@ async function fastScrollReviews(page, totalReviews = 0, stableCount = 0) {
     });
   }
 
-  // < 1000 時保留 mouse 策略（較符合原先邏輯）
   return await normalMouseScroll(page);
 }
 
@@ -1240,7 +998,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     const gained = reviewMap.size - beforeTotal;
 
     console.log(
-      `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，累積 ${reviewMap.size}`
+      `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，本輪新增 ${gained}，累積 ${reviewMap.size}`
     );
 
     if (reviewMap.size === lastTotal) {
@@ -1254,46 +1012,12 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
     }
 
-    // 強制唤醒機制：連續太多輪沒有新增，執行超激進滾動
-    if (stableCount >= 10 && reviewMap.size >= 500) {
-      console.log(`💥 強制唤醒！已連續 ${stableCount} 輪沒新增，執行超激進滾動`);
-      const wakeupResult = await jsScrollReviewList(page, {
-        label: 'force-wakeup',
-        step: 2500,
-        times: 10,
-        delay: 1500,
-        waitAfter: 10000,
-        backtrack: 20000,
-        timeout: 55000
-      });
-      console.log(`🎯 強制唤醒完成：${wakeupResult.success ? '成功' : '失敗'}`);
-      await randomDelay(8000, 12000);
-    } else if (stableCount >= 5) {
-      console.log(`⚠️ 已連續 ${stableCount} 輪評論沒有新增，但不停止，繼續往下拉`);
+    if (stableCount >= 10) {
+      console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束抓取`);
+      break;
     }
 
-    // 替換：使用 network-driven 檢查代替固定長等待
-    if (stableCount > 0) {
-      console.log(`🔎 stable=${stableCount}，嘗試等待 batchexecute 回應（短暫等待）`);
-      const sawBatch = await waitForBatchExecute(page, 12000);
-
-      if (sawBatch) {
-        console.log('✅ 偵測到 batchexecute 回應，繼續下一輪');
-      } else {
-        console.log('⚠️ 未偵測到 batchexecute，使用短退避後重試');
-        if (reviewMap.size >= 2000) {
-          await randomDelay(8000, 12000);
-        } else if (reviewMap.size >= 1000) {
-          await randomDelay(6000, 9000);
-        } else if (reviewMap.size >= 500) {
-          await randomDelay(4000, 6000);
-        } else {
-          await randomDelay(2000, 3500);
-        }
-      }
-    }
-
-    const scrollResult = await fastScrollReviews(page, reviewMap.size, stableCount);
+    const scrollResult = await fastScrollReviews(page, reviewMap.size);
 
     if (typeof scrollResult.remaining === 'number') {
       lastRemaining = scrollResult.remaining;
@@ -1320,35 +1044,15 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       noMoveCount++;
     }
 
-    // ⚠️ 不再用 remaining 判斷完成。
-    // Google Maps 的 remaining=0 只代表目前虛擬列表到底，不代表全部 5000 則到底。
-    // 所以完整同步只會跑滿 maxRounds，或由 GitHub Actions / 外部流程中斷。
-
-    // 改進：根據當前評論數調整等待閾值，500+ 時更容易觸發等待
-    let waitThreshold = 3;
-    if (reviewMap.size >= 2000) waitThreshold = 2;
-    if (reviewMap.size >= 1000) waitThreshold = 2;
-    if (reviewMap.size >= 500) waitThreshold = 2;  // 500+ 時更容易觸發
-
-    if (noMoveCount >= waitThreshold) {
-      console.log(`⏳ 目前 ${reviewMap.size} 筆，捲軸連續 ${noMoveCount} 次沒變，等待後繼續拉`);
-
-      if (reviewMap.size >= 2000) {
-        await randomDelay(15000, 20000);
-      } else if (reviewMap.size >= 1000) {
-        await randomDelay(12000, 18000);
-      } else if (reviewMap.size >= 500) {
-        await randomDelay(10000, 15000);  // 500+ 時較長等待
-      } else {
-        await randomDelay(8000, 12000);
-      }
-
+    if (noMoveCount >= 3) {
+      console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`);
+      await randomDelay(3000, 5000);
       noMoveCount = 0;
     }
 
     if (timeoutCount >= 2) {
-      console.log(`⏳ 連續 timeout ${timeoutCount} 次，等待 15~25 秒後繼續`);
-      await randomDelay(15000, 25000);
+      console.log(`⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`);
+      await randomDelay(5000, 8000);
       timeoutCount = 0;
     }
 
@@ -1357,10 +1061,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   const reviews = Array.from(reviewMap.values());
 
-  if (reviews.length > 0) {
-    console.log(`⚠️ 前台滑動結束。Google Maps remaining 不可靠，抓到 ${reviews.length} 筆不代表全部評論。最後 remaining=${lastRemaining}`);
-  }
-
+  console.log(`⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`);
   console.log(`✅ 抓到 ${reviews.length} 筆評論`);
 
   if (reviews.length > 0) {
@@ -1370,11 +1071,7 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   return reviews;
 }
 
-async function scrapeOneStore(page, storeConfig, maxRounds, networkCapture) {
-  if (networkCapture) {
-    networkCapture.setStore(storeConfig);
-  }
-
+async function scrapeOneStore(page, storeConfig, maxRounds) {
   console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
 
   console.log('➡️ 前往 Google...');
@@ -1483,11 +1180,6 @@ async function scrapeOneStore(page, storeConfig, maxRounds, networkCapture) {
 
   const reviews = await fastLoadAndCollectReviews(page, maxRounds);
 
-  if (networkCapture) {
-    const networkSummary = networkCapture.getSummary();
-    console.log(`🧪 Network捕捉摘要：rawItems=${networkSummary.rawItems}, possibleReviewIds=${networkSummary.possibleReviewIds}`);
-  }
-
   reviews.forEach(review => {
     review.brand = storeConfig.brand;
     review.store = storeConfig.store;
@@ -1534,9 +1226,6 @@ async function scrapeGoogleReviews() {
 
     const page = (await browser.pages())[0] || await browser.newPage();
 
-    const networkCapture = createNetworkReviewCapture();
-    await networkCapture.attach(page);
-
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'webdriver', {
         get: () => undefined
@@ -1571,7 +1260,7 @@ async function scrapeGoogleReviews() {
 
     for (const storeConfig of targetStores) {
       try {
-        const reviews = await scrapeOneStore(page, storeConfig, maxRounds, networkCapture);
+        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
         allReviews.push(...reviews);
       } catch (err) {
         console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
@@ -1581,8 +1270,6 @@ async function scrapeGoogleReviews() {
     }
 
     console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
-
-    saveNetworkRawCapture(networkCapture);
 
     return allReviews;
   } catch (err) {
