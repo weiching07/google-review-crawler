@@ -20,21 +20,23 @@
 
       <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
         <div class="flex flex-wrap gap-4 items-center">
-          <button
-            id="syncButton"
-            onclick="openManualSync()"
-            class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
-          >
-            手動同步最新 Google 評論
-          </button>
+          <div id="syncButtonsGroup" class="flex flex-wrap gap-4 items-center">
+  <button
+    id="syncButton"
+    onclick="openManualSync()"
+    class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+  >
+    手動同步最新 Google 評論
+  </button>
 
-          <button
-            id="fullSyncButton"
-            onclick="openFullManualSync()"
-            class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-          >
-            完整同步 Google 評論
-          </button>
+  <button
+    id="fullSyncButton"
+    onclick="openFullManualSync()"
+    class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+  >
+    完整同步 Google 評論
+  </button>
+</div>
 
           <button
             onclick="loadData()"
@@ -203,6 +205,18 @@
 
     let currentBrandFilter = 'all';
     let currentStoreFilter = 'all';
+
+    function updateSyncButtonVisibility() {
+  const group = document.getElementById('syncButtonsGroup');
+
+  if (!group) return;
+
+  const isAllPage =
+    currentBrandFilter === 'all' &&
+    currentStoreFilter === 'all';
+
+  group.style.display = isAllPage ? 'flex' : 'none';
+}
 
     let knownReviewIds = new Set();
     let liveWatcherStarted = false;
@@ -511,6 +525,7 @@
         refreshSummaryStats();
         updateStoreFilterButtons();
         updateDashboardTitle();
+        updateSyncButtonVisibility();
         render();
 
         if (newReviews.length > 0) {
@@ -583,13 +598,13 @@
             'X-Sync-Secret': SYNC_SECRET
           },
           body: JSON.stringify({
-  source: 'review-dashboard',
-  scrapeRounds: scrapeRounds,
-  scrape_rounds: String(scrapeRounds),
+            source: 'review-dashboard',
+            scrapeRounds: scrapeRounds,
+            scrape_rounds: String(scrapeRounds),
 
-  brand: currentBrandFilter,
-  store: currentStoreFilter
-})
+            brand: currentBrandFilter,
+            store: currentStoreFilter
+          })
         });
 
         const data = await res.json();
@@ -599,14 +614,14 @@
         }
 
         const targetText =
-  currentBrandFilter === 'all'
-    ? '全部店別'
-    : `${currentBrandFilter} ${currentStoreFilter === 'all' ? '全部店別' : currentStoreFilter}`;
+          currentBrandFilter === 'all'
+            ? '全部店別'
+            : `${currentBrandFilter} ${currentStoreFilter === 'all' ? '全部店別' : currentStoreFilter}`;
 
-status.textContent =
-  scrapeRounds >= 999
-    ? `正在觸發完整同步：${targetText}`
-    : `正在觸發快速同步：${targetText}`;
+        status.textContent =
+          scrapeRounds >= 999
+            ? `正在觸發完整同步：${targetText}`
+            : `正在觸發快速同步：${targetText}`;
 
         startFastReviewWatcher();
 
@@ -910,6 +925,7 @@ status.textContent =
         refreshSummaryStats();
         updateStoreFilterButtons();
         updateDashboardTitle();
+        updateSyncButtonVisibility();
         render();
 
         if (!liveWatcherStarted) {
@@ -1166,6 +1182,7 @@ status.textContent =
     }
 
     function render() {
+      updateSyncButtonVisibility();
       refreshSummaryStats();
       updateReadFilterButtons();
 
@@ -1432,12 +1449,13 @@ status.textContent =
     loadSidebarState();
     renderSidebar();
     updateDashboardTitle();
+    updateSyncButtonVisibility();
 
     registerServiceWorker().then(() => {
-  updateNotificationToggleButton();
-});
+      updateNotificationToggleButton();
+    });
 
-loadData();
+    loadData();
   </script>
 </body>
 </html>
