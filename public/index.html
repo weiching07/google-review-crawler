@@ -6,7 +6,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#f59e0b">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="./dashboard-template.js?v=20260629-hide-sync"></script>
+  <script src="./dashboard-template.js?v=20260629-hide-sync2"></script>
 </head>
 
 <body class="bg-slate-100 p-8">
@@ -190,41 +190,6 @@
     let currentBrandFilter = 'all';
     let currentStoreFilter = 'all';
 
-     function updateSyncButtonVisibility() {
-  const mount = document.getElementById('syncButtonsMount');
-
-  if (!mount) return;
-
-  const isAllPage =
-    currentBrandFilter === 'all' &&
-    currentStoreFilter === 'all';
-
-  if (!isAllPage) {
-    mount.innerHTML = '';
-    return;
-  }
-
-  mount.innerHTML = `
-    <div class="flex flex-wrap gap-4 items-center">
-      <button
-        id="syncButton"
-        onclick="openManualSync()"
-        class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
-      >
-        手動同步最新 Google 評論
-      </button>
-
-      <button
-        id="fullSyncButton"
-        onclick="openFullManualSync()"
-        class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-      >
-        完整同步 Google 評論
-      </button>
-    </div>
-  `;
-}
-
     let knownReviewIds = new Set();
     let liveWatcherStarted = false;
     let fastWatcherTimer = null;
@@ -241,6 +206,41 @@
       unrepliedCount: 0,
       latestSyncTime: null
     };
+
+    function isAllBrandPage() {
+      return currentBrandFilter === 'all' && currentStoreFilter === 'all';
+    }
+
+    function updateSyncButtonVisibility() {
+      const mount = document.getElementById('syncButtonsMount');
+
+      if (!mount) return;
+
+      if (!isAllBrandPage()) {
+        mount.innerHTML = '';
+        return;
+      }
+
+      mount.innerHTML = `
+        <div class="flex flex-wrap gap-4 items-center">
+          <button
+            id="syncButton"
+            onclick="openManualSync()"
+            class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+          >
+            手動同步最新 Google 評論
+          </button>
+
+          <button
+            id="fullSyncButton"
+            onclick="openFullManualSync()"
+            class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+          >
+            完整同步 Google 評論
+          </button>
+        </div>
+      `;
+    }
 
     function escapeHTML(value) {
       return String(value ?? '')
@@ -587,12 +587,24 @@
 
     async function triggerSync(scrapeRounds, buttonId, originalText) {
       const status = document.getElementById('status');
-const button = document.getElementById(buttonId);
 
-if (!button) {
-  status.textContent = '目前只允許在「全部品牌」頁面執行同步。';
-  return;
-}
+      if (!isAllBrandPage()) {
+        if (status) {
+          status.textContent = '單店頁面禁止觸發同步，請回到「全部品牌」。';
+        }
+
+        return;
+      }
+
+      const button = document.getElementById(buttonId);
+
+      if (!button) {
+        if (status) {
+          status.textContent = '找不到同步按鈕，已取消同步。';
+        }
+
+        return;
+      }
 
       status.textContent =
         scrapeRounds >= 999
@@ -613,7 +625,6 @@ if (!button) {
             source: 'review-dashboard',
             scrapeRounds: scrapeRounds,
             scrape_rounds: String(scrapeRounds),
-
             brand: currentBrandFilter,
             store: currentStoreFilter
           })
@@ -647,10 +658,30 @@ if (!button) {
     }
 
     async function openManualSync() {
+      const status = document.getElementById('status');
+
+      if (!isAllBrandPage()) {
+        if (status) {
+          status.textContent = '單店頁面禁止同步，請回到「全部品牌」。';
+        }
+
+        return;
+      }
+
       await triggerSync(5, 'syncButton', '手動同步最新 Google 評論');
     }
 
     async function openFullManualSync() {
+      const status = document.getElementById('status');
+
+      if (!isAllBrandPage()) {
+        if (status) {
+          status.textContent = '單店頁面禁止完整同步，請回到「全部品牌」。';
+        }
+
+        return;
+      }
+
       await triggerSync(999, 'fullSyncButton', '完整同步 Google 評論');
     }
 
