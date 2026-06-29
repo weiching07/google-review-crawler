@@ -154,7 +154,7 @@ async function sendNewReviewEmail(newReviews) {
   `;
 
   await transporter.sendMail({
-    from: `"Google 評論通知" <${user}>`,
+    from: `"Google 評論通知" <comment@casualrestaurants.com>`,
     to,
     subject,
     html
