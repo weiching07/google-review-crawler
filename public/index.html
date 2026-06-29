@@ -21,11 +21,10 @@
       <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
         <div class="flex flex-wrap gap-4 items-center">
           <div id="syncButtonsGroup" class="flex flex-wrap gap-4 items-center">
-  <div id="syncButtonsGroup" class="flex flex-wrap gap-4 items-center">
-  <button
-    id="syncButton"
-    onclick="openManualSync()"
-    class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+           <button
+           id="syncButton"
+           onclick="openManualSync()"
+           class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
   >
     手動同步最新 Google 評論
   </button>
@@ -207,17 +206,17 @@
     let currentBrandFilter = 'all';
     let currentStoreFilter = 'all';
 
-    function updateSyncButtonVisibility() {
-  const group = document.getElementById('syncButtonsGroup');
+        function updateSyncButtonVisibility() {
+      const groups = document.querySelectorAll('#syncButtonsGroup');
 
-  if (!group) return;
+      const isAllPage =
+        currentBrandFilter === 'all' &&
+        currentStoreFilter === 'all';
 
-  const isAllPage =
-    currentBrandFilter === 'all' &&
-    currentStoreFilter === 'all';
-
-  group.style.display = isAllPage ? 'flex' : 'none';
-}
+      groups.forEach(group => {
+        group.style.display = isAllPage ? 'flex' : 'none';
+      });
+    }
 
     let knownReviewIds = new Set();
     let liveWatcherStarted = false;
