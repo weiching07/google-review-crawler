@@ -278,6 +278,11 @@ function setStoreFilter(brand, store) {
 
   updateStoreFilterButtons();
   updateDashboardTitle();
+
+  if (typeof updateSyncButtonVisibility === 'function') {
+    updateSyncButtonVisibility();
+  }
+
   render();
 }
 
