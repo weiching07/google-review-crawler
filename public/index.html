@@ -6,7 +6,7 @@
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#f59e0b">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="./dashboard-template.js?v=20260629-hide-sync2"></script>
+  <script src="./dashboard-template.js?v=20260629-hide-sync3"></script>
 </head>
 
 <body class="bg-slate-100 p-8">
@@ -207,8 +207,17 @@
       latestSyncTime: null
     };
 
+    function getDashboardTitleText() {
+      const titleEl = document.getElementById('dashboardTitle');
+      return titleEl ? String(titleEl.textContent || '').trim() : '';
+    }
+
     function isAllBrandPage() {
-      return currentBrandFilter === 'all' && currentStoreFilter === 'all';
+      return (
+        currentBrandFilter === 'all' &&
+        currentStoreFilter === 'all' &&
+        getDashboardTitleText() === '全部品牌 評論分析儀表板'
+      );
     }
 
     function updateSyncButtonVisibility() {
@@ -636,15 +645,10 @@
           throw new Error(data.message || '同步觸發失敗');
         }
 
-        const targetText =
-          currentBrandFilter === 'all'
-            ? '全部店別'
-            : `${currentBrandFilter} ${currentStoreFilter === 'all' ? '全部店別' : currentStoreFilter}`;
-
         status.textContent =
           scrapeRounds >= 999
-            ? `正在觸發完整同步：${targetText}`
-            : `正在觸發快速同步：${targetText}`;
+            ? '正在觸發完整同步：全部店別'
+            : '正在觸發快速同步：全部店別';
 
         startFastReviewWatcher();
 
