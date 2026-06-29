@@ -20,23 +20,7 @@
 
       <div class="bg-white p-4 rounded shadow mb-6 space-y-4">
         <div class="flex flex-wrap gap-4 items-center">
-          <div id="syncButtonsGroup" class="flex flex-wrap gap-4 items-center">
-           <button
-           id="syncButton"
-           onclick="openManualSync()"
-           class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
-  >
-    手動同步最新 Google 評論
-  </button>
-
-  <button
-    id="fullSyncButton"
-    onclick="openFullManualSync()"
-    class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-  >
-    完整同步 Google 評論
-  </button>
-</div>
+          <div id="syncButtonsMount"></div>
 
           <button
             onclick="loadData()"
@@ -206,17 +190,40 @@
     let currentBrandFilter = 'all';
     let currentStoreFilter = 'all';
 
-        function updateSyncButtonVisibility() {
-      const groups = document.querySelectorAll('#syncButtonsGroup');
+     function updateSyncButtonVisibility() {
+  const mount = document.getElementById('syncButtonsMount');
 
-      const isAllPage =
-        currentBrandFilter === 'all' &&
-        currentStoreFilter === 'all';
+  if (!mount) return;
 
-      groups.forEach(group => {
-        group.style.display = isAllPage ? 'flex' : 'none';
-      });
-    }
+  const isAllPage =
+    currentBrandFilter === 'all' &&
+    currentStoreFilter === 'all';
+
+  if (!isAllPage) {
+    mount.innerHTML = '';
+    return;
+  }
+
+  mount.innerHTML = `
+    <div class="flex flex-wrap gap-4 items-center">
+      <button
+        id="syncButton"
+        onclick="openManualSync()"
+        class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+      >
+        手動同步最新 Google 評論
+      </button>
+
+      <button
+        id="fullSyncButton"
+        onclick="openFullManualSync()"
+        class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+      >
+        完整同步 Google 評論
+      </button>
+    </div>
+  `;
+}
 
     let knownReviewIds = new Set();
     let liveWatcherStarted = false;
@@ -580,7 +587,12 @@
 
     async function triggerSync(scrapeRounds, buttonId, originalText) {
       const status = document.getElementById('status');
-      const button = document.getElementById(buttonId);
+const button = document.getElementById(buttonId);
+
+if (!button) {
+  status.textContent = '目前只允許在「全部品牌」頁面執行同步。';
+  return;
+}
 
       status.textContent =
         scrapeRounds >= 999
