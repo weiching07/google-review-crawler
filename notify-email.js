@@ -26,6 +26,44 @@ function isNegativeReview(review) {
   return getRating(review.rating) <= 2 && getRating(review.rating) > 0;
 }
 
+function isReviewWithinOneDay(review) {
+  const dateText = text(review.date).toLowerCase();
+
+  if (!dateText) {
+    return false;
+  }
+
+  if (
+    dateText.includes('剛剛') ||
+    dateText.includes('分鐘前') ||
+    dateText.includes('小時前')
+  ) {
+    return true;
+  }
+
+  const chineseDayMatch = dateText.match(/(\d+)\s*天前/);
+  if (chineseDayMatch) {
+    return Number(chineseDayMatch[1]) <= 1;
+  }
+
+  if (
+    dateText.includes('just now') ||
+    dateText.includes('minute ago') ||
+    dateText.includes('minutes ago') ||
+    dateText.includes('hour ago') ||
+    dateText.includes('hours ago')
+  ) {
+    return true;
+  }
+
+  const englishDayMatch = dateText.match(/(\d+)\s*day[s]?\s*ago/);
+  if (englishDayMatch) {
+    return Number(englishDayMatch[1]) <= 1;
+  }
+
+  return false;
+}
+
 function renderReviewCard(review) {
   const negative = isNegativeReview(review);
 
@@ -56,16 +94,24 @@ async function sendNewReviewEmail(newReviews) {
     return;
   }
 
+  const reviewsWithinOneDay = newReviews.filter(isReviewWithinOneDay);
+
+  if (reviewsWithinOneDay.length === 0) {
+    console.log('📭 本次沒有一天內的新評論，略過寄信');
+    return;
+  }
+
   const user = process.env.O365_SMTP_USER;
   const pass = process.env.O365_SMTP_PASS;
-  const to = process.env.O365_NOTIFY_TO || 'it.group@casualrestaurants.com';
+  const to = process.env.O365_NOTIFY_TO ||
+    'it.group@casualrestaurants.com, NewBD-Group@casualrestaurants.com, Marketing-Group@casualrestaurants.com';
 
   if (!user || !pass) {
     console.warn('⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過寄信');
     return;
   }
 
-  const negativeReviews = newReviews.filter(isNegativeReview);
+  const negativeReviews = reviewsWithinOneDay.filter(isNegativeReview);
   const hasNegativeReview = negativeReviews.length > 0;
 
   const transporter = nodemailer.createTransport({
@@ -80,8 +126,8 @@ async function sendNewReviewEmail(newReviews) {
   });
 
   const subject = hasNegativeReview
-    ? `⚠️【Google 負評提醒】新增 ${newReviews.length} 筆評論，其中 ${negativeReviews.length} 筆 1-2 星`
-    : `【Google 新評論通知】新增 ${newReviews.length} 筆評論`;
+    ? `⚠️【Google 負評提醒】一天內新增 ${reviewsWithinOneDay.length} 筆評論，其中 ${negativeReviews.length} 筆 1-2 星`
+    : `【Google 新評論通知】一天內新增 ${reviewsWithinOneDay.length} 筆評論`;
 
   const html = `
     <div style="font-family: Arial, 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
@@ -89,7 +135,13 @@ async function sendNewReviewEmail(newReviews) {
         ${hasNegativeReview ? '⚠️ Google 新評論通知：含負評' : 'Google 新評論通知'}
       </h2>
 
-      <p>本次偵測到 <b>${newReviews.length}</b> 筆新評論。</p>
+      <p>本次偵測到 <b>${reviewsWithinOneDay.length}</b> 筆一天內的新評論。</p>
+
+      ${
+        newReviews.length !== reviewsWithinOneDay.length
+          ? `<p style="color:#64748b;">已排除 ${newReviews.length - reviewsWithinOneDay.length} 筆超過一天的評論。</p>`
+          : ''
+      }
 
       ${
         hasNegativeReview
@@ -97,7 +149,7 @@ async function sendNewReviewEmail(newReviews) {
           : ''
       }
 
-      ${newReviews.map(renderReviewCard).join('')}
+      ${reviewsWithinOneDay.map(renderReviewCard).join('')}
     </div>
   `;
 
@@ -108,7 +160,11 @@ async function sendNewReviewEmail(newReviews) {
     html
   });
 
-  console.log(`📧 已寄出新評論通知：${newReviews.length} 筆 → ${to}`);
+  console.log(`📧 已寄出一天內新評論通知：${reviewsWithinOneDay.length} 筆 → ${to}`);
+
+  if (newReviews.length !== reviewsWithinOneDay.length) {
+    console.log(`📭 已略過超過一天評論：${newReviews.length - reviewsWithinOneDay.length} 筆`);
+  }
 
   if (hasNegativeReview) {
     console.log(`⚠️ 其中負評 ${negativeReviews.length} 筆`);
