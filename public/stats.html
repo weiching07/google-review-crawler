@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>評論統計與同步頁面</title>
+  <meta name="theme-color" content="#f59e0b">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 p-8">
+  <div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-800">
+          評論統計與同步頁面
+        </h1>
+
+        <p class="text-sm text-slate-500 mt-2">
+          這裡只做全部品牌統計與同步，不會針對單店同步。
+        </p>
+      </div>
+
+      <a
+        href="./index.html"
+        class="border px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-800"
+      >
+        回評論儀表板
+      </a>
+    </div>
+
+    <div class="bg-white p-5 rounded shadow space-y-4">
+      <div class="flex flex-wrap gap-4 items-center">
+        <button
+          id="syncButton"
+          onclick="openManualSync()"
+          class="border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+        >
+          手動同步最新 Google 評論
+        </button>
+
+        <button
+          id="fullSyncButton"
+          onclick="openFullManualSync()"
+          class="border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+        >
+          完整同步 Google 評論
+        </button>
+
+        <button
+          onclick="loadData()"
+          class="border p-2 rounded bg-slate-600 text-white hover:bg-slate-700"
+        >
+          重新整理統計資料
+        </button>
+      </div>
+
+      <div id="status" class="text-sm text-slate-600"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">總評論數</div>
+        <div id="totalCount" class="text-3xl font-bold text-slate-800 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">未讀取</div>
+        <div id="unreadCount" class="text-3xl font-bold text-red-600 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">未回覆</div>
+        <div id="unrepliedCount" class="text-3xl font-bold text-orange-600 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">已編輯</div>
+        <div id="editedCount" class="text-3xl font-bold text-purple-600 mt-2">0</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">已回覆</div>
+        <div id="repliedCount" class="text-3xl font-bold text-blue-600 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">已刪除</div>
+        <div id="deletedCount" class="text-3xl font-bold text-zinc-600 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">有舊版本</div>
+        <div id="versionCount" class="text-3xl font-bold text-indigo-600 mt-2">0</div>
+      </div>
+
+      <div class="bg-white p-5 rounded shadow">
+        <div class="text-sm text-slate-500">最後更新</div>
+        <div id="latestSyncTime" class="text-base font-bold text-slate-700 mt-2">未知</div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded shadow">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-bold text-slate-800">
+          各品牌 / 店別統計
+        </h2>
+
+        <input
+          id="keywordSearch"
+          type="text"
+          oninput="renderStoreTable()"
+          placeholder="搜尋品牌或店別"
+          class="border p-2 rounded w-64"
+        />
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full border text-sm">
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="border px-3 py-2 text-left">品牌</th>
+              <th class="border px-3 py-2 text-left">店別</th>
+              <th class="border px-3 py-2 text-right">總評論</th>
+              <th class="border px-3 py-2 text-right">未讀取</th>
+              <th class="border px-3 py-2 text-right">已讀取</th>
+              <th class="border px-3 py-2 text-right">未回覆</th>
+              <th class="border px-3 py-2 text-right">已回覆</th>
+              <th class="border px-3 py-2 text-right">已編輯</th>
+              <th class="border px-3 py-2 text-right">有舊版本</th>
+              <th class="border px-3 py-2 text-right">已刪除</th>
+            </tr>
+          </thead>
+
+          <tbody id="storeTableBody">
+            <tr>
+              <td colspan="10" class="border px-3 py-6 text-center text-slate-500">
+                載入中...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded shadow">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">
+        最近 20 筆評論
+      </h2>
+
+      <div id="latestReviews" class="space-y-3">
+        載入中...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SYNC_WORKER_URL = 'https://dry-butterfly-33.zxcvb2282.workers.dev';
+    const SYNC_SECRET = 'sync-2026-change-this';
+
+    const READ_STORAGE_KEY = 'google_review_read_ids_v1';
+
+    let rawData = [];
+    let allVersions = [];
+    let readIds = new Set();
+
+    function escapeHTML(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function loadReadIds() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(READ_STORAGE_KEY) || '[]');
+        readIds = new Set(saved.map(String));
+      } catch {
+        readIds = new Set();
+      }
+    }
+
+    function getReviewKey(c) {
+      return String(c.reviewId || c.id || '');
+    }
+
+    function isReadReview(c) {
+      const key = getReviewKey(c);
+      return key && readIds.has(key);
+    }
+
+    function isUnreadReview(c) {
+      return !isReadReview(c);
+    }
+
+    function isDeletedReview(c) {
+      return Boolean(c && c.isDeleted);
+    }
+
+    function isNotDeletedReview(c) {
+      return !isDeletedReview(c);
+    }
+
+    function isEditedReview(c) {
+      const text = [
+        c.date,
+        c.editedText,
+        c.content,
+        c.status
+      ].filter(Boolean).join(' ');
+
+      return Boolean(c.isEdited) || /上次編輯|已編輯|edited|last edited/i.test(text);
+    }
+
+    function getReplyText(c) {
+      return String(
+        c.replyContent ||
+        c.ownerReply ||
+        c.ownerResponse ||
+        c.response ||
+        c.reply ||
+        ''
+      ).trim();
+    }
+
+    function hasOwnerReply(c) {
+      return Boolean(c && (c.hasReply || getReplyText(c)));
+    }
+
+    function getCommentBrand(c) {
+      return String(c.brand || c.branch || c.brandName || '未分類').trim();
+    }
+
+    function getCommentStore(c) {
+      return String(c.store || c.storeName || c.branchName || '未分類').trim();
+    }
+
+    function getDisplayBrand(c) {
+      const brand = getCommentBrand(c);
+
+      if (brand === 'LILLA' || brand === 'LillA') return 'LILLA';
+      if (brand === 'SALT&STONE' || brand === 'SALTSTONE') return 'SALT&STONE';
+
+      return brand || '未分類';
+    }
+
+    function getDisplayStore(c) {
+      const store = getCommentStore(c);
+
+      if (store === 'DREAM PLAZA' || store === 'DREAM PLAZA 店') return 'DREAM PLAZA';
+      if (store === '南港' || store === '南港店') return '南港';
+      if (store === '101' || store === '101店' || store === '101 店') return '101';
+
+      return store || '未分類';
+    }
+
+    function getVersionListByKey(key) {
+      return allVersions.filter(v =>
+        String(v.reviewId || '') === String(key) ||
+        String(v.commentId || '') === String(key) ||
+        String(v.id || '') === String(key)
+      );
+    }
+
+    function hasVersions(c) {
+      const key = getReviewKey(c);
+      return getVersionListByKey(key).length > 0 || Boolean(c.hasVersions);
+    }
+
+    function parseTime(value) {
+      if (!value) return null;
+
+      const time = new Date(value).getTime();
+
+      if (Number.isNaN(time)) {
+        return null;
+      }
+
+      return time;
+    }
+
+    function getLatestSyncTime(comments) {
+      let latest = null;
+
+      comments.forEach(c => {
+        const candidates = [
+          c.lastSeenAt,
+          c.scrapedAt,
+          c.updatedAt,
+          c.deletedAt
+        ];
+
+        candidates.forEach(value => {
+          const time = parseTime(value);
+
+          if (time && (!latest || time > latest)) {
+            latest = time;
+          }
+        });
+      });
+
+      return latest;
+    }
+
+    function formatFullTime(time) {
+      if (!time) return '未知';
+
+      return new Date(time).toLocaleString('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    function getTimeWeight(dateStr) {
+      if (!dateStr || dateStr === '未知時間') return Number.MAX_SAFE_INTEGER;
+
+      const text = String(dateStr).toLowerCase().trim();
+      const cleanText = text.replace(/上次編輯[:：]?\s*/g, '').trim();
+
+      const now = new Date();
+      const hoursSince = date => Math.max(0, (now - date) / 3600000);
+
+      const relativeMatch = cleanText.match(/(\d+)/);
+      const num = relativeMatch ? Number(relativeMatch[1]) : 1;
+
+      if (/剛剛|just now/.test(cleanText)) return 0.01;
+      if (/分鐘|分(?!鐘)|minute|minutes|mins|m ago/.test(cleanText)) return Math.max(1 / 60, num / 60);
+      if (/小時|hour|hours|h(?![a-z])/i.test(cleanText)) return num;
+      if (/天|day|days|d ago/.test(cleanText)) return num * 24;
+      if (/週|week|weeks|w ago/.test(cleanText)) return num * 24 * 7;
+      if (/個月|month|months|mo ago/.test(cleanText)) return num * 24 * 30;
+      if (/年|year|years|y ago/.test(cleanText)) return num * 24 * 365;
+
+      return Number.MAX_SAFE_INTEGER;
+    }
+
+    function renderSummary() {
+      const total = rawData.length;
+      const unreadCount = rawData.filter(c => isUnreadReview(c) && isNotDeletedReview(c)).length;
+      const repliedCount = rawData.filter(c => hasOwnerReply(c) && isNotDeletedReview(c)).length;
+      const unrepliedCount = rawData.filter(c => !hasOwnerReply(c) && isNotDeletedReview(c)).length;
+      const deletedCount = rawData.filter(isDeletedReview).length;
+      const editedCount = rawData.filter(c => isEditedReview(c) && isNotDeletedReview(c)).length;
+      const versionCount = rawData.filter(c => hasVersions(c) && isNotDeletedReview(c)).length;
+      const latestSyncTime = getLatestSyncTime(rawData);
+
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('unreadCount').textContent = unreadCount;
+      document.getElementById('unrepliedCount').textContent = unrepliedCount;
+      document.getElementById('repliedCount').textContent = repliedCount;
+      document.getElementById('deletedCount').textContent = deletedCount;
+      document.getElementById('editedCount').textContent = editedCount;
+      document.getElementById('versionCount').textContent = versionCount;
+      document.getElementById('latestSyncTime').textContent = formatFullTime(latestSyncTime);
+    }
+
+    function buildStoreStats() {
+      const map = new Map();
+
+      rawData.forEach(c => {
+        const brand = getDisplayBrand(c);
+        const store = getDisplayStore(c);
+        const key = `${brand}__${store}`;
+
+        if (!map.has(key)) {
+          map.set(key, {
+            brand,
+            store,
+            total: 0,
+            unread: 0,
+            read: 0,
+            unreplied: 0,
+            replied: 0,
+            edited: 0,
+            versions: 0,
+            deleted: 0
+          });
+        }
+
+        const row = map.get(key);
+
+        row.total += 1;
+
+        if (isDeletedReview(c)) {
+          row.deleted += 1;
+          return;
+        }
+
+        if (isReadReview(c)) {
+          row.read += 1;
+        } else {
+          row.unread += 1;
+        }
+
+        if (hasOwnerReply(c)) {
+          row.replied += 1;
+        } else {
+          row.unreplied += 1;
+        }
+
+        if (isEditedReview(c)) {
+          row.edited += 1;
+        }
+
+        if (hasVersions(c)) {
+          row.versions += 1;
+        }
+      });
+
+      return Array.from(map.values()).sort((a, b) => {
+        const brandCompare = a.brand.localeCompare(b.brand, 'zh-Hant');
+        if (brandCompare !== 0) return brandCompare;
+        return a.store.localeCompare(b.store, 'zh-Hant');
+      });
+    }
+
+    function renderStoreTable() {
+      const body = document.getElementById('storeTableBody');
+      const keyword = document.getElementById('keywordSearch').value.trim().toLowerCase();
+
+      let rows = buildStoreStats();
+
+      if (keyword) {
+        rows = rows.filter(row => {
+          return `${row.brand} ${row.store}`.toLowerCase().includes(keyword);
+        });
+      }
+
+      if (rows.length === 0) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="10" class="border px-3 py-6 text-center text-slate-500">
+              目前沒有符合條件的資料。
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      body.innerHTML = rows.map(row => `
+        <tr class="hover:bg-slate-50">
+          <td class="border px-3 py-2">${escapeHTML(row.brand)}</td>
+          <td class="border px-3 py-2">${escapeHTML(row.store)}</td>
+          <td class="border px-3 py-2 text-right">${escapeHTML(row.total)}</td>
+          <td class="border px-3 py-2 text-right text-red-600 font-semibold">${escapeHTML(row.unread)}</td>
+          <td class="border px-3 py-2 text-right">${escapeHTML(row.read)}</td>
+          <td class="border px-3 py-2 text-right text-orange-600 font-semibold">${escapeHTML(row.unreplied)}</td>
+          <td class="border px-3 py-2 text-right text-blue-600 font-semibold">${escapeHTML(row.replied)}</td>
+          <td class="border px-3 py-2 text-right text-purple-600 font-semibold">${escapeHTML(row.edited)}</td>
+          <td class="border px-3 py-2 text-right text-indigo-600 font-semibold">${escapeHTML(row.versions)}</td>
+          <td class="border px-3 py-2 text-right text-zinc-600 font-semibold">${escapeHTML(row.deleted)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderLatestReviews() {
+      const container = document.getElementById('latestReviews');
+
+      const data = [...rawData]
+        .filter(isNotDeletedReview)
+        .sort((a, b) => {
+          const weightA = getTimeWeight(a.date);
+          const weightB = getTimeWeight(b.date);
+
+          if (weightA === weightB) {
+            return Number(a.sortIndex || 0) - Number(b.sortIndex || 0);
+          }
+
+          return weightA - weightB;
+        })
+        .slice(0, 20);
+
+      if (data.length === 0) {
+        container.innerHTML = `
+          <div class="text-slate-500">
+            目前沒有評論資料。
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = data.map(c => `
+        <div class="border rounded p-4 bg-slate-50">
+          <div class="flex flex-wrap justify-between gap-3">
+            <div>
+              <span class="font-bold text-amber-500">${escapeHTML(c.rating || 0)} 星</span>
+              <span class="ml-2 text-sm text-slate-500">${escapeHTML(c.author || '未知作者')}</span>
+              ${
+                hasOwnerReply(c)
+                  ? '<span class="ml-2 text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">已回覆</span>'
+                  : '<span class="ml-2 text-xs px-2 py-1 rounded bg-red-100 text-red-700">未回覆</span>'
+              }
+            </div>
+
+            <div class="text-xs text-slate-400">
+              ${escapeHTML(c.date || '未知時間')}
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-400 mt-2">
+            品牌：${escapeHTML(getDisplayBrand(c))}｜店別：${escapeHTML(getDisplayStore(c))}
+          </div>
+
+          <div class="mt-3 text-slate-700 whitespace-pre-wrap">
+            ${escapeHTML(c.content || '無內容')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadData() {
+      const status = document.getElementById('status');
+
+      status.textContent = '正在讀取統計資料...';
+
+      try {
+        loadReadIds();
+
+        const commentsRes = await fetch('./comments.json?t=' + Date.now());
+        rawData = await commentsRes.json();
+
+        try {
+          const versionsRes = await fetch('./review-versions.json?t=' + Date.now());
+          allVersions = await versionsRes.json();
+        } catch {
+          allVersions = [];
+        }
+
+        rawData = rawData.map((item, idx) => ({
+          ...item,
+          sortIndex: idx
+        }));
+
+        renderSummary();
+        renderStoreTable();
+        renderLatestReviews();
+
+        status.textContent = '統計資料已更新。';
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = '讀取統計資料失敗，請確認 comments.json 是否存在。';
+      }
+    }
+
+    async function triggerSync(scrapeRounds, buttonId, originalText) {
+      const status = document.getElementById('status');
+      const button = document.getElementById(buttonId);
+
+      if (!button) {
+        status.textContent = '找不到同步按鈕。';
+        return;
+      }
+
+      status.textContent =
+        scrapeRounds >= 999
+          ? '正在觸發完整同步全部品牌...'
+          : '正在觸發快速同步全部品牌...';
+
+      button.disabled = true;
+      button.textContent = '同步啟動中...';
+
+      try {
+        const res = await fetch(SYNC_WORKER_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Sync-Secret': SYNC_SECRET
+          },
+          body: JSON.stringify({
+            source: 'review-stats-page',
+            scrapeRounds: scrapeRounds,
+            scrape_rounds: String(scrapeRounds),
+            brand: 'all',
+            store: 'all'
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.message || '同步觸發失敗');
+        }
+
+        status.textContent =
+          scrapeRounds >= 999
+            ? '已觸發完整同步全部品牌。請稍等 GitHub Actions 跑完後再重新整理統計資料。'
+            : '已觸發快速同步全部品牌。請稍等 GitHub Actions 跑完後再重新整理統計資料。';
+
+      } catch (err) {
+        console.error(err);
+        status.textContent = '同步觸發失敗：' + err.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    async function openManualSync() {
+      await triggerSync(5, 'syncButton', '手動同步最新 Google 評論');
+    }
+
+    async function openFullManualSync() {
+      await triggerSync(999, 'fullSyncButton', '完整同步 Google 評論');
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
