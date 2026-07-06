@@ -99,7 +99,7 @@ jobs:
           O365_SMTP_PASS: ${{ secrets.O365_SMTP_PASS }}
           O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
 
-      - name: Commit updated JSON
+           - name: Commit updated JSON
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -117,11 +117,21 @@ jobs:
           git reset --hard origin/main
 
           mkdir -p public
+          mkdir -p public/new-brand
+
           cp /tmp/comments.json public/comments.json
           cp /tmp/review-versions.json public/review-versions.json
           cp /tmp/notified-review-ids.json public/notified-review-ids.json
 
-          git add public/comments.json public/review-versions.json public/notified-review-ids.json
+          cp public/comments.json public/new-brand/comments.json
+          cp public/review-versions.json public/new-brand/review-versions.json
+          cp public/notified-review-ids.json public/new-brand/notified-review-ids.json
+
+          test -f public/dashboard-template.js && cp public/dashboard-template.js public/new-brand/dashboard-template.js
+          test -f public/sw.js && cp public/sw.js public/new-brand/sw.js
+          test -f public/manifest.json && cp public/manifest.json public/new-brand/manifest.json
+
+          git add public/comments.json public/review-versions.json public/notified-review-ids.json public/new-brand
 
           if git diff --cached --quiet; then
             echo "No JSON changes to commit"
