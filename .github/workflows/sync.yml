@@ -99,7 +99,7 @@ jobs:
           O365_SMTP_PASS: ${{ secrets.O365_SMTP_PASS }}
           O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
 
-           - name: Commit updated JSON
+      - name: Commit updated JSON
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
