@@ -19,7 +19,7 @@ on:
         default: "all"
 
   schedule:
-    - cron: "*/10 * * * *"
+     - cron: "3 * * * *"
 
   push:
     branches:
