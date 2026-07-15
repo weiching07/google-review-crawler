@@ -397,47 +397,58 @@ async function main() {
     nextComments = mergedComments;
 
     console.log(`📌 快速同步模式：舊評論全部保留，本次爬到 ${crawledComments.length} 筆，合併後 ${nextComments.length} 筆`);
-  } else {
-    // 完整同步邏輯：
-    // 全部店同步：沒被本次抓到的舊評論，可以標記刪除
-    // 單店 / 單品牌同步：只處理目標店；其他店原封不動保留，不能標記刪除
-    const oldCommentsInTarget = targetedStoreSync
-      ? oldComments.filter(old => matchesTargetStore(old, targetBrand, targetStore))
-      : oldComments;
-
-    const preservedOtherStoreComments = targetedStoreSync
-      ? oldComments.filter(old => !matchesTargetStore(old, targetBrand, targetStore))
-      : [];
-
-    const deletedOldComments = oldCommentsInTarget
-      .filter(old => !isOldMatched(matchedOldKeys, old))
-      .map(old => ({
-        ...old,
-        isDeleted: true,
-        deleted: true,
-        deletedAt: old.deletedAt || now,
-        updatedAt: now,
-        lastSeenAt: old.lastSeenAt || old.updatedAt || old.scrapedAt || now
-      }));
-
-    nextComments = [
-      ...crawledComments.map(c => ({
-        ...c,
-        isDeleted: false,
-        deleted: false,
-        deletedAt: ''
-      })),
-      ...deletedOldComments,
-      ...preservedOtherStoreComments
-    ];
-
-    if (targetedStoreSync) {
-      console.log(`🟡 單店完整同步：${targetBrand} ${targetStore}`);
-      console.log(`📌 其他店保留 ${preservedOtherStoreComments.length} 筆，不處理刪除`);
-      console.log(`🗑️ 目標店別偵測到已刪除評論 ${deletedOldComments.length} 筆`);
     } else {
-      console.log(`🗑️ 全部店完整同步偵測到已刪除評論 ${deletedOldComments.length} 筆`);
-    }
+    // 完整同步模式暫停刪除功能：
+    // 沒被本次抓到的舊評論，不再標記 isDeleted，全部保留。
+    const mergedComments = [...oldComments];
+
+    crawledComments.forEach((newComment, newIndex) => {
+      const old = findOldComment(oldMap, newComment, newIndex);
+
+      if (old) {
+        const oldIndex = findIndexInComments(mergedComments, old, newIndex);
+
+        if (oldIndex >= 0) {
+          mergedComments[oldIndex] = {
+            ...old,
+            ...newComment,
+
+            id: old.id || newComment.id,
+            reviewId: newComment.reviewId || old.reviewId,
+            scrapedAt: old.scrapedAt || newComment.scrapedAt,
+            lastSeenAt: newComment.lastSeenAt || now,
+
+            isDeleted: false,
+            deleted: false,
+            deletedAt: ''
+          };
+
+          updatedCount++;
+        } else {
+          mergedComments.unshift({
+            ...newComment,
+            isDeleted: false,
+            deleted: false,
+            deletedAt: ''
+          });
+
+          newCount++;
+        }
+      } else {
+        mergedComments.unshift({
+          ...newComment,
+          isDeleted: false,
+          deleted: false,
+          deletedAt: ''
+        });
+
+        newCount++;
+      }
+    });
+
+    nextComments = mergedComments;
+
+    console.log(`📌 完整同步模式：已暫停刪除判斷，舊評論全部保留，本次爬到 ${crawledComments.length} 筆，合併後 ${nextComments.length} 筆`);
   }
 
   writeJson(COMMENTS_FILE, nextComments);
