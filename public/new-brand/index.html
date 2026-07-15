@@ -218,12 +218,11 @@
     }
 
     function isAllBrandPage() {
-      return (
-        currentBrandFilter === 'all' &&
-        currentStoreFilter === 'all' &&
-        getDashboardTitleText() === '全部品牌 評論分析儀表板'
-      );
-    }
+  return (
+    currentBrandFilter === 'all' &&
+    currentStoreFilter === 'all'
+  );
+}
 
     function updateSyncButtonVisibility() {
       const mount = document.getElementById('syncButtonsMount');
@@ -892,18 +891,22 @@
     }
 
     function getSummaryFilteredData() {
-      let data = [...rawData];
+  let data = [...rawData];
 
-      if (currentBrandFilter !== 'all') {
-        data = data.filter(c => getCommentBrand(c) === currentBrandFilter);
-      }
+  if (typeof isStoreInCurrentDashboard === 'function') {
+    data = data.filter(isStoreInCurrentDashboard);
+  }
 
-      if (currentStoreFilter !== 'all') {
-        data = data.filter(c => getCommentStore(c) === currentStoreFilter);
-      }
+  if (currentBrandFilter !== 'all') {
+    data = data.filter(c => getCommentBrand(c) === currentBrandFilter);
+  }
 
-      return data;
-    }
+  if (currentStoreFilter !== 'all') {
+    data = data.filter(c => getCommentStore(c) === currentStoreFilter);
+  }
+
+  return data;
+}
 
     function refreshSummaryStats() {
       const data = getSummaryFilteredData();
@@ -1246,6 +1249,10 @@
       const container = document.getElementById('container');
 
       let displayData = [...rawData];
+
+if (typeof isStoreInCurrentDashboard === 'function') {
+  displayData = displayData.filter(isStoreInCurrentDashboard);
+}
 
       if (currentBrandFilter !== 'all') {
         displayData = displayData.filter(c => getCommentBrand(c) === currentBrandFilter);
