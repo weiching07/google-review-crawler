@@ -71,16 +71,47 @@ function getReviewText(review) {
   return String(review.content || '').replace(/\s+/g, ' ').trim();
 }
 
-function buildPayload(review) {
-  const rating = review.rating || 0;
-  const author = review.author || '未知作者';
-  const content = getReviewText(review);
+function getReviewRating(review) {
+  const rating = Number(review.rating || 0);
+
+  if (!Number.isFinite(rating)) {
+    return 0;
+  }
+
+  return rating;
+}
+
+function isNegativeReview(review) {
+  const rating = getReviewRating(review);
+
+  // 這裡定義 1～3 星為負評
+  return rating > 0 && rating <= 3;
+}
+
+function buildSummaryPayload(newReviews) {
+  const totalCount = newReviews.length;
+  const negativeCount = newReviews.filter(isNegativeReview).length;
+
+  const latestReview = newReviews[0] || {};
+  const latestAuthor = latestReview.author || '未知作者';
+  const latestRating = getReviewRating(latestReview);
+  const latestContent = getReviewText(latestReview);
+
+  const summaryText = `本次偵測到 ${totalCount} 筆新評論，其中 ${negativeCount} 筆負評。`;
+
+  const previewText = latestContent
+    ? `最新一筆：${latestRating} 星｜${latestAuthor}：${latestContent}`.slice(0, 120)
+    : '';
 
   return JSON.stringify({
-    title: '有新的 Google 評論',
-    body: `${rating} 星｜${author}：${content}`.slice(0, 180),
-    tag: getReviewId(review),
-    url: './index.html'
+    title: 'Google 新評論通知',
+    body: previewText
+      ? `${summaryText}\n${previewText}`.slice(0, 180)
+      : summaryText,
+    tag: `google-review-summary-${Date.now()}`,
+    url: './new-brand/index.html',
+    totalCount,
+    negativeCount
   });
 }
 
@@ -103,30 +134,48 @@ async function getSubscriptions() {
     : [];
 }
 
-async function sendPushToSubscriptions(subscriptions, payload, reviewId) {
+async function sendPushSummaryToSubscriptions(subscriptions, payload) {
   let successCount = 0;
+  let expiredCount = 0;
+  let rateLimitedCount = 0;
+  let failedCount = 0;
 
   for (const sub of subscriptions) {
     try {
       await webpush.sendNotification(sub, payload);
       successCount++;
-      console.log(`✅ 已推播：${reviewId}`);
     } catch (err) {
-      const code = err.statusCode || err.status || '';
+      const code = Number(err.statusCode || err.status || 0);
 
       if (code === 404 || code === 410) {
-        console.log(`⚠️ 訂閱已失效：${code} ${reviewId}`);
+        expiredCount++;
       } else if (code === 429) {
-        console.log(`⚠️ 推播太快被限流：429 ${reviewId}`);
+        rateLimitedCount++;
       } else {
-        console.log(`⚠️ 推播失敗：${code} ${err.message}`);
+        failedCount++;
+        console.log(`⚠️ 推播失敗：${code || 'unknown'} ${err.message}`);
       }
     }
 
-    await sleep(800);
+    await sleep(300);
   }
 
-  return successCount;
+  if (expiredCount > 0) {
+    console.log(`⚠️ 已略過失效訂閱：${expiredCount} 筆`);
+  }
+
+  if (rateLimitedCount > 0) {
+    console.log(`⚠️ 推播被限流：${rateLimitedCount} 筆`);
+  }
+
+  console.log(`📣 手機推播總結：成功 ${successCount} 筆，失效 ${expiredCount} 筆，限流 ${rateLimitedCount} 筆，失敗 ${failedCount} 筆`);
+
+  return {
+    successCount,
+    expiredCount,
+    rateLimitedCount,
+    failedCount
+  };
 }
 
 function hasEmailConfig() {
@@ -183,9 +232,12 @@ async function main() {
     return;
   }
 
+  const negativeCount = newReviews.filter(isNegativeReview).length;
+  console.log(`本次新評論：${newReviews.length} 筆，其中負評 ${negativeCount} 筆`);
+
   const sentReviewIds = new Set();
 
-  // ✅ 新增：偵測到新評論就寄 O365 Email
+  // Email 通知保留原本邏輯
   if (hasEmailConfig()) {
     try {
       await sendNewReviewEmail(newReviews);
@@ -206,7 +258,7 @@ async function main() {
     console.log('⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過 Email 通知');
   }
 
-  // ✅ 原本手機推播邏輯保留
+  // 手機推播改成「總結一則」，不再每筆評論推一次
   if (!WORKER_URL || !SYNC_SECRET || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
     console.log('⚠️ 缺少 push 環境變數，略過手機推播');
   } else {
@@ -223,21 +275,21 @@ async function main() {
     if (subscriptions.length === 0) {
       console.log('沒有手機訂閱，略過手機推播');
     } else {
-      for (const review of newReviews) {
-        const reviewId = getReviewId(review);
-        const payload = buildPayload(review);
+      const payload = buildSummaryPayload(newReviews);
 
-        const successCount = await sendPushToSubscriptions(
-          subscriptions,
-          payload,
-          reviewId
-        );
+      const result = await sendPushSummaryToSubscriptions(
+        subscriptions,
+        payload
+      );
 
-        if (successCount > 0) {
-          sentReviewIds.add(reviewId);
+      if (result.successCount > 0) {
+        for (const review of newReviews) {
+          const reviewId = getReviewId(review);
+
+          if (reviewId) {
+            sentReviewIds.add(reviewId);
+          }
         }
-
-        await sleep(1200);
       }
     }
   }
