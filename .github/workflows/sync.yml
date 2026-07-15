@@ -19,7 +19,7 @@ on:
         default: "all"
 
   schedule:
-     - cron: "3 * * * *"
+    - cron: "3 * * * *"
 
   push:
     branches:
@@ -28,6 +28,9 @@ on:
       - "public/comments.json"
       - "public/review-versions.json"
       - "public/notified-review-ids.json"
+      - "public/new-brand/comments.json"
+      - "public/new-brand/review-versions.json"
+      - "public/new-brand/notified-review-ids.json"
 
 permissions:
   contents: write
@@ -74,6 +77,7 @@ jobs:
           npm install --ignore-scripts
 
       - name: Sync Google reviews
+        if: ${{ github.event_name != 'push' }}
         run: npm run sync:static
         env:
           NODE_ENV: production
@@ -84,7 +88,7 @@ jobs:
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
 
       - name: Send push notifications
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.scrape_rounds == '5' }}
+        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || github.event.inputs.scrape_rounds == '5') }}
         run: npm run notify:push
         env:
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
@@ -100,6 +104,7 @@ jobs:
           O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
 
       - name: Commit updated JSON
+        if: ${{ github.event_name != 'push' }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -127,11 +132,7 @@ jobs:
           cp public/review-versions.json public/new-brand/review-versions.json
           cp public/notified-review-ids.json public/new-brand/notified-review-ids.json
 
-          test -f public/dashboard-template.js && cp public/dashboard-template.js public/new-brand/dashboard-template.js
-          test -f public/sw.js && cp public/sw.js public/new-brand/sw.js
-          test -f public/manifest.json && cp public/manifest.json public/new-brand/manifest.json
-
-          git add public/comments.json public/review-versions.json public/notified-review-ids.json public/new-brand
+          git add public/comments.json public/review-versions.json public/notified-review-ids.json public/new-brand/comments.json public/new-brand/review-versions.json public/new-brand/notified-review-ids.json
 
           if git diff --cached --quiet; then
             echo "No JSON changes to commit"
