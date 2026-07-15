@@ -1,57 +1,71 @@
-const DASHBOARD_TEMPLATE = {
-  defaultTitle: '全部品牌 評論分析儀表板',
-
-  stores: [
-    {
-      brand: 'LILLA',
-      brandLabel: 'LILLA',
-      stores: [
-        {
-          store: 'DREAM PLAZA',
-          label: 'DREAM PLAZA 店',
-          title: 'LillA DREAM PLAZA店 評論分析儀表板'
-        }
-      ]
-    },
-    {
-      brand: 'SALT&STONE',
-      brandLabel: 'SALT&STONE',
-      stores: [
-        {
-          store: '南港',
-          label: '南港 店',
-          title: 'SALT&STONE 南港店 評論分析儀表板'
-        },
-        {
-          store: '101',
-          label: '101 店',
-          title: 'SALT&STONE 101店 評論分析儀表板'
-        }
-      ]
-    }
-  ]
+const DASHBOARD_TEMPLATE = window.DASHBOARD_CONFIG || {
+  defaultTitle: '評論分析儀表板',
+  stores: []
 };
 
 let sidebarCollapsed = false;
 
-function normalizeBrand(value) {
-  const raw = String(value || '').trim().toUpperCase();
+function normalizeText(value) {
+  return String(value || '').trim();
+}
 
-  if (
-    raw === 'LILLA' ||
-    raw === 'LILLA DREAM PLAZA' ||
-    raw === 'LILLA_TAIPEI'
-  ) {
-    return 'LILLA';
+function normalizeUpper(value) {
+  return normalizeText(value).toUpperCase();
+}
+
+function getBrandCandidates(brandGroup) {
+  return [
+    brandGroup.brand,
+    brandGroup.brandLabel,
+    ...(Array.isArray(brandGroup.aliases) ? brandGroup.aliases : [])
+  ]
+    .map(normalizeText)
+    .filter(Boolean);
+}
+
+function getStoreCandidates(storeItem) {
+  return [
+    storeItem.store,
+    storeItem.label,
+    ...(Array.isArray(storeItem.aliases) ? storeItem.aliases : [])
+  ]
+    .map(normalizeText)
+    .filter(Boolean)
+    .flatMap(value => {
+      const withoutStoreText = value
+        .replace(/\s*店$/g, '')
+        .trim();
+
+      return withoutStoreText && withoutStoreText !== value
+        ? [value, withoutStoreText]
+        : [value];
+    });
+}
+
+function normalizeBrand(value) {
+  const raw = normalizeText(value);
+  const upper = normalizeUpper(value);
+
+  if (!raw) {
+    return '';
   }
 
-  if (
-    raw === 'SALT&STONE' ||
-    raw === 'SALT & STONE' ||
-    raw === 'SALTSTONE' ||
-    raw === 'SALT_STONE'
-  ) {
-    return 'SALT&STONE';
+  for (const brandGroup of DASHBOARD_TEMPLATE.stores) {
+    const candidates = getBrandCandidates(brandGroup);
+
+    const matched = candidates.some(candidate => {
+      const candidateUpper = normalizeUpper(candidate);
+
+      return (
+        upper === candidateUpper ||
+        upper.includes(candidateUpper) ||
+        candidateUpper.includes(upper)
+      );
+    });
+
+    if (matched) {
+      return brandGroup.brand;
+    }
   }
 
   return raw;
@@ -61,19 +75,51 @@ function getCommentBrand(c) {
   return normalizeBrand(c.brand || c.branch || c.brandName || '');
 }
 
+function getBrandGroupByBrand(brand) {
+  return DASHBOARD_TEMPLATE.stores.find(group => {
+    return group.brand === brand;
+  }) || null;
+}
+
 function getCommentStore(c) {
   const brand = getCommentBrand(c);
-  const rawStore = String(c.store || c.storeName || c.location || c.shop || c.branchStore || '').trim();
+  const rawStore = normalizeText(
+    c.store ||
+    c.storeName ||
+    c.location ||
+    c.shop ||
+    c.branchStore ||
+    ''
+  );
 
-  if (rawStore) {
-    if (rawStore.includes('南港')) return '南港';
-    if (rawStore.includes('101')) return '101';
-    if (rawStore.includes('DREAM PLAZA')) return 'DREAM PLAZA';
+  const brandGroup = getBrandGroupByBrand(brand);
+
+  if (!brandGroup) {
     return rawStore;
   }
 
-  if (brand === 'LILLA') {
-    return 'DREAM PLAZA';
+  if (rawStore) {
+    for (const storeItem of brandGroup.stores) {
+      const candidates = getStoreCandidates(storeItem);
+
+      const matched = candidates.some(candidate => {
+        return (
+          rawStore === candidate ||
+          rawStore.includes(candidate) ||
+          candidate.includes(rawStore)
+        );
+      });
+
+      if (matched) {
+        return storeItem.store;
+      }
+    }
+
+    return rawStore;
+  }
+
+  if (brandGroup.stores.length === 1) {
+    return brandGroup.stores[0].store;
   }
 
   return '';
@@ -89,6 +135,29 @@ function getDisplayStore(c) {
   return store || '未知';
 }
 
+function isStoreInCurrentDashboard(c) {
+  if (!DASHBOARD_TEMPLATE.stores.length) {
+    return true;
+  }
+
+  const brand = getCommentBrand(c);
+  const store = getCommentStore(c);
+
+  return DASHBOARD_TEMPLATE.stores.some(brandGroup => {
+    if (brandGroup.brand !== brand) {
+      return false;
+    }
+
+    if (!Array.isArray(brandGroup.stores)) {
+      return false;
+    }
+
+    return brandGroup.stores.some(storeItem => {
+      return storeItem.store === store;
+    });
+  });
+}
+
 function getStoreAverageRatingFromData(brand, store) {
   if (typeof rawData === 'undefined' || !Array.isArray(rawData)) {
     return '';
@@ -96,6 +165,10 @@ function getStoreAverageRatingFromData(brand, store) {
 
   const matched = rawData.find(c => {
     if (!c) return false;
+
+    if (!isStoreInCurrentDashboard(c)) {
+      return false;
+    }
 
     const commentBrand = getCommentBrand(c);
     const commentStore = getCommentStore(c);
@@ -106,8 +179,7 @@ function getStoreAverageRatingFromData(brand, store) {
 
     const sameStore =
       store === 'all' ||
-      commentStore === store ||
-      (brand === 'LILLA' && commentBrand === 'LILLA');
+      commentStore === store;
 
     return sameBrand && sameStore && (
       c.storeRating ||
@@ -159,7 +231,7 @@ function getDashboardTitle() {
       return storeItem.title;
     }
 
-    return `${brandGroup.brandLabel} 評論分析儀表板`;
+    return `${brandGroup.brandLabel || brandGroup.brand} 評論分析儀表板`;
   }
 
   return '評論分析儀表板';
@@ -226,7 +298,7 @@ function renderSidebar() {
       return `
         <div>
           <div class="text-sm font-bold text-slate-500 mb-2">
-            ${escapeHTML(brandGroup.brandLabel)}
+            ${escapeHTML(brandGroup.brandLabel || brandGroup.brand)}
           </div>
 
           ${storeButtons}
@@ -313,12 +385,11 @@ function updateStoreFilterButtons() {
         ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
         : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
 
-
       btn.innerHTML = renderStoreButtonContent(
-  storeItem.label,
-  brandGroup.brand,
-  storeItem.store
-);
+        storeItem.label,
+        brandGroup.brand,
+        storeItem.store
+      );
     });
   });
 }
