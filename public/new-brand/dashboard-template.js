@@ -1,5 +1,5 @@
 const DASHBOARD_TEMPLATE = {
-  defaultTitle: '全部品牌 評論分析儀表板',
+  defaultTitle: 'NEW BRAND 評論分析儀表板',
 
   stores: [
     {
@@ -28,6 +28,17 @@ const DASHBOARD_TEMPLATE = {
           title: 'SALT&STONE 101店 評論分析儀表板'
         }
       ]
+    },
+    {
+      brand: '泰勒肉舖',
+      brandLabel: '泰勒肉舖',
+      stores: [
+        {
+          store: '台北',
+          label: '台北 店',
+          title: '泰勒肉舖 台北店 評論分析儀表板'
+        }
+      ]
     }
   ]
 };
@@ -35,23 +46,33 @@ const DASHBOARD_TEMPLATE = {
 let sidebarCollapsed = false;
 
 function normalizeBrand(value) {
-  const raw = String(value || '').trim().toUpperCase();
+  const raw = String(value || '').trim();
+  const upper = raw.toUpperCase();
 
   if (
-    raw === 'LILLA' ||
-    raw === 'LILLA DREAM PLAZA' ||
-    raw === 'LILLA_TAIPEI'
+    upper === 'LILLA' ||
+    upper === 'LILLA DREAM PLAZA' ||
+    upper === 'LILLA_TAIPEI'
   ) {
     return 'LILLA';
   }
 
   if (
-    raw === 'SALT&STONE' ||
-    raw === 'SALT & STONE' ||
-    raw === 'SALTSTONE' ||
-    raw === 'SALT_STONE'
+    upper === 'SALT&STONE' ||
+    upper === 'SALT & STONE' ||
+    upper === 'SALTSTONE' ||
+    upper === 'SALT_STONE'
   ) {
     return 'SALT&STONE';
+  }
+
+  if (
+    raw === '泰勒肉舖' ||
+    raw.includes('泰勒') ||
+    upper === 'TAYLOR BUTCHERY' ||
+    upper.includes('TAYLOR')
+  ) {
+    return '泰勒肉舖';
   }
 
   return raw;
@@ -63,17 +84,31 @@ function getCommentBrand(c) {
 
 function getCommentStore(c) {
   const brand = getCommentBrand(c);
-  const rawStore = String(c.store || c.storeName || c.location || c.shop || c.branchStore || '').trim();
+
+  const rawStore = String(
+    c.store ||
+    c.storeName ||
+    c.location ||
+    c.shop ||
+    c.branchStore ||
+    ''
+  ).trim();
 
   if (rawStore) {
     if (rawStore.includes('南港')) return '南港';
     if (rawStore.includes('101')) return '101';
     if (rawStore.includes('DREAM PLAZA')) return 'DREAM PLAZA';
+    if (rawStore.includes('台北')) return '台北';
+
     return rawStore;
   }
 
   if (brand === 'LILLA') {
     return 'DREAM PLAZA';
+  }
+
+  if (brand === '泰勒肉舖') {
+    return '台北';
   }
 
   return '';
@@ -107,7 +142,8 @@ function getStoreAverageRatingFromData(brand, store) {
     const sameStore =
       store === 'all' ||
       commentStore === store ||
-      (brand === 'LILLA' && commentBrand === 'LILLA');
+      (brand === 'LILLA' && commentBrand === 'LILLA') ||
+      (brand === '泰勒肉舖' && commentBrand === '泰勒肉舖');
 
     return sameBrand && sameStore && (
       c.storeRating ||
@@ -313,12 +349,11 @@ function updateStoreFilterButtons() {
         ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
         : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
 
-
       btn.innerHTML = renderStoreButtonContent(
-  storeItem.label,
-  brandGroup.brand,
-  storeItem.store
-);
+        storeItem.label,
+        brandGroup.brand,
+        storeItem.store
+      );
     });
   });
 }
