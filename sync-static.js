@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const scrapeGoogleReviews = require('./scraper');
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const COMMENTS_FILE = path.join(PUBLIC_DIR, 'comments.json');
@@ -42,6 +41,32 @@ function text(value) {
 
 function isEditedText(value) {
   return /上次編輯|已編輯|edited|last edited/i.test(text(value));
+}
+
+function normalizeGroup(value) {
+  const raw = String(value || '').trim();
+
+  if (!raw) return 'new-brand';
+
+  const upper = raw.toUpperCase();
+
+  if (raw === 'new-brand' || upper === 'NEW-BRAND') {
+    return 'new-brand';
+  }
+
+  if (upper === 'TGIF' || upper === 'FRIDAYS') {
+    return 'TGIF';
+  }
+
+  if (upper === 'TXRH' || upper === 'ROADHOUSE') {
+    return 'TXRH';
+  }
+
+  return 'new-brand';
+}
+
+function getDashboardGroup() {
+  return normalizeGroup(process.env.DASHBOARD_GROUP || 'new-brand');
 }
 
 function getMaxRounds() {
@@ -168,22 +193,6 @@ function markMatchedOld(matchedOldKeys, old) {
   }
 }
 
-function isOldMatched(matchedOldKeys, old) {
-  if (!old) {
-    return false;
-  }
-
-  if (old.id && matchedOldKeys.has(String(old.id))) {
-    return true;
-  }
-
-  if (old.reviewId && matchedOldKeys.has(String(old.reviewId))) {
-    return true;
-  }
-
-  return false;
-}
-
 function hasReplyField(r) {
   return Object.prototype.hasOwnProperty.call(r, 'hasReply') ||
     Object.prototype.hasOwnProperty.call(r, 'replyContent') ||
@@ -221,12 +230,56 @@ function findIndexInComments(comments, target, targetIndex) {
   });
 }
 
+/**
+ * 重要：
+ * scraper.js 內部會 require('./stores')。
+ * 所以這裡必須在 require('./scraper') 之前，
+ * 先把 require cache 裡的 stores.js exports 改成該 group 的店家。
+ */
+function prepareStoresForDashboardGroup(dashboardGroup) {
+  const storesPath = require.resolve('./stores');
+
+  delete require.cache[storesPath];
+
+  const allStores = require(storesPath);
+
+  if (!Array.isArray(allStores)) {
+    throw new Error('stores.js 必須 export array');
+  }
+
+  const filteredStores = allStores.filter(store => {
+    return normalizeGroup(store.group || 'new-brand') === dashboardGroup;
+  });
+
+  console.log(`🧩 本次資料群組：${dashboardGroup}`);
+  console.log(`🏪 stores.js 全部店家數：${allStores.length}`);
+  console.log(`🏪 ${dashboardGroup} 群組店家數：${filteredStores.length}`);
+
+  if (filteredStores.length === 0) {
+    throw new Error(`找不到 ${dashboardGroup} 群組的店家，請檢查 stores.js 是否有 group: '${dashboardGroup}'`);
+  }
+
+  require.cache[storesPath].exports = filteredStores;
+
+  return filteredStores;
+}
+
 async function main() {
   if (!fs.existsSync(PUBLIC_DIR)) {
     fs.mkdirSync(PUBLIC_DIR, {
       recursive: true
     });
   }
+
+  const dashboardGroup = getDashboardGroup();
+  process.env.DASHBOARD_GROUP = dashboardGroup;
+
+  prepareStoresForDashboardGroup(dashboardGroup);
+
+  const scraperPath = require.resolve('./scraper');
+  delete require.cache[scraperPath];
+
+  const scrapeGoogleReviews = require('./scraper');
 
   const maxRounds = getMaxRounds();
 
@@ -239,6 +292,7 @@ async function main() {
   const targetedStoreSync = isTargetedStoreSync(targetBrand, targetStore);
 
   console.log('🔥 開始同步 Google 評論...');
+  console.log(`🧩 本次 DASHBOARD_GROUP=${dashboardGroup}`);
   console.log(`🔁 本次 sync-static.js 讀到 SCRAPE_MAX_ROUNDS=${maxRounds}`);
   console.log(`🔁 已重新寫入 process.env.SCRAPE_MAX_ROUNDS=${process.env.SCRAPE_MAX_ROUNDS}`);
   console.log(`🎯 本次同步店別目標：${targetBrand} ${targetStore}`);
@@ -302,6 +356,8 @@ async function main() {
       branch: r.branch || old?.branch || '',
       brand: r.brand || old?.brand || '',
       store: r.store || old?.store || '',
+      group: r.group || old?.group || dashboardGroup,
+
       scrapedAt: old?.scrapedAt || now,
       updatedAt: old?.updatedAt || '',
       lastSeenAt: now
@@ -338,6 +394,7 @@ async function main() {
           branch: old.branch || '',
           brand: old.brand || '',
           store: old.store || '',
+          group: old.group || dashboardGroup,
           savedAt: now,
           replacedAt: now,
           reason: 'content_or_rating_changed'
@@ -397,7 +454,7 @@ async function main() {
     nextComments = mergedComments;
 
     console.log(`📌 快速同步模式：舊評論全部保留，本次爬到 ${crawledComments.length} 筆，合併後 ${nextComments.length} 筆`);
-    } else {
+  } else {
     // 完整同步模式暫停刪除功能：
     // 沒被本次抓到的舊評論，不再標記 isDeleted，全部保留。
     const mergedComments = [...oldComments];
