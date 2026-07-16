@@ -29,7 +29,9 @@ on:
         default: "all"
 
   schedule:
-    - cron: "3 * * * *"
+    - cron: "3 * * * *"    # new-brand，每小時 03 分
+    - cron: "23 * * * *"   # TGIF，每小時 23 分
+    - cron: "43 * * * *"   # TXRH，每小時 43 分
 
   push:
     branches:
@@ -95,6 +97,9 @@ jobs:
         run: |
           npm install --ignore-scripts
 
+      # =========================
+      # 手動同步
+      # =========================
       - name: Prepare manual group JSON
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
@@ -109,7 +114,7 @@ jobs:
           esac
 
           echo "DASHBOARD_GROUP=$GROUP" >> "$GITHUB_ENV"
-          echo "Using dashboard group: $GROUP"
+          echo "Using manual dashboard group: $GROUP"
 
           mkdir -p public
           mkdir -p "public/$GROUP"
@@ -169,7 +174,7 @@ jobs:
               ;;
           esac
 
-          echo "Commit dashboard group: $GROUP"
+          echo "Commit manual dashboard group: $GROUP"
 
           mkdir -p public
           test -f public/comments.json || printf '[]\n' > public/comments.json
@@ -192,19 +197,68 @@ jobs:
           git add "public/$GROUP/comments.json" "public/$GROUP/review-versions.json" "public/$GROUP/notified-review-ids.json"
 
           if git diff --cached --quiet; then
-            echo "No JSON changes to commit"
+            echo "No manual JSON changes to commit"
           else
             git commit -m "auto sync reviews for $GROUP"
             git push origin HEAD:main
           fi
 
-      - name: Scheduled sync all groups
+      # =========================
+      # 排程同步：每小時三組分開跑
+      # 03 分 new-brand
+      # 23 分 TGIF
+      # 43 分 TXRH
+      # =========================
+      - name: Prepare scheduled group JSON
         if: ${{ github.event_name == 'schedule' }}
+        run: |
+          EVENT_SCHEDULE="${{ github.event.schedule }}"
+
+          case "$EVENT_SCHEDULE" in
+            "3 * * * *")
+              GROUP="new-brand"
+              ;;
+            "23 * * * *")
+              GROUP="TGIF"
+              ;;
+            "43 * * * *")
+              GROUP="TXRH"
+              ;;
+            *)
+              GROUP="new-brand"
+              ;;
+          esac
+
+          echo "DASHBOARD_GROUP=$GROUP" >> "$GITHUB_ENV"
+          echo "Using scheduled dashboard group: $GROUP"
+          echo "Matched schedule: $EVENT_SCHEDULE"
+
+          mkdir -p public
+          mkdir -p "public/$GROUP"
+
+          test -f "public/$GROUP/comments.json" || printf '[]\n' > "public/$GROUP/comments.json"
+          test -f "public/$GROUP/review-versions.json" || printf '[]\n' > "public/$GROUP/review-versions.json"
+          test -f "public/$GROUP/notified-review-ids.json" || printf '[]\n' > "public/$GROUP/notified-review-ids.json"
+
+          cp "public/$GROUP/comments.json" public/comments.json
+          cp "public/$GROUP/review-versions.json" public/review-versions.json
+          cp "public/$GROUP/notified-review-ids.json" public/notified-review-ids.json
+
+      - name: Scheduled sync Google reviews
+        if: ${{ github.event_name == 'schedule' }}
+        run: npm run sync:static
         env:
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          SCRAPE_MAX_ROUNDS: "5"
+          SCRAPE_TARGET_BRAND: "all"
+          SCRAPE_TARGET_STORE: "all"
 
+      - name: Scheduled send notifications
+        if: ${{ github.event_name == 'schedule' }}
+        run: npm run notify:push
+        env:
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
           SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
           VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
@@ -220,65 +274,49 @@ jobs:
           O365_NOTIFY_TO_NEW_BRAND: ${{ secrets.O365_NOTIFY_TO_NEW_BRAND }}
           O365_NOTIFY_TO_TGIF: ${{ secrets.O365_NOTIFY_TO_TGIF }}
           O365_NOTIFY_TO_TXRH: ${{ secrets.O365_NOTIFY_TO_TXRH }}
-        run: |
-          set -e
 
+      - name: Commit scheduled updated JSON
+        if: ${{ github.event_name == 'schedule' }}
+        run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          GROUPS=("new-brand" "TGIF" "TXRH")
+          GROUP="${DASHBOARD_GROUP:-new-brand}"
+
+          case "$GROUP" in
+            new-brand|TGIF|TXRH)
+              ;;
+            *)
+              GROUP="new-brand"
+              ;;
+          esac
+
+          echo "Commit scheduled dashboard group: $GROUP"
 
           mkdir -p public
+          test -f public/comments.json || printf '[]\n' > public/comments.json
+          test -f public/review-versions.json || printf '[]\n' > public/review-versions.json
+          test -f public/notified-review-ids.json || printf '[]\n' > public/notified-review-ids.json
 
-          for GROUP in "${GROUPS[@]}"; do
-            echo "=============================="
-            echo "Scheduled sync group: $GROUP"
-            echo "=============================="
+          cp public/comments.json /tmp/comments.json
+          cp public/review-versions.json /tmp/review-versions.json
+          cp public/notified-review-ids.json /tmp/notified-review-ids.json
 
-            mkdir -p "public/$GROUP"
+          git fetch origin main
+          git reset --hard origin/main
 
-            test -f "public/$GROUP/comments.json" || printf '[]\n' > "public/$GROUP/comments.json"
-            test -f "public/$GROUP/review-versions.json" || printf '[]\n' > "public/$GROUP/review-versions.json"
-            test -f "public/$GROUP/notified-review-ids.json" || printf '[]\n' > "public/$GROUP/notified-review-ids.json"
+          mkdir -p "public/$GROUP"
 
-            cp "public/$GROUP/comments.json" public/comments.json
-            cp "public/$GROUP/review-versions.json" public/review-versions.json
-            cp "public/$GROUP/notified-review-ids.json" public/notified-review-ids.json
+          cp /tmp/comments.json "public/$GROUP/comments.json"
+          cp /tmp/review-versions.json "public/$GROUP/review-versions.json"
+          cp /tmp/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
 
-            DASHBOARD_GROUP="$GROUP" \
-            SCRAPE_MAX_ROUNDS="5" \
-            SCRAPE_TARGET_BRAND="all" \
-            SCRAPE_TARGET_STORE="all" \
-            npm run sync:static
-
-            DASHBOARD_GROUP="$GROUP" npm run notify:push
-
-            cp public/comments.json "public/$GROUP/comments.json"
-            cp public/review-versions.json "public/$GROUP/review-versions.json"
-            cp public/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
-
-            echo "Finished scheduled sync group: $GROUP"
-          done
-
-          cp public/new-brand/comments.json public/comments.json
-          cp public/new-brand/review-versions.json public/review-versions.json
-          cp public/new-brand/notified-review-ids.json public/notified-review-ids.json
-
-          git add \
-            public/new-brand/comments.json \
-            public/new-brand/review-versions.json \
-            public/new-brand/notified-review-ids.json \
-            public/TGIF/comments.json \
-            public/TGIF/review-versions.json \
-            public/TGIF/notified-review-ids.json \
-            public/TXRH/comments.json \
-            public/TXRH/review-versions.json \
-            public/TXRH/notified-review-ids.json
+          git add "public/$GROUP/comments.json" "public/$GROUP/review-versions.json" "public/$GROUP/notified-review-ids.json"
 
           if git diff --cached --quiet; then
             echo "No scheduled JSON changes to commit"
           else
-            git commit -m "auto scheduled sync reviews for all groups"
+            git commit -m "auto scheduled sync reviews for $GROUP"
             git push origin HEAD:main
           fi
 

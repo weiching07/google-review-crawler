@@ -18,6 +18,21 @@ function withTimeout(promise, ms, label = 'operation') {
   ]);
 }
 
+function forceGoogleChineseUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+
+    if (url.hostname.includes('google.')) {
+      url.searchParams.set('hl', 'zh-TW');
+      url.searchParams.set('gl', 'TW');
+    }
+
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 function isCloudEnv() {
   return (
     process.env.NODE_ENV === 'production' ||
@@ -956,7 +971,35 @@ async function normalMouseScroll(page) {
   }
 }
 
-async function fastScrollReviews(page, totalReviews = 0) {
+async function fastScrollReviews(page, totalReviews = 0, maxRounds = 30) {
+  const isFullSync = maxRounds > 5;
+
+  // 完整同步：加速下拉，不用滑太保守
+  if (isFullSync) {
+    if (totalReviews >= 1000) {
+      return await jsScrollReviewList(page, {
+        label: 'js-full-after-1000-fast',
+        step: 4200,
+        times: 10,
+        delay: 250,
+        waitAfter: 1200,
+        backtrack: 6000,
+        timeout: 30000
+      });
+    }
+
+    return await jsScrollReviewList(page, {
+      label: 'js-full-fast',
+      step: 3200,
+      times: 8,
+      delay: 250,
+      waitAfter: 1200,
+      backtrack: 0,
+      timeout: 30000
+    });
+  }
+
+  // 快速同步：維持原本保守一點，避免漏最新評論
   if (totalReviews >= 1000) {
     return await jsScrollReviewList(page, {
       label: 'js-after-1000',
@@ -977,6 +1020,15 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
   const reviewMap = new Map();
 
+  const isFullSync = maxRounds > 5;
+  const maxStableRounds = isFullSync ? 5 : 10;
+
+  console.log(
+    isFullSync
+      ? `🚀 完整同步加速模式：連續 ${maxStableRounds} 次沒有新增就跳下一間店`
+      : `⚡ 快速同步模式：連續 ${maxStableRounds} 次沒有新增就結束`
+  );
+
   let stableCount = 0;
   let noMoveCount = 0;
   let timeoutCount = 0;
@@ -991,7 +1043,10 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     const expanded = await expandCurrentMore(page);
 
     if (expanded > 0) {
-      await randomDelay(700, 1000);
+      await randomDelay(
+        isFullSync ? 300 : 700,
+        isFullSync ? 600 : 1000
+      );
     }
 
     const afterExpandCount = await collectCurrentReviews(page, reviewMap);
@@ -1010,14 +1065,16 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
     if (gained > 0) {
       console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
+    } else {
+      console.log(`⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`);
     }
 
-    if (stableCount >= 10) {
-      console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束抓取`);
+    if (stableCount >= maxStableRounds) {
+      console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`);
       break;
     }
 
-    const scrollResult = await fastScrollReviews(page, reviewMap.size);
+    const scrollResult = await fastScrollReviews(page, reviewMap.size, maxRounds);
 
     if (typeof scrollResult.remaining === 'number') {
       lastRemaining = scrollResult.remaining;
@@ -1046,17 +1103,26 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
 
     if (noMoveCount >= 3) {
       console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`);
-      await randomDelay(3000, 5000);
+      await randomDelay(
+        isFullSync ? 1500 : 3000,
+        isFullSync ? 2500 : 5000
+      );
       noMoveCount = 0;
     }
 
     if (timeoutCount >= 2) {
       console.log(`⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`);
-      await randomDelay(5000, 8000);
+      await randomDelay(
+        isFullSync ? 2500 : 5000,
+        isFullSync ? 4000 : 8000
+      );
       timeoutCount = 0;
     }
 
-    await randomDelay(1000, 1500);
+    await randomDelay(
+      isFullSync ? 300 : 1000,
+      isFullSync ? 700 : 1500
+    );
   }
 
   const reviews = Array.from(reviewMap.values());
@@ -1075,7 +1141,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
 
   console.log('➡️ 前往 Google...');
-  await page.goto('https://www.google.com.tw/?hl=zh-TW', {
+  await page.goto(forceGoogleChineseUrl('https://www.google.com.tw/?hl=zh-TW&gl=TW'), {
     waitUntil: 'networkidle2',
     timeout: 60000
   });
@@ -1122,7 +1188,7 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   if (!opened) {
     console.log('⚠️ 直接開地圖 fallback');
 
-    await page.goto(storeConfig.fallbackUrl, {
+    await page.goto(forceGoogleChineseUrl(storeConfig.fallbackUrl), {
       waitUntil: 'networkidle2',
       timeout: 60000
     });
@@ -1220,15 +1286,29 @@ async function scrapeGoogleReviews() {
         '--no-default-browser-check',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--window-size=1366,768'
+        '--window-size=1366,768',
+        '--lang=zh-TW',
+        '--accept-lang=zh-TW,zh,en-US,en'
       ]
     });
 
     const page = (await browser.pages())[0] || await browser.newPage();
 
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+    });
+
     await page.evaluateOnNewDocument(() => {
       Object.defineProperty(navigator, 'webdriver', {
         get: () => undefined
+      });
+
+      Object.defineProperty(navigator, 'language', {
+        get: () => 'zh-TW'
+      });
+
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['zh-TW', 'zh', 'en-US', 'en']
       });
     });
 
