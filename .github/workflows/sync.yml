@@ -3,6 +3,16 @@ name: Sync Google Reviews
 on:
   workflow_dispatch:
     inputs:
+      group:
+        description: "資料群組"
+        required: false
+        default: "new-brand"
+        type: choice
+        options:
+          - new-brand
+          - TGIF
+          - TXRH
+
       scrape_rounds:
         description: "評論滑動輪數"
         required: false
@@ -28,9 +38,18 @@ on:
       - "public/comments.json"
       - "public/review-versions.json"
       - "public/notified-review-ids.json"
+
       - "public/new-brand/comments.json"
       - "public/new-brand/review-versions.json"
       - "public/new-brand/notified-review-ids.json"
+
+      - "public/TGIF/comments.json"
+      - "public/TGIF/review-versions.json"
+      - "public/TGIF/notified-review-ids.json"
+
+      - "public/TXRH/comments.json"
+      - "public/TXRH/review-versions.json"
+      - "public/TXRH/notified-review-ids.json"
 
 permissions:
   contents: write
@@ -76,8 +95,35 @@ jobs:
         run: |
           npm install --ignore-scripts
 
-      - name: Sync Google reviews
-        if: ${{ github.event_name != 'push' }}
+      - name: Prepare manual group JSON
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          GROUP="${{ github.event.inputs.group || 'new-brand' }}"
+
+          case "$GROUP" in
+            new-brand|TGIF|TXRH)
+              ;;
+            *)
+              GROUP="new-brand"
+              ;;
+          esac
+
+          echo "DASHBOARD_GROUP=$GROUP" >> "$GITHUB_ENV"
+          echo "Using dashboard group: $GROUP"
+
+          mkdir -p public
+          mkdir -p "public/$GROUP"
+
+          test -f "public/$GROUP/comments.json" || printf '[]\n' > "public/$GROUP/comments.json"
+          test -f "public/$GROUP/review-versions.json" || printf '[]\n' > "public/$GROUP/review-versions.json"
+          test -f "public/$GROUP/notified-review-ids.json" || printf '[]\n' > "public/$GROUP/notified-review-ids.json"
+
+          cp "public/$GROUP/comments.json" public/comments.json
+          cp "public/$GROUP/review-versions.json" public/review-versions.json
+          cp "public/$GROUP/notified-review-ids.json" public/notified-review-ids.json
+
+      - name: Manual sync Google reviews
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm run sync:static
         env:
           NODE_ENV: production
@@ -87,8 +133,8 @@ jobs:
           SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
 
-      - name: Send push notifications
-        if: ${{ github.event_name != 'push' && (github.event_name != 'workflow_dispatch' || github.event.inputs.scrape_rounds == '5') }}
+      - name: Manual send notifications
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm run notify:push
         env:
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
@@ -101,13 +147,29 @@ jobs:
           O365_SMTP_PORT: ${{ secrets.O365_SMTP_PORT }}
           O365_SMTP_USER: ${{ secrets.O365_SMTP_USER }}
           O365_SMTP_PASS: ${{ secrets.O365_SMTP_PASS }}
-          O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
 
-      - name: Commit updated JSON
-        if: ${{ github.event_name != 'push' }}
+          O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
+          O365_NOTIFY_TO_NEW_BRAND: ${{ secrets.O365_NOTIFY_TO_NEW_BRAND }}
+          O365_NOTIFY_TO_TGIF: ${{ secrets.O365_NOTIFY_TO_TGIF }}
+          O365_NOTIFY_TO_TXRH: ${{ secrets.O365_NOTIFY_TO_TXRH }}
+
+      - name: Commit manual updated JSON
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+
+          GROUP="${DASHBOARD_GROUP:-new-brand}"
+
+          case "$GROUP" in
+            new-brand|TGIF|TXRH)
+              ;;
+            *)
+              GROUP="new-brand"
+              ;;
+          esac
+
+          echo "Commit dashboard group: $GROUP"
 
           mkdir -p public
           test -f public/comments.json || printf '[]\n' > public/comments.json
@@ -121,23 +183,102 @@ jobs:
           git fetch origin main
           git reset --hard origin/main
 
-          mkdir -p public
-          mkdir -p public/new-brand
+          mkdir -p "public/$GROUP"
 
-          cp /tmp/comments.json public/comments.json
-          cp /tmp/review-versions.json public/review-versions.json
-          cp /tmp/notified-review-ids.json public/notified-review-ids.json
+          cp /tmp/comments.json "public/$GROUP/comments.json"
+          cp /tmp/review-versions.json "public/$GROUP/review-versions.json"
+          cp /tmp/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
 
-          cp public/comments.json public/new-brand/comments.json
-          cp public/review-versions.json public/new-brand/review-versions.json
-          cp public/notified-review-ids.json public/new-brand/notified-review-ids.json
-
-          git add public/comments.json public/review-versions.json public/notified-review-ids.json public/new-brand/comments.json public/new-brand/review-versions.json public/new-brand/notified-review-ids.json
+          git add "public/$GROUP/comments.json" "public/$GROUP/review-versions.json" "public/$GROUP/notified-review-ids.json"
 
           if git diff --cached --quiet; then
             echo "No JSON changes to commit"
           else
-            git commit -m "auto sync reviews"
+            git commit -m "auto sync reviews for $GROUP"
+            git push origin HEAD:main
+          fi
+
+      - name: Scheduled sync all groups
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          NODE_ENV: production
+          PUPPETEER_SKIP_DOWNLOAD: true
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+
+          WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
+          SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: mailto:zxcvb282@gmail.com
+
+          O365_SMTP_HOST: ${{ secrets.O365_SMTP_HOST }}
+          O365_SMTP_PORT: ${{ secrets.O365_SMTP_PORT }}
+          O365_SMTP_USER: ${{ secrets.O365_SMTP_USER }}
+          O365_SMTP_PASS: ${{ secrets.O365_SMTP_PASS }}
+
+          O365_NOTIFY_TO: ${{ secrets.O365_NOTIFY_TO }}
+          O365_NOTIFY_TO_NEW_BRAND: ${{ secrets.O365_NOTIFY_TO_NEW_BRAND }}
+          O365_NOTIFY_TO_TGIF: ${{ secrets.O365_NOTIFY_TO_TGIF }}
+          O365_NOTIFY_TO_TXRH: ${{ secrets.O365_NOTIFY_TO_TXRH }}
+        run: |
+          set -e
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          GROUPS=("new-brand" "TGIF" "TXRH")
+
+          mkdir -p public
+
+          for GROUP in "${GROUPS[@]}"; do
+            echo "=============================="
+            echo "Scheduled sync group: $GROUP"
+            echo "=============================="
+
+            mkdir -p "public/$GROUP"
+
+            test -f "public/$GROUP/comments.json" || printf '[]\n' > "public/$GROUP/comments.json"
+            test -f "public/$GROUP/review-versions.json" || printf '[]\n' > "public/$GROUP/review-versions.json"
+            test -f "public/$GROUP/notified-review-ids.json" || printf '[]\n' > "public/$GROUP/notified-review-ids.json"
+
+            cp "public/$GROUP/comments.json" public/comments.json
+            cp "public/$GROUP/review-versions.json" public/review-versions.json
+            cp "public/$GROUP/notified-review-ids.json" public/notified-review-ids.json
+
+            DASHBOARD_GROUP="$GROUP" \
+            SCRAPE_MAX_ROUNDS="5" \
+            SCRAPE_TARGET_BRAND="all" \
+            SCRAPE_TARGET_STORE="all" \
+            npm run sync:static
+
+            DASHBOARD_GROUP="$GROUP" npm run notify:push
+
+            cp public/comments.json "public/$GROUP/comments.json"
+            cp public/review-versions.json "public/$GROUP/review-versions.json"
+            cp public/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
+
+            echo "Finished scheduled sync group: $GROUP"
+          done
+
+          cp public/new-brand/comments.json public/comments.json
+          cp public/new-brand/review-versions.json public/review-versions.json
+          cp public/new-brand/notified-review-ids.json public/notified-review-ids.json
+
+          git add \
+            public/new-brand/comments.json \
+            public/new-brand/review-versions.json \
+            public/new-brand/notified-review-ids.json \
+            public/TGIF/comments.json \
+            public/TGIF/review-versions.json \
+            public/TGIF/notified-review-ids.json \
+            public/TXRH/comments.json \
+            public/TXRH/review-versions.json \
+            public/TXRH/notified-review-ids.json
+
+          if git diff --cached --quiet; then
+            echo "No scheduled JSON changes to commit"
+          else
+            git commit -m "auto scheduled sync reviews for all groups"
             git push origin HEAD:main
           fi
 

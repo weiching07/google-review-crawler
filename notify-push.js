@@ -9,8 +9,41 @@ const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:review@example.com';
 
+const DASHBOARD_GROUP = normalizeGroup(process.env.DASHBOARD_GROUP || 'new-brand');
+const GROUP_LABEL = getGroupLabel(DASHBOARD_GROUP);
+
+// 這裡保持 public/comments.json 是對的。
+// sync.yml 每次跑某個 group 前，會先把 public/TGIF/comments.json 或 public/TXRH/comments.json 複製到 public/comments.json。
 const COMMENTS_PATH = path.join(__dirname, 'public', 'comments.json');
 const NOTIFIED_PATH = path.join(__dirname, 'public', 'notified-review-ids.json');
+
+function normalizeGroup(value) {
+  const raw = String(value || '').trim();
+
+  if (raw === 'TGIF') return 'TGIF';
+  if (raw === 'TXRH') return 'TXRH';
+
+  return 'new-brand';
+}
+
+function getGroupLabel(group) {
+  if (group === 'TGIF') return 'FRIDAYS';
+  if (group === 'TXRH') return 'ROADHOUSE';
+
+  return 'NEW BRAND';
+}
+
+function getGroupDashboardUrl() {
+  if (DASHBOARD_GROUP === 'TGIF') {
+    return './TGIF/index.html';
+  }
+
+  if (DASHBOARD_GROUP === 'TXRH') {
+    return './TXRH/index.html';
+  }
+
+  return './new-brand/index.html';
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -97,26 +130,33 @@ function buildSummaryPayload(newReviews) {
   const latestRating = getReviewRating(latestReview);
   const latestContent = getReviewText(latestReview);
 
-  const summaryText = `本次偵測到 ${totalCount} 筆新評論，其中 ${negativeCount} 筆負評。`;
+  const summaryText = `${GROUP_LABEL} 本次偵測到 ${totalCount} 筆新評論，其中 ${negativeCount} 筆負評。`;
 
   const previewText = latestContent
     ? `最新一筆：${latestRating} 星｜${latestAuthor}：${latestContent}`.slice(0, 120)
     : '';
 
   return JSON.stringify({
-    title: 'Google 新評論通知',
+    title: `${GROUP_LABEL} Google 新評論通知`,
     body: previewText
       ? `${summaryText}\n${previewText}`.slice(0, 180)
       : summaryText,
-    tag: `google-review-summary-${Date.now()}`,
-    url: './new-brand/index.html',
+    tag: `google-review-summary-${DASHBOARD_GROUP}-${Date.now()}`,
+    url: getGroupDashboardUrl(),
+    group: DASHBOARD_GROUP,
+    groupLabel: GROUP_LABEL,
     totalCount,
     negativeCount
   });
 }
 
 async function getSubscriptions() {
-  const res = await fetch(`${WORKER_URL}/subscriptions`, {
+  const baseUrl = String(WORKER_URL || '').replace(/\/$/, '');
+  const url = new URL(`${baseUrl}/subscriptions`);
+
+  url.searchParams.set('group', DASHBOARD_GROUP);
+
+  const res = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       'X-Sync-Secret': SYNC_SECRET
@@ -168,7 +208,7 @@ async function sendPushSummaryToSubscriptions(subscriptions, payload) {
     console.log(`⚠️ 推播被限流：${rateLimitedCount} 筆`);
   }
 
-  console.log(`📣 手機推播總結：成功 ${successCount} 筆，失效 ${expiredCount} 筆，限流 ${rateLimitedCount} 筆，失敗 ${failedCount} 筆`);
+  console.log(`📣 ${GROUP_LABEL} 手機推播總結：成功 ${successCount} 筆，失效 ${expiredCount} 筆，限流 ${rateLimitedCount} 筆，失敗 ${failedCount} 筆`);
 
   return {
     successCount,
@@ -186,6 +226,8 @@ function hasEmailConfig() {
 }
 
 async function main() {
+  console.log(`通知群組：${DASHBOARD_GROUP} / ${GROUP_LABEL}`);
+
   const commentsData = loadJson(COMMENTS_PATH, []);
   const comments = normalizeComments(commentsData);
 
@@ -237,7 +279,7 @@ async function main() {
 
   const sentReviewIds = new Set();
 
-  // Email 通知保留原本邏輯
+  // Email 通知
   if (hasEmailConfig()) {
     try {
       await sendNewReviewEmail(newReviews);
@@ -250,7 +292,7 @@ async function main() {
         }
       }
 
-      console.log(`✅ 本次成功寄出 Email 新評論數：${newReviews.length}`);
+      console.log(`✅ ${GROUP_LABEL} 本次成功寄出 Email 新評論數：${newReviews.length}`);
     } catch (err) {
       console.log(`⚠️ Email 通知失敗：${err.message}`);
     }
@@ -258,7 +300,7 @@ async function main() {
     console.log('⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過 Email 通知');
   }
 
-  // 手機推播改成「總結一則」，不再每筆評論推一次
+  // 手機推播：依 group 讀自己的訂閱
   if (!WORKER_URL || !SYNC_SECRET || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
     console.log('⚠️ 缺少 push 環境變數，略過手機推播');
   } else {
@@ -270,7 +312,7 @@ async function main() {
 
     const subscriptions = await getSubscriptions();
 
-    console.log(`手機訂閱數：${subscriptions.length}`);
+    console.log(`${GROUP_LABEL} 手機訂閱數：${subscriptions.length}`);
 
     if (subscriptions.length === 0) {
       console.log('沒有手機訂閱，略過手機推播');

@@ -26,6 +26,36 @@ function isNegativeReview(review) {
   return getRating(review.rating) <= 2 && getRating(review.rating) > 0;
 }
 
+function getDashboardGroup() {
+  const group = text(process.env.DASHBOARD_GROUP || 'new-brand');
+
+  if (group === 'TGIF') return 'TGIF';
+  if (group === 'TXRH') return 'TXRH';
+
+  return 'new-brand';
+}
+
+function getGroupLabel(group) {
+  if (group === 'TGIF') return 'FRIDAYS';
+  if (group === 'TXRH') return 'ROADHOUSE';
+
+  return 'NEW BRAND';
+}
+
+function getNotifyTo() {
+  const group = getDashboardGroup();
+
+  if (group === 'TGIF') {
+    return text(process.env.O365_NOTIFY_TO_TGIF || process.env.O365_NOTIFY_TO);
+  }
+
+  if (group === 'TXRH') {
+    return text(process.env.O365_NOTIFY_TO_TXRH || process.env.O365_NOTIFY_TO);
+  }
+
+  return text(process.env.O365_NOTIFY_TO_NEW_BRAND || process.env.O365_NOTIFY_TO);
+}
+
 function isReviewWithinOneDay(review) {
   const dateText = text(review.date).toLowerCase();
 
@@ -36,7 +66,9 @@ function isReviewWithinOneDay(review) {
   if (
     dateText.includes('剛剛') ||
     dateText.includes('分鐘前') ||
-    dateText.includes('小時前')
+    dateText.includes('小時前') ||
+    dateText.includes('昨天') ||
+    dateText.includes('一天前')
   ) {
     return true;
   }
@@ -51,7 +83,8 @@ function isReviewWithinOneDay(review) {
     dateText.includes('minute ago') ||
     dateText.includes('minutes ago') ||
     dateText.includes('hour ago') ||
-    dateText.includes('hours ago')
+    dateText.includes('hours ago') ||
+    dateText.includes('yesterday')
   ) {
     return true;
   }
@@ -94,17 +127,24 @@ async function sendNewReviewEmail(newReviews) {
     return;
   }
 
+  const group = getDashboardGroup();
+  const groupLabel = getGroupLabel(group);
+  const to = getNotifyTo();
+
+  if (!to) {
+    console.warn(`⚠️ 未設定 ${groupLabel} 收件人，略過寄信`);
+    return;
+  }
+
   const reviewsWithinOneDay = newReviews.filter(isReviewWithinOneDay);
 
   if (reviewsWithinOneDay.length === 0) {
-    console.log('📭 本次沒有一天內的新評論，略過寄信');
+    console.log(`📭 ${groupLabel} 本次沒有一天內的新評論，略過寄信`);
     return;
   }
 
   const user = process.env.O365_SMTP_USER;
   const pass = process.env.O365_SMTP_PASS;
-  const to = process.env.O365_NOTIFY_TO ||
-    'it.group@casualrestaurants.com, NewBD-Group@casualrestaurants.com, Marketing-Group@casualrestaurants.com';
 
   if (!user || !pass) {
     console.warn('⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過寄信');
@@ -126,13 +166,13 @@ async function sendNewReviewEmail(newReviews) {
   });
 
   const subject = hasNegativeReview
-    ? `⚠️【Google 負評提醒】一天內新增 ${reviewsWithinOneDay.length} 筆評論，其中 ${negativeReviews.length} 筆 1-2 星`
-    : `【Google 新評論通知】一天內新增 ${reviewsWithinOneDay.length} 筆評論`;
+    ? `⚠️【${groupLabel} Google 負評提醒】一天內新增 ${reviewsWithinOneDay.length} 筆評論，其中 ${negativeReviews.length} 筆 1-2 星`
+    : `【${groupLabel} Google 新評論通知】一天內新增 ${reviewsWithinOneDay.length} 筆評論`;
 
   const html = `
     <div style="font-family: Arial, 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
       <h2 style="color:${hasNegativeReview ? '#b91c1c' : '#111827'};">
-        ${hasNegativeReview ? '⚠️ Google 新評論通知：含負評' : 'Google 新評論通知'}
+        ${hasNegativeReview ? `⚠️ ${groupLabel} Google 新評論通知：含負評` : `${groupLabel} Google 新評論通知`}
       </h2>
 
       <p>本次偵測到 <b>${reviewsWithinOneDay.length}</b> 筆一天內的新評論。</p>
@@ -160,14 +200,14 @@ async function sendNewReviewEmail(newReviews) {
     html
   });
 
-  console.log(`📧 已寄出一天內新評論通知：${reviewsWithinOneDay.length} 筆 → ${to}`);
+  console.log(`📧 已寄出 ${groupLabel} 一天內新評論通知：${reviewsWithinOneDay.length} 筆 → ${to}`);
 
   if (newReviews.length !== reviewsWithinOneDay.length) {
-    console.log(`📭 已略過超過一天評論：${newReviews.length - reviewsWithinOneDay.length} 筆`);
+    console.log(`📭 ${groupLabel} 已略過超過一天評論：${newReviews.length - reviewsWithinOneDay.length} 筆`);
   }
 
   if (hasNegativeReview) {
-    console.log(`⚠️ 其中負評 ${negativeReviews.length} 筆`);
+    console.log(`⚠️ ${groupLabel} 其中負評 ${negativeReviews.length} 筆`);
   }
 }
 
