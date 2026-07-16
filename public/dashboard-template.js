@@ -259,6 +259,141 @@ function escapeJS(value) {
     .replaceAll("'", "\\'");
 }
 
+function getDashboardGroup() {
+  const configGroup = window.DASHBOARD_CONFIG && window.DASHBOARD_CONFIG.groupId;
+
+  if (configGroup) {
+    return configGroup;
+  }
+
+  const path = String(location.pathname || '').toUpperCase();
+
+  if (path.includes('/TGIF/')) {
+    return 'TGIF';
+  }
+
+  if (path.includes('/TXRH/')) {
+    return 'TXRH';
+  }
+
+  return 'new-brand';
+}
+
+function getSyncTargetLabel(brand, store) {
+  if (brand === 'all' && store === 'all') {
+    return '全部店別';
+  }
+
+  if (brand !== 'all' && store === 'all') {
+    return `${brand} 全部店別`;
+  }
+
+  return `${brand} ${store}`;
+}
+
+function setSyncStatus(message) {
+  const status = document.getElementById('status');
+
+  if (status) {
+    status.textContent = message;
+  }
+}
+
+async function syncSingleStore(event, brand, store, scrapeRounds) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  const button = event && event.currentTarget ? event.currentTarget : null;
+
+  const dashboardGroup = getDashboardGroup();
+  const targetLabel = getSyncTargetLabel(brand, store);
+  const isFullSync = Number(scrapeRounds) >= 999;
+
+  const originalText = button ? button.textContent : '';
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = isFullSync ? '完整同步啟動中...' : '同步啟動中...';
+  }
+
+  setSyncStatus(
+    isFullSync
+      ? `正在觸發完整同步：${targetLabel}`
+      : `正在觸發手動同步：${targetLabel}`
+  );
+
+  try {
+    const res = await fetch(SYNC_WORKER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sync-Secret': SYNC_SECRET
+      },
+      body: JSON.stringify({
+        source: 'review-dashboard-store',
+
+        group: dashboardGroup,
+        dashboardGroup: dashboardGroup,
+        dashboard_group: dashboardGroup,
+
+        scrapeRounds: scrapeRounds,
+        scrape_rounds: String(scrapeRounds),
+
+        brand: brand,
+        store: store
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || '同步觸發失敗');
+    }
+
+    setSyncStatus(
+      isFullSync
+        ? `已觸發完整同步：${targetLabel}`
+        : `已觸發手動同步：${targetLabel}`
+    );
+
+    if (typeof startFastReviewWatcher === 'function') {
+      startFastReviewWatcher();
+    }
+  } catch (err) {
+    console.error(err);
+    setSyncStatus(`同步觸發失敗：${err.message}`);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+function renderStoreSyncButtons(brand, store) {
+  return `
+    <div class="grid grid-cols-2 gap-2 mt-2">
+      <button
+        type="button"
+        onclick="syncSingleStore(event, '${escapeJS(brand)}', '${escapeJS(store)}', 5)"
+        class="text-xs px-2 py-1 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
+      >
+        手動同步
+      </button>
+
+      <button
+        type="button"
+        onclick="syncSingleStore(event, '${escapeJS(brand)}', '${escapeJS(store)}', 999)"
+        class="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+      >
+        完整同步
+      </button>
+    </div>
+  `;
+}
+
 function loadSidebarState() {
   sidebarCollapsed = localStorage.getItem('review_sidebar_collapsed_v1') === '1';
 }
@@ -281,17 +416,21 @@ function renderSidebar() {
 
   if (!sidebarCollapsed) {
     const brandBlocks = DASHBOARD_TEMPLATE.stores.map(brandGroup => {
-      const storeButtons = brandGroup.stores.map(storeItem => {
+      const storeCards = brandGroup.stores.map(storeItem => {
         const id = getStoreButtonId(brandGroup.brand, storeItem.store);
 
         return `
-          <button
-            onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-            id="${id}"
-            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
-          >
-            ${renderStoreButtonContent(storeItem.label, brandGroup.brand, storeItem.store)}
-          </button>
+          <div class="mb-3">
+            <button
+              onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
+              id="${id}"
+              class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border"
+            >
+              ${renderStoreButtonContent(storeItem.label, brandGroup.brand, storeItem.store)}
+            </button>
+
+            ${renderStoreSyncButtons(brandGroup.brand, storeItem.store)}
+          </div>
         `;
       }).join('');
 
@@ -301,7 +440,7 @@ function renderSidebar() {
             ${escapeHTML(brandGroup.brandLabel || brandGroup.brand)}
           </div>
 
-          ${storeButtons}
+          ${storeCards}
         </div>
       `;
     }).join('');
@@ -382,8 +521,8 @@ function updateStoreFilterButtons() {
         currentStoreFilter === storeItem.store;
 
       btn.className = active
-        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
-        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
+        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
+        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
 
       btn.innerHTML = renderStoreButtonContent(
         storeItem.label,
