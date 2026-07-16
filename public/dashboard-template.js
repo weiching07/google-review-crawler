@@ -1,534 +1,1510 @@
-const DASHBOARD_TEMPLATE = window.DASHBOARD_CONFIG || {
-  defaultTitle: '評論分析儀表板',
-  stores: []
-};
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const STORES = require('./stores');
 
-let sidebarCollapsed = false;
+puppeteer.use(StealthPlugin());
 
-function normalizeText(value) {
-  return String(value || '').trim();
-}
-
-function normalizeUpper(value) {
-  return normalizeText(value).toUpperCase();
-}
-
-function getBrandCandidates(brandGroup) {
-  return [
-    brandGroup.brand,
-    brandGroup.brandLabel,
-    ...(Array.isArray(brandGroup.aliases) ? brandGroup.aliases : [])
-  ]
-    .map(normalizeText)
-    .filter(Boolean);
-}
-
-function getStoreCandidates(storeItem) {
-  return [
-    storeItem.store,
-    storeItem.label,
-    ...(Array.isArray(storeItem.aliases) ? storeItem.aliases : [])
-  ]
-    .map(normalizeText)
-    .filter(Boolean)
-    .flatMap(value => {
-      const withoutStoreText = value
-        .replace(/\s*店$/g, '')
-        .trim();
-
-      return withoutStoreText && withoutStoreText !== value
-        ? [value, withoutStoreText]
-        : [value];
-    });
-}
-
-function normalizeBrand(value) {
-  const raw = normalizeText(value);
-  const upper = normalizeUpper(value);
-
-  if (!raw) {
-    return '';
-  }
-
-  for (const brandGroup of DASHBOARD_TEMPLATE.stores) {
-    const candidates = getBrandCandidates(brandGroup);
-
-    const matched = candidates.some(candidate => {
-      const candidateUpper = normalizeUpper(candidate);
-
-      return (
-        upper === candidateUpper ||
-        upper.includes(candidateUpper) ||
-        candidateUpper.includes(upper)
-      );
-    });
-
-    if (matched) {
-      return brandGroup.brand;
-    }
-  }
-
-  return raw;
-}
-
-function getCommentBrand(c) {
-  return normalizeBrand(c.brand || c.branch || c.brandName || '');
-}
-
-function getBrandGroupByBrand(brand) {
-  return DASHBOARD_TEMPLATE.stores.find(group => {
-    return group.brand === brand;
-  }) || null;
-}
-
-function getCommentStore(c) {
-  const brand = getCommentBrand(c);
-  const rawStore = normalizeText(
-    c.store ||
-    c.storeName ||
-    c.location ||
-    c.shop ||
-    c.branchStore ||
-    ''
+const randomDelay = (min, max) =>
+  new Promise(resolve =>
+    setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min)
   );
 
-  const brandGroup = getBrandGroupByBrand(brand);
+function withTimeout(promise, ms, label = 'operation') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)
+    )
+  ]);
+}
 
-  if (!brandGroup) {
-    return rawStore;
+function forceGoogleChineseUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+
+    if (url.hostname.includes('google.')) {
+      url.searchParams.set('hl', 'zh-TW');
+      url.searchParams.set('gl', 'TW');
+    }
+
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
+function isCloudEnv() {
+  return (
+    process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.GITHUB_ACTIONS) ||
+    Boolean(process.env.CI)
+  );
+}
+
+function getChromeExecutablePath(isCloud) {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  if (process.env.GOOGLE_CHROME_BIN) return process.env.GOOGLE_CHROME_BIN;
+
+  if (!isCloud) {
+    return 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
   }
 
-  if (rawStore) {
-    for (const storeItem of brandGroup.stores) {
-      const candidates = getStoreCandidates(storeItem);
+  return undefined;
+}
 
-      const matched = candidates.some(candidate => {
-        return (
-          rawStore === candidate ||
-          rawStore.includes(candidate) ||
-          candidate.includes(rawStore)
-        );
-      });
+function getMaxRounds() {
+  const value = Number(process.env.SCRAPE_MAX_ROUNDS || 5);
 
-      if (matched) {
-        return storeItem.store;
+  if (!Number.isFinite(value) || value <= 0) return 5;
+  if (value <= 5) return Math.floor(value);
+
+  if (value >= 999) return 15000;
+  if (value >= 100) return 10000;
+
+  return Math.min(Math.floor(value), 15000);
+}
+
+function getReviewKey(review) {
+  return (
+    review.reviewId ||
+    review.id ||
+    `${review.author || ''}-${review.date || ''}-${review.rating || ''}-${String(review.content || '').slice(0, 120)}`
+  );
+}
+
+async function extractStoreRating(page) {
+  return await page.evaluate(() => {
+    function clean(value) {
+      return String(value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function isVisible(el) {
+      if (!el) return false;
+
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    function isValidAverageRating(value) {
+      const n = Number(value);
+      return Number.isFinite(n) && n >= 1 && n <= 5 && String(value).includes('.');
+    }
+
+    const ratingBlocks = Array.from(document.querySelectorAll('.F7nice'));
+
+    for (const block of ratingBlocks) {
+      if (!isVisible(block)) continue;
+
+      const items = Array.from(block.querySelectorAll('span, div'));
+
+      for (const el of items) {
+        if (!isVisible(el)) continue;
+
+        const text = clean(el.innerText || el.textContent || '');
+        const match = text.match(/^([1-5]\.\d)$/);
+
+        if (match && isValidAverageRating(match[1])) {
+          return match[1];
+        }
+      }
+
+      const blockText = clean(block.innerText || block.textContent || '');
+      const blockMatch = blockText.match(/\b([1-5]\.\d)\b/);
+
+      if (blockMatch && isValidAverageRating(blockMatch[1])) {
+        return blockMatch[1];
       }
     }
 
-    return rawStore;
+    const visibleElements = Array.from(document.querySelectorAll('span, div'))
+      .filter(isVisible);
+
+    for (const el of visibleElements) {
+      const text = clean(el.innerText || el.textContent || '');
+      const match = text.match(/^([1-5]\.\d)$/);
+
+      if (match && isValidAverageRating(match[1])) {
+        return match[1];
+      }
+    }
+
+    for (const el of visibleElements) {
+      const aria = clean(el.getAttribute('aria-label') || '');
+      const title = clean(el.getAttribute('title') || '');
+      const source = `${aria} ${title}`;
+
+      const match = source.match(/([1-5]\.\d)\s*(?:星|顆星|stars?)/i);
+
+      if (match && isValidAverageRating(match[1])) {
+        return match[1];
+      }
+    }
+
+    return '';
+  });
+}
+
+async function clickNewestSort(page) {
+  console.log('🔃 嘗試切換最新排序...');
+
+  await randomDelay(1000, 1500);
+
+  await page.evaluate(() => {
+    let container =
+      document.querySelector('div[role="feed"]') ||
+      document.querySelector('.m6U62c');
+
+    if (!container) {
+      const firstReview = document.querySelector('div[data-review-id]');
+
+      if (firstReview) {
+        let p = firstReview.parentElement;
+
+        while (p) {
+          const style = window.getComputedStyle(p);
+
+          if (
+            p.scrollHeight > p.clientHeight &&
+            ['auto', 'scroll', 'overlay'].includes(style.overflowY)
+          ) {
+            container = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+      }
+    }
+
+    if (container) {
+      container.scrollTop = 0;
+    }
+  });
+
+  await randomDelay(1200, 1800);
+
+  const sortResult = await page.evaluate(() => {
+    function getText(el) {
+      return (
+        (el.innerText || '') +
+        ' ' +
+        (el.textContent || '') +
+        ' ' +
+        (el.getAttribute('aria-label') || '') +
+        ' ' +
+        (el.getAttribute('title') || '')
+      ).replace(/\s+/g, ' ').trim();
+    }
+
+    function isVisible(el) {
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    const elements = Array.from(document.querySelectorAll(
+      'button, div[role="button"], [aria-haspopup="menu"]'
+    ));
+
+    const candidates = [];
+
+    for (const el of elements) {
+      if (!isVisible(el)) continue;
+
+      const text = getText(el);
+      const lower = text.toLowerCase();
+
+      if (
+        text.includes('排序') ||
+        text.includes('最相關') ||
+        lower.includes('sort') ||
+        lower.includes('most relevant')
+      ) {
+        const r = el.getBoundingClientRect();
+
+        candidates.push({
+          el,
+          text,
+          top: r.top,
+          left: r.left
+        });
+      }
+    }
+
+    candidates.sort((a, b) => {
+      if (a.top !== b.top) return a.top - b.top;
+      return a.left - b.left;
+    });
+
+    if (candidates.length === 0) {
+      return {
+        success: false,
+        text: ''
+      };
+    }
+
+    const target = candidates[0];
+
+    target.el.scrollIntoView({
+      block: 'center',
+      inline: 'center'
+    });
+
+    target.el.click();
+
+    return {
+      success: true,
+      text: target.text
+    };
+  });
+
+  console.log('🔃 sort result:', sortResult);
+
+  if (!sortResult.success) {
+    console.log('❌ 找不到排序按鈕，繼續用目前排序');
+    return false;
   }
 
-  if (brandGroup.stores.length === 1) {
-    return brandGroup.stores[0].store;
-  }
+  await randomDelay(1500, 2200);
 
-  return '';
-}
+  const newestResult = await page.evaluate(() => {
+    function getText(el) {
+      return (
+        (el.innerText || '') +
+        ' ' +
+        (el.textContent || '') +
+        ' ' +
+        (el.getAttribute('aria-label') || '') +
+        ' ' +
+        (el.getAttribute('title') || '')
+      ).replace(/\s+/g, ' ').trim();
+    }
 
-function getDisplayBrand(c) {
-  const brand = getCommentBrand(c);
-  return brand || '未知';
-}
+    function isVisible(el) {
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
 
-function getDisplayStore(c) {
-  const store = getCommentStore(c);
-  return store || '未知';
-}
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        r.top >= 0 &&
+        r.left >= 0 &&
+        r.top < window.innerHeight &&
+        r.left < window.innerWidth &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
 
-function isStoreInCurrentDashboard(c) {
-  if (!DASHBOARD_TEMPLATE.stores.length) {
+    const menuRoots = Array.from(document.querySelectorAll(
+      '[role="menu"], [role="listbox"], [role="presentation"], div[aria-modal="true"]'
+    )).filter(isVisible);
+
+    const roots = menuRoots.length > 0 ? menuRoots : [document.body];
+
+    for (const root of roots) {
+      const items = Array.from(root.querySelectorAll(
+        '[role="menuitem"], [role="menuitemradio"], [role="option"], button, div[role="button"], div, span'
+      ));
+
+      for (const item of items) {
+        if (!isVisible(item)) continue;
+
+        const text = getText(item);
+
+        if (text !== '最新') continue;
+
+        let clickable = item;
+        let p = item.parentElement;
+
+        while (p && p !== document.body) {
+          const role = p.getAttribute('role') || '';
+          const tag = p.tagName.toLowerCase();
+
+          if (
+            tag === 'button' ||
+            role === 'menuitem' ||
+            role === 'menuitemradio' ||
+            role === 'option' ||
+            role === 'button'
+          ) {
+            clickable = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+
+        clickable.scrollIntoView({
+          block: 'center',
+          inline: 'center'
+        });
+
+        clickable.click();
+
+        return {
+          success: true,
+          text
+        };
+      }
+    }
+
+    return {
+      success: false,
+      text: ''
+    };
+  });
+
+  console.log('🆕 newest result:', newestResult);
+
+  if (!newestResult.success) {
+    console.log('⚠️ DOM 沒點到最新，改用鍵盤備援');
+
+    await page.keyboard.press('ArrowDown');
+    await randomDelay(300, 500);
+    await page.keyboard.press('Enter');
+
+    await randomDelay(5000, 7000);
+
+    console.log('✅ 已用鍵盤備援選最新');
     return true;
   }
 
-  const brand = getCommentBrand(c);
-  const store = getCommentStore(c);
+  await randomDelay(5000, 7000);
 
-  return DASHBOARD_TEMPLATE.stores.some(brandGroup => {
-    if (brandGroup.brand !== brand) {
-      return false;
+  console.log('✅ 已切換最新排序');
+  return true;
+}
+
+async function openFirstMapsResultIfNeeded(page, storeConfig) {
+  console.log('🧭 檢查是否已進入單一店家頁...');
+
+  await randomDelay(3000, 5000);
+
+  const result = await page.evaluate((storeConfig) => {
+    function textOf(el) {
+      return (
+        (el.innerText || '') +
+        ' ' +
+        (el.textContent || '') +
+        ' ' +
+        (el.getAttribute('aria-label') || '') +
+        ' ' +
+        (el.getAttribute('title') || '')
+      ).replace(/\s+/g, ' ').trim();
     }
 
-    if (!Array.isArray(brandGroup.stores)) {
-      return false;
+    function isVisible(el) {
+      if (!el) return false;
+
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
     }
 
-    return brandGroup.stores.some(storeItem => {
-      return storeItem.store === store;
-    });
-  });
-}
+    const h1 = Array.from(document.querySelectorAll('h1'))
+      .map(el => textOf(el))
+      .find(Boolean);
 
-function getStoreAverageRatingFromData(brand, store) {
-  if (typeof rawData === 'undefined' || !Array.isArray(rawData)) {
-    return '';
-  }
+    const hasReviewButton = Array.from(document.querySelectorAll('button, a, div[role="button"]'))
+      .some(el => {
+        if (!isVisible(el)) return false;
 
-  const matched = rawData.find(c => {
-    if (!c) return false;
+        const text = textOf(el).toLowerCase();
 
-    if (!isStoreInCurrentDashboard(c)) {
-      return false;
+        return (
+          text.includes('評論') ||
+          text.includes('reviews') ||
+          text.includes('查看評論') ||
+          text.includes('查看全部評論')
+        );
+      });
+
+    if (h1 && hasReviewButton) {
+      return {
+        success: true,
+        clicked: false,
+        reason: 'already-place',
+        title: h1
+      };
     }
 
-    const commentBrand = getCommentBrand(c);
-    const commentStore = getCommentStore(c);
+    const links = Array.from(document.querySelectorAll(
+      'a[href*="/maps/place/"], a.hfpxzc'
+    )).filter(isVisible);
 
-    const sameBrand =
-      brand === 'all' ||
-      commentBrand === brand;
+    if (links.length > 0) {
+      const first = links[0];
 
-    const sameStore =
-      store === 'all' ||
-      commentStore === store;
+      first.scrollIntoView({
+        block: 'center',
+        inline: 'center'
+      });
 
-    return sameBrand && sameStore && (
-      c.storeRating ||
-      c.averageRating ||
-      c.googleRating ||
-      c.placeRating
-    );
-  });
+      first.click();
 
-  if (!matched) {
-    return '';
-  }
-
-  return String(
-    matched.storeRating ||
-    matched.averageRating ||
-    matched.googleRating ||
-    matched.placeRating ||
-    ''
-  ).trim();
-}
-
-function renderStoreButtonContent(label, brand, store) {
-  const rating = getStoreAverageRatingFromData(brand, store);
-
-  return `
-    <div class="flex items-center justify-between gap-2">
-      <span>${escapeHTML(label)}</span>
-      ${
-        rating
-          ? `<span class="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold">${escapeHTML(rating)} ★</span>`
-          : ''
-      }
-    </div>
-  `;
-}
-
-function getDashboardTitle() {
-  if (currentBrandFilter === 'all') {
-    return DASHBOARD_TEMPLATE.defaultTitle;
-  }
-
-  for (const brandGroup of DASHBOARD_TEMPLATE.stores) {
-    if (brandGroup.brand !== currentBrandFilter) continue;
-
-    const storeItem = brandGroup.stores.find(item => item.store === currentStoreFilter);
-
-    if (storeItem) {
-      return storeItem.title;
+      return {
+        success: true,
+        clicked: true,
+        reason: 'clicked-place-link',
+        text: textOf(first)
+      };
     }
 
-    return `${brandGroup.brandLabel || brandGroup.brand} 評論分析儀表板`;
-  }
+    const cards = Array.from(document.querySelectorAll(
+      'div[role="article"], div.Nv2PK, div[role="button"]'
+    )).filter(el => {
+      if (!isVisible(el)) return false;
 
-  return '評論分析儀表板';
-}
+      const text = textOf(el);
+      const lower = text.toLowerCase();
 
-function updateDashboardTitle() {
-  const titleEl = document.getElementById('dashboardTitle');
+      if (!text) return false;
 
-  if (!titleEl) return;
-
-  titleEl.textContent = getDashboardTitle();
-}
-
-function getStoreButtonId(brand, store) {
-  return 'store-' + String(brand + '-' + store)
-    .toLowerCase()
-    .replaceAll('&', 'and')
-    .replaceAll(' ', '-')
-    .replace(/[^\w\u4e00-\u9fa5-]/g, '');
-}
-
-function escapeJS(value) {
-  return String(value ?? '')
-    .replaceAll('\\', '\\\\')
-    .replaceAll("'", "\\'");
-}
-
-function getDashboardGroup() {
-  const configGroup = window.DASHBOARD_CONFIG && window.DASHBOARD_CONFIG.groupId;
-
-  if (configGroup) {
-    return configGroup;
-  }
-
-  const path = String(location.pathname || '').toUpperCase();
-
-  if (path.includes('/TGIF/')) {
-    return 'TGIF';
-  }
-
-  if (path.includes('/TXRH/')) {
-    return 'TXRH';
-  }
-
-  return 'new-brand';
-}
-
-function getSyncTargetLabel(brand, store) {
-  if (brand === 'all' && store === 'all') {
-    return '全部店別';
-  }
-
-  if (brand !== 'all' && store === 'all') {
-    return `${brand} 全部店別`;
-  }
-
-  return `${brand} ${store}`;
-}
-
-function setSyncStatus(message) {
-  const status = document.getElementById('status');
-
-  if (status) {
-    status.textContent = message;
-  }
-}
-
-async function syncSingleStore(event, brand, store, scrapeRounds) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  const button = event && event.currentTarget ? event.currentTarget : null;
-
-  const dashboardGroup = getDashboardGroup();
-  const targetLabel = getSyncTargetLabel(brand, store);
-  const isFullSync = Number(scrapeRounds) >= 999;
-
-  const originalText = button ? button.textContent : '';
-
-  if (button) {
-    button.disabled = true;
-    button.textContent = isFullSync ? '完整同步啟動中...' : '同步啟動中...';
-  }
-
-  setSyncStatus(
-    isFullSync
-      ? `正在觸發完整同步：${targetLabel}`
-      : `正在觸發手動同步：${targetLabel}`
-  );
-
-  try {
-    const res = await fetch(SYNC_WORKER_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Sync-Secret': SYNC_SECRET
-      },
-      body: JSON.stringify({
-        source: 'review-dashboard-store',
-
-        group: dashboardGroup,
-        dashboardGroup: dashboardGroup,
-        dashboard_group: dashboardGroup,
-
-        scrapeRounds: scrapeRounds,
-        scrape_rounds: String(scrapeRounds),
-
-        brand: brand,
-        store: store
-      })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || '同步觸發失敗');
-    }
-
-    setSyncStatus(
-      isFullSync
-        ? `已觸發完整同步：${targetLabel}`
-        : `已觸發手動同步：${targetLabel}`
-    );
-
-    if (typeof startFastReviewWatcher === 'function') {
-      startFastReviewWatcher();
-    }
-  } catch (err) {
-    console.error(err);
-    setSyncStatus(`同步觸發失敗：${err.message}`);
-  } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = originalText;
-    }
-  }
-}
-
-function renderStoreSyncButtons(brand, store) {
-  return `
-    <div class="grid grid-cols-2 gap-2 mt-2">
-      <button
-        type="button"
-        onclick="syncSingleStore(event, '${escapeJS(brand)}', '${escapeJS(store)}', 5)"
-        class="text-xs px-2 py-1 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60"
-      >
-        手動同步
-      </button>
-
-      <button
-        type="button"
-        onclick="syncSingleStore(event, '${escapeJS(brand)}', '${escapeJS(store)}', 999)"
-        class="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
-      >
-        完整同步
-      </button>
-    </div>
-  `;
-}
-
-function loadSidebarState() {
-  sidebarCollapsed = localStorage.getItem('review_sidebar_collapsed_v1') === '1';
-}
-
-function toggleSidebar() {
-  sidebarCollapsed = !sidebarCollapsed;
-  localStorage.setItem('review_sidebar_collapsed_v1', sidebarCollapsed ? '1' : '0');
-  renderSidebar();
-}
-
-function renderSidebar() {
-  const sidebarMount = document.getElementById('sidebarMount');
-
-  if (!sidebarMount) return;
-
-  const sidebarWidthClass = sidebarCollapsed ? 'w-16' : 'w-64';
-  const toggleIcon = sidebarCollapsed ? '›' : '‹';
-
-  let sidebarContent = '';
-
-  if (!sidebarCollapsed) {
-    const brandBlocks = DASHBOARD_TEMPLATE.stores.map(brandGroup => {
-      const storeCards = brandGroup.stores.map(storeItem => {
-        const id = getStoreButtonId(brandGroup.brand, storeItem.store);
-
-        return `
-          <div class="mb-3">
-            <button
-              onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-              id="${id}"
-              class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border"
-            >
-              ${renderStoreButtonContent(storeItem.label, brandGroup.brand, storeItem.store)}
-            </button>
-
-            ${renderStoreSyncButtons(brandGroup.brand, storeItem.store)}
-          </div>
-        `;
-      }).join('');
-
-      return `
-        <div>
-          <div class="text-sm font-bold text-slate-500 mb-2">
-            ${escapeHTML(brandGroup.brandLabel || brandGroup.brand)}
-          </div>
-
-          ${storeCards}
-        </div>
-      `;
-    }).join('');
-
-    sidebarContent = `
-      <h2 class="font-bold text-lg text-slate-800 mb-4">
-        品牌 / 店別
-      </h2>
-
-      <div class="space-y-4">
-        <button
-          onclick="setStoreFilter('all', 'all')"
-          id="store-all"
-          class="w-full text-left px-4 py-2 rounded bg-slate-800 text-white"
-        >
-          全部品牌
-        </button>
-
-        ${brandBlocks}
-      </div>
-    `;
-  }
-
-  sidebarMount.innerHTML = `
-    <aside class="${sidebarWidthClass} shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8 transition-all duration-200">
-      <div class="flex items-center justify-center ${sidebarCollapsed ? '' : 'mb-4'}">
-        <button
-          onclick="toggleSidebar()"
-          class="border rounded px-3 py-2 text-slate-600 hover:bg-slate-100"
-          title="${sidebarCollapsed ? '展開側邊欄' : '收合側邊欄'}"
-        >
-          ${toggleIcon}
-        </button>
-      </div>
-
-      ${sidebarContent}
-    </aside>
-  `;
-
-  updateStoreFilterButtons();
-}
-
-function setStoreFilter(brand, store) {
-  currentBrandFilter = brand;
-  currentStoreFilter = store;
-
-  updateStoreFilterButtons();
-  updateDashboardTitle();
-
-  if (typeof updateSyncButtonVisibility === 'function') {
-    updateSyncButtonVisibility();
-  }
-
-  render();
-}
-
-function updateStoreFilterButtons() {
-  if (sidebarCollapsed) {
-    return;
-  }
-
-  const allButton = document.getElementById('store-all');
-
-  if (allButton) {
-    allButton.className = currentBrandFilter === 'all'
-      ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
-      : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
-  }
-
-  DASHBOARD_TEMPLATE.stores.forEach(brandGroup => {
-    brandGroup.stores.forEach(storeItem => {
-      const btn = document.getElementById(getStoreButtonId(brandGroup.brand, storeItem.store));
-
-      if (!btn) return;
-
-      const active =
-        currentBrandFilter === brandGroup.brand &&
-        currentStoreFilter === storeItem.store;
-
-      btn.className = active
-        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
-        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
-
-      btn.innerHTML = renderStoreButtonContent(
-        storeItem.label,
-        brandGroup.brand,
-        storeItem.store
+      return (
+        text.includes(storeConfig.store) ||
+        text.includes(storeConfig.keyword) ||
+        lower.includes('fridays') ||
+        lower.includes('tgi fridays') ||
+        lower.includes('texas roadhouse') ||
+        text.includes('LillA') ||
+        text.includes('SALT') ||
+        text.includes('泰勒')
       );
     });
+
+    if (cards.length > 0) {
+      const first = cards[0];
+
+      first.scrollIntoView({
+        block: 'center',
+        inline: 'center'
+      });
+
+      first.click();
+
+      return {
+        success: true,
+        clicked: true,
+        reason: 'clicked-result-card',
+        text: textOf(first)
+      };
+    }
+
+    return {
+      success: false,
+      clicked: false,
+      reason: 'no-place-result-found',
+      title: h1 || ''
+    };
+  }, storeConfig);
+
+  console.log('🧭 單一店家頁檢查結果:', result);
+
+  if (result.clicked) {
+    await randomDelay(7000, 9000);
+  }
+
+  return result.success;
+}
+
+async function getReviewScrollBox(page) {
+  return await page.evaluate(() => {
+    function isScrollable(el) {
+      if (!el) return false;
+
+      const s = window.getComputedStyle(el);
+
+      return (
+        el.scrollHeight > el.clientHeight + 100 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden' &&
+        s.overflowY !== 'hidden'
+      );
+    }
+
+    let container =
+      document.querySelector('div[role="feed"]') ||
+      document.querySelector('.m6U62c');
+
+    if (!isScrollable(container)) {
+      container = null;
+    }
+
+    if (!container) {
+      const firstReview = document.querySelector('div[data-review-id]');
+
+      if (firstReview) {
+        let p = firstReview.parentElement;
+
+        while (p && p !== document.body) {
+          if (isScrollable(p)) {
+            container = p;
+            break;
+          }
+
+          p = p.parentElement;
+        }
+      }
+    }
+
+    if (!container) {
+      const divs = Array.from(document.querySelectorAll('div'));
+
+      const candidates = divs
+        .filter(isScrollable)
+        .map(el => {
+          const r = el.getBoundingClientRect();
+
+          return {
+            el,
+            left: r.left,
+            top: r.top,
+            width: r.width,
+            height: r.height,
+            scrollHeight: el.scrollHeight,
+            clientHeight: el.clientHeight
+          };
+        })
+        .filter(x => {
+          return (
+            x.width > 260 &&
+            x.height > 300 &&
+            x.left < window.innerWidth * 0.75
+          );
+        })
+        .sort((a, b) => {
+          if (a.left !== b.left) return a.left - b.left;
+          return b.scrollHeight - a.scrollHeight;
+        });
+
+      if (candidates.length > 0) {
+        container = candidates[0].el;
+      }
+    }
+
+    if (!container) {
+      return null;
+    }
+
+    const r = container.getBoundingClientRect();
+
+    return {
+      x: r.left + r.width / 2,
+      y: r.top + r.height / 2,
+      top: container.scrollTop,
+      height: container.scrollHeight,
+      clientHeight: container.clientHeight,
+      remaining: Math.max(0, container.scrollHeight - container.clientHeight - container.scrollTop)
+    };
   });
 }
+
+async function collectCurrentReviews(page, reviewMap) {
+  const current = await page.evaluate(() => {
+    const results = [];
+    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+
+    const REPLY_KEYWORD =
+      /店家回覆|店家回應|業主回覆|業主回應|商家回覆|商家回應|Response from the owner|Owner response/i;
+
+    function normalizeText(value) {
+      return String(value || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function cleanReplyText(value) {
+      return String(value || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .join('\n')
+        .replace(/^店家回覆[:：]?\s*/i, '')
+        .replace(/^店家回應[:：]?\s*/i, '')
+        .replace(/^業主回覆[:：]?\s*/i, '')
+        .replace(/^業主回應[:：]?\s*/i, '')
+        .replace(/^商家回覆[:：]?\s*/i, '')
+        .replace(/^商家回應[:：]?\s*/i, '')
+        .replace(/^Response from the owner[:：]?\s*/i, '')
+        .replace(/^Owner response[:：]?\s*/i, '')
+        .trim();
+    }
+
+    function isReplyDateLine(line) {
+      return /^(剛剛|\d+\s*(分鐘|小時|天|週|個月|年)前|just now|\d+\s*(minutes?|mins?|hours?|days?|weeks?|months?|years?) ago)$/i.test(
+        normalizeText(line)
+      );
+    }
+
+    function isJunkReplyLine(line) {
+      const text = normalizeText(line);
+
+      return (
+        !text ||
+        /^讚$|^分享$|^更多$|^回覆$|^查看原文$|^read more$/i.test(text) ||
+        /^like$|^share$|^reply$/i.test(text) ||
+        /^\d+\s*星$/.test(text)
+      );
+    }
+
+    function extractOwnerReply(el) {
+      const empty = {
+        hasReply: false,
+        replyContent: '',
+        replyDate: ''
+      };
+
+      if (!el) return empty;
+
+      const sourceText = String(el.innerText || el.textContent || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\r/g, '\n')
+        .trim();
+
+      if (!REPLY_KEYWORD.test(sourceText)) {
+        return empty;
+      }
+
+      const lines = sourceText
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const startIndex = lines.findIndex(line => REPLY_KEYWORD.test(line));
+
+      if (startIndex === -1) {
+        return empty;
+      }
+
+      let replyDate = '';
+      const replyLines = [];
+
+      const firstLine = lines[startIndex]
+        .replace(REPLY_KEYWORD, '')
+        .replace(/^[:：]\s*/, '')
+        .trim();
+
+      if (firstLine && !isJunkReplyLine(firstLine) && !isReplyDateLine(firstLine)) {
+        replyLines.push(firstLine);
+      }
+
+      for (let i = startIndex + 1; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (!line) continue;
+
+        if (!replyDate && isReplyDateLine(line)) {
+          replyDate = normalizeText(line);
+          continue;
+        }
+
+        if (isJunkReplyLine(line)) continue;
+
+        if (/^由\s*Google\s*提供翻譯/i.test(line)) break;
+        if (/^查看原文/i.test(line)) break;
+        if (/^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)) break;
+        if (/^\d+\s*星$/.test(line)) break;
+        if (/在地嚮導/.test(line) && /則評論|張相片/.test(line)) break;
+        if (/^排序$|^最相關$|^最新$|^評論$/i.test(line)) break;
+
+        replyLines.push(line);
+      }
+
+      const replyContent = cleanReplyText(replyLines.join('\n'));
+
+      if (!replyContent) {
+        return empty;
+      }
+
+      return {
+        hasReply: true,
+        replyContent,
+        replyDate
+      };
+    }
+
+    reviewEls.forEach((el, i) => {
+      const id = el.getAttribute('data-review-id') || `r-${i}`;
+
+      const textEl =
+        el.querySelector('.wiI7pd') ||
+        el.querySelector('[jsname="fbQN7e"]');
+
+      const ratingEl =
+        el.querySelector('[role="img"][aria-label*="星"]') ||
+        el.querySelector('[role="img"][aria-label*="star"]') ||
+        el.querySelector('[role="img"]');
+
+      const authorEl =
+        el.querySelector('.d4r55') ||
+        el.querySelector('.TSUbDb');
+
+      const dateEl =
+        el.querySelector('.rsqaWe') ||
+        el.querySelector('.xRkPPb') ||
+        Array.from(el.querySelectorAll('span')).find(s => {
+          const t = (s.innerText || '').trim();
+
+          return /剛剛|分鐘前|小時前|天前|週前|個月前|年前|分鐘|小時|天|週|個月|年|minute|hour|day|week|month|year/i.test(t);
+        });
+
+      const content = textEl ? textEl.innerText.trim() : '';
+      const author = authorEl ? authorEl.innerText.trim() : '';
+      const date = dateEl ? dateEl.innerText.trim() : '';
+
+      let rating = 5;
+
+      if (ratingEl) {
+        const m = ratingEl.getAttribute('aria-label')?.match(/\d/);
+        if (m) rating = parseInt(m[0], 10);
+      }
+
+      if (
+        content &&
+        !content.includes('function(){') &&
+        !content.includes('window.tactilecsi') &&
+        !content.includes('window.google') &&
+        !content.includes('RegExp(') &&
+        !content.includes('sjsuid_') &&
+        !content.includes(':root{')
+      ) {
+        const replyData = extractOwnerReply(el);
+
+        results.push({
+          reviewId: id,
+          author,
+          content,
+          rating,
+          date,
+          hasReply: replyData.hasReply,
+          replyContent: replyData.replyContent,
+          replyDate: replyData.replyDate
+        });
+      }
+    });
+
+    return results;
+  });
+
+  current.forEach(r => {
+    const key = getReviewKey(r);
+
+    if (!key) return;
+
+    if (!reviewMap.has(key)) {
+      reviewMap.set(key, r);
+    } else {
+      const old = reviewMap.get(key);
+
+      reviewMap.set(key, {
+        ...old,
+        ...r,
+        hasReply: Boolean(r.replyContent || old.replyContent),
+        replyContent: r.replyContent || old.replyContent || '',
+        replyDate: r.replyDate || old.replyDate || ''
+      });
+    }
+  });
+
+  return current.length;
+}
+
+async function expandCurrentMore(page) {
+  const count = await page.evaluate(() => {
+    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+    let count = 0;
+
+    reviewEls.forEach(review => {
+      const buttons = Array.from(review.querySelectorAll('button'));
+
+      buttons.forEach(btn => {
+        const t = (
+          (btn.innerText || '') +
+          (btn.textContent || '') +
+          (btn.getAttribute('aria-label') || '') +
+          (btn.getAttribute('title') || '')
+        ).toLowerCase();
+
+        if (
+          t.includes('更多') ||
+          t.includes('read more') ||
+          t.includes('more')
+        ) {
+          btn.click();
+          count++;
+        }
+      });
+    });
+
+    return count;
+  });
+
+  return count;
+}
+
+async function jsScrollReviewList(page, options = {}) {
+  const {
+    label = 'js-scroll',
+    step = 900,
+    times = 4,
+    delay = 900,
+    waitAfter = 3000,
+    backtrack = 0,
+    timeout = 35000
+  } = options;
+
+  try {
+    const result = await withTimeout(
+      page.evaluate(async ({ label, step, times, delay, waitAfter, backtrack }) => {
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function isScrollable(el) {
+          if (!el) return false;
+
+          const s = window.getComputedStyle(el);
+
+          return (
+            el.scrollHeight > el.clientHeight + 100 &&
+            s.display !== 'none' &&
+            s.visibility !== 'hidden' &&
+            s.overflowY !== 'hidden'
+          );
+        }
+
+        function findReviewContainer() {
+          let container =
+            document.querySelector('div[role="feed"]') ||
+            document.querySelector('.m6U62c');
+
+          if (isScrollable(container)) return container;
+
+          const firstReview = document.querySelector('div[data-review-id]');
+
+          if (firstReview) {
+            let p = firstReview.parentElement;
+
+            while (p && p !== document.body) {
+              if (isScrollable(p)) return p;
+              p = p.parentElement;
+            }
+          }
+
+          const candidates = Array.from(document.querySelectorAll('div'))
+            .filter(isScrollable)
+            .map(el => {
+              const r = el.getBoundingClientRect();
+
+              return {
+                el,
+                left: r.left,
+                top: r.top,
+                width: r.width,
+                height: r.height,
+                scrollHeight: el.scrollHeight,
+                clientHeight: el.clientHeight
+              };
+            })
+            .filter(x => {
+              return (
+                x.width > 260 &&
+                x.height > 300 &&
+                x.left < window.innerWidth * 0.75
+              );
+            })
+            .sort((a, b) => {
+              if (a.left !== b.left) return a.left - b.left;
+              return b.scrollHeight - a.scrollHeight;
+            });
+
+          return candidates.length > 0 ? candidates[0].el : null;
+        }
+
+        const container = findReviewContainer();
+
+        if (!container) {
+          const before = window.scrollY;
+          window.scrollBy(0, step);
+          await sleep(waitAfter);
+
+          return {
+            success: false,
+            before,
+            after: window.scrollY,
+            height: document.documentElement.scrollHeight || 0,
+            clientHeight: window.innerHeight || 0,
+            remaining: -1,
+            timeout: false,
+            method: `${label}-window`
+          };
+        }
+
+        const before = container.scrollTop;
+
+        if (backtrack > 0) {
+          container.scrollTop = Math.max(0, container.scrollTop - backtrack);
+          container.dispatchEvent(new Event('scroll', { bubbles: true }));
+          await sleep(1500);
+        }
+
+        for (let i = 0; i < times; i++) {
+          container.dispatchEvent(
+            new WheelEvent('wheel', {
+              deltaY: step,
+              deltaMode: 0,
+              bubbles: true,
+              cancelable: true,
+              view: window
+            })
+          );
+
+          container.scrollTop += step;
+          container.dispatchEvent(new Event('scroll', { bubbles: true }));
+
+          await sleep(delay);
+        }
+
+        await sleep(waitAfter);
+
+        const after = container.scrollTop;
+        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
+
+        return {
+          success: true,
+          before,
+          after,
+          height: container.scrollHeight,
+          clientHeight: container.clientHeight,
+          remaining,
+          timeout: false,
+          method: label
+        };
+      }, { label, step, times, delay, waitAfter, backtrack }),
+      timeout,
+      label
+    );
+
+    return result;
+  } catch (err) {
+    console.warn(`⚠️ ${label} 失敗:`, err.message);
+
+    return {
+      success: false,
+      before: -1,
+      after: -1,
+      height: -1,
+      clientHeight: -1,
+      remaining: -1,
+      timeout: true,
+      method: `${label}-timeout`
+    };
+  }
+}
+
+async function normalMouseScroll(page) {
+  try {
+    const box = await withTimeout(
+      getReviewScrollBox(page),
+      10000,
+      'getReviewScrollBox'
+    );
+
+    if (!box) {
+      console.log('⚠️ 找不到評論捲動容器，改用 JS');
+
+      return await jsScrollReviewList(page, {
+        label: 'js-no-container',
+        step: 1200,
+        times: 5,
+        delay: 600,
+        waitAfter: 2000
+      });
+    }
+
+    const before = box.top;
+
+    try {
+      await page.mouse.move(box.x, box.y);
+    } catch (err) {
+      console.warn('⚠️ mouse.move 失敗，略過 move 直接 wheel:', err.message);
+    }
+
+    for (let i = 0; i < 6; i++) {
+      try {
+        await page.mouse.wheel({ deltaY: 2200 });
+      } catch (err) {
+        console.warn('⚠️ mouse.wheel 失敗，改用 JS:', err.message);
+
+        return await jsScrollReviewList(page, {
+          label: 'js-after-mouse-failed',
+          step: 1200,
+          times: 5,
+          delay: 700,
+          waitAfter: 2500
+        });
+      }
+
+      await randomDelay(200, 350);
+    }
+
+    await randomDelay(900, 1300);
+
+    const afterBox = await withTimeout(
+      getReviewScrollBox(page),
+      10000,
+      'getReviewScrollBox after'
+    );
+
+    const after = afterBox ? afterBox.top : before;
+    const remaining =
+      afterBox && after >= 0
+        ? Math.max(0, afterBox.height - afterBox.clientHeight - after)
+        : -1;
+
+    return {
+      success: true,
+      before,
+      after,
+      height: afterBox ? afterBox.height : -1,
+      clientHeight: afterBox ? afterBox.clientHeight : -1,
+      remaining,
+      timeout: false,
+      method: 'mouse-wheel-fast'
+    };
+  } catch (err) {
+    console.warn('⚠️ normalMouseScroll 失敗，改用 JS:', err.message);
+
+    return await jsScrollReviewList(page, {
+      label: 'js-after-mouse-error',
+      step: 1200,
+      times: 5,
+      delay: 700,
+      waitAfter: 2500
+    });
+  }
+}
+
+async function fastScrollReviews(page, totalReviews = 0, maxRounds = 30) {
+  const isFullSync = maxRounds > 5;
+
+  if (isFullSync) {
+    if (totalReviews >= 1000) {
+      return await jsScrollReviewList(page, {
+        label: 'js-full-after-1000-fast',
+        step: 4200,
+        times: 10,
+        delay: 250,
+        waitAfter: 1200,
+        backtrack: 6000,
+        timeout: 30000
+      });
+    }
+
+    return await jsScrollReviewList(page, {
+      label: 'js-full-fast',
+      step: 3200,
+      times: 8,
+      delay: 250,
+      waitAfter: 1200,
+      backtrack: 0,
+      timeout: 30000
+    });
+  }
+
+  if (totalReviews >= 1000) {
+    return await jsScrollReviewList(page, {
+      label: 'js-after-1000',
+      step: 1800,
+      times: 7,
+      delay: 900,
+      waitAfter: 3500,
+      backtrack: 10000,
+      timeout: 40000
+    });
+  }
+
+  return await normalMouseScroll(page);
+}
+
+async function fastLoadAndCollectReviews(page, maxRounds = 30) {
+  console.log('➡️ 開始快速載入並抓評論...');
+
+  const reviewMap = new Map();
+
+  const isFullSync = maxRounds > 5;
+  const maxStableRounds = isFullSync ? 5 : 10;
+
+  console.log(
+    isFullSync
+      ? `🚀 完整同步加速模式：連續 ${maxStableRounds} 次沒有新增就跳下一間店`
+      : `⚡ 快速同步模式：連續 ${maxStableRounds} 次沒有新增就結束`
+  );
+
+  let stableCount = 0;
+  let noMoveCount = 0;
+  let timeoutCount = 0;
+  let lastTotal = 0;
+  let lastRemaining = -1;
+
+  for (let round = 0; round < maxRounds; round++) {
+    const beforeTotal = reviewMap.size;
+
+    const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
+
+    const expanded = await expandCurrentMore(page);
+
+    if (expanded > 0) {
+      await randomDelay(
+        isFullSync ? 300 : 700,
+        isFullSync ? 600 : 1000
+      );
+    }
+
+    const afterExpandCount = await collectCurrentReviews(page, reviewMap);
+    const gained = reviewMap.size - beforeTotal;
+
+    console.log(
+      `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，本輪新增 ${gained}，累積 ${reviewMap.size}`
+    );
+
+    if (reviewMap.size === lastTotal) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+      lastTotal = reviewMap.size;
+    }
+
+    if (gained > 0) {
+      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
+    } else {
+      console.log(`⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`);
+    }
+
+    if (stableCount >= maxStableRounds) {
+      if (reviewMap.size === 0) {
+        console.log(`⚠️ 目前仍是 0 筆評論，可能沒有成功進入真正評論清單，結束本店抓取`);
+      } else {
+        console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`);
+      }
+
+      break;
+    }
+
+    const scrollResult = await fastScrollReviews(page, reviewMap.size, maxRounds);
+
+    if (typeof scrollResult.remaining === 'number') {
+      lastRemaining = scrollResult.remaining;
+    }
+
+    console.log(
+      `⬇️ 快速滾動 top=${scrollResult.before}->${scrollResult.after}${scrollResult.timeout ? ' timeout' : ''} ${scrollResult.method || ''}${scrollResult.remaining >= 0 ? ` remaining=${scrollResult.remaining}` : ''}`
+    );
+
+    const moved =
+      scrollResult.before >= 0 &&
+      scrollResult.after >= 0 &&
+      scrollResult.after !== scrollResult.before;
+
+    if (scrollResult.timeout) {
+      timeoutCount++;
+    } else {
+      timeoutCount = 0;
+    }
+
+    if (moved) {
+      noMoveCount = 0;
+    } else {
+      noMoveCount++;
+    }
+
+    if (noMoveCount >= 3) {
+      console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`);
+      await randomDelay(
+        isFullSync ? 1500 : 3000,
+        isFullSync ? 2500 : 5000
+      );
+      noMoveCount = 0;
+    }
+
+    if (timeoutCount >= 2) {
+      console.log(`⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`);
+      await randomDelay(
+        isFullSync ? 2500 : 5000,
+        isFullSync ? 4000 : 8000
+      );
+      timeoutCount = 0;
+    }
+
+    await randomDelay(
+      isFullSync ? 300 : 1000,
+      isFullSync ? 700 : 1500
+    );
+  }
+
+  const reviews = Array.from(reviewMap.values());
+
+  console.log(`⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`);
+  console.log(`✅ 抓到 ${reviews.length} 筆評論`);
+
+  if (reviews.length > 0) {
+    console.log('✅ 第一筆範例:', reviews[0]);
+  }
+
+  return reviews;
+}
+
+async function scrapeOneStore(page, storeConfig, maxRounds) {
+  console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
+
+  console.log('➡️ 前往 Google...');
+  await page.goto(forceGoogleChineseUrl('https://www.google.com.tw/?hl=zh-TW&gl=TW'), {
+    waitUntil: 'networkidle2',
+    timeout: 60000
+  });
+
+  await randomDelay(2000, 3000);
+
+  console.log(`🔍 搜尋 ${storeConfig.keyword}...`);
+
+  const searchBox = 'textarea[name="q"], input[name="q"]';
+
+  await page.waitForSelector(searchBox, {
+    timeout: 30000
+  });
+
+  await page.click(searchBox, { clickCount: 3 });
+  await page.keyboard.press('Backspace');
+
+  for (const char of storeConfig.keyword) {
+    await page.type(searchBox, char);
+    await randomDelay(100, 200);
+  }
+
+  await page.keyboard.press('Enter');
+  await randomDelay(5000, 6000);
+
+  console.log('🚀 嘗試進入 Google Maps...');
+
+  const opened = await page.evaluate(() => {
+    const els = Array.from(document.querySelectorAll('a, button, span'));
+
+    const target = els.find(el => {
+      const t = (el.innerText || '').toLowerCase();
+      return t.includes('地圖') || t.includes('google 地圖');
+    });
+
+    if (target) {
+      target.click();
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!opened) {
+    console.log('⚠️ 直接開地圖 fallback');
+
+    await page.goto(forceGoogleChineseUrl(storeConfig.fallbackUrl), {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    });
+
+    await openFirstMapsResultIfNeeded(page, storeConfig);
+  } else {
+    await openFirstMapsResultIfNeeded(page, storeConfig);
+  }
+
+  await randomDelay(8000, 10000);
+
+  console.log('🎯 找評論按鈕...');
+
+  const tabClicked = await page.evaluate(() => {
+    const getText = (el) => {
+      return (
+        (el.innerText || '') +
+        (el.textContent || '') +
+        (el.getAttribute('aria-label') || '') +
+        (el.getAttribute('title') || '')
+      ).toLowerCase();
+    };
+
+    const keywords = [
+      '評論',
+      'reviews',
+      '查看評論',
+      '查看全部評論'
+    ];
+
+    const elements = Array.from(document.querySelectorAll('button, a, div'));
+
+    for (const el of elements) {
+      const text = getText(el);
+
+      if (keywords.some(k => text.includes(k))) {
+        el.click();
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+  console.log('🎯 review tab result:', tabClicked);
+
+  if (tabClicked) {
+    await randomDelay(6000, 8000);
+  } else {
+    console.log('⚠️ 沒點到評論');
+  }
+
+  await clickNewestSort(page);
+
+  const storeRating = await extractStoreRating(page);
+
+  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || '未抓到');
+  console.log('🔁 本次評論滑動輪數:', maxRounds);
+
+  const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+
+  reviews.forEach(review => {
+    review.brand = storeConfig.brand;
+    review.store = storeConfig.store;
+    review.branch = storeConfig.branch;
+    review.storeRating = storeRating;
+    review.averageRating = storeRating;
+  });
+
+  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`);
+
+  return reviews;
+}
+
+async function scrapeGoogleReviews() {
+  let browser;
+
+  try {
+    console.log('➡️ 啟動防偵測 Chrome...');
+
+    const isCloud = isCloudEnv();
+    const chromePath = getChromeExecutablePath(isCloud);
+
+    console.log('☁️ isCloud:', isCloud);
+    console.log('🧭 Chrome executablePath:', chromePath || '使用 Puppeteer 預設');
+
+    browser = await puppeteer.launch({
+      headless: isCloud ? 'new' : false,
+      protocolTimeout: 600000,
+      executablePath: chromePath,
+      defaultViewport: isCloud
+        ? { width: 1366, height: 768 }
+        : null,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-blink-features=AutomationControlled',
+        '--no-first-run',
+        '--no-default-browser-check',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--window-size=1366,768',
+        '--lang=zh-TW',
+        '--accept-lang=zh-TW,zh,en-US,en'
+      ]
+    });
+
+    const page = (await browser.pages())[0] || await browser.newPage();
+
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+    });
+
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => undefined
+      });
+
+      Object.defineProperty(navigator, 'language', {
+        get: () => 'zh-TW'
+      });
+
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['zh-TW', 'zh', 'en-US', 'en']
+      });
+    });
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    );
+
+    const maxRounds = getMaxRounds();
+    const allReviews = [];
+
+    const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
+    const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+
+    const targetStores = STORES.filter(storeConfig => {
+      const brandMatched =
+        targetBrand === 'all' ||
+        storeConfig.brand === targetBrand;
+
+      const storeMatched =
+        targetStore === 'all' ||
+        storeConfig.store === targetStore;
+
+      return brandMatched && storeMatched;
+    });
+
+    console.log('🎯 本次同步目標:', targetBrand, targetStore);
+    console.log('🎯 本次店家數:', targetStores.length);
+
+    for (const storeConfig of targetStores) {
+      try {
+        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+        allReviews.push(...reviews);
+      } catch (err) {
+        console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
+      }
+
+      await randomDelay(3000, 5000);
+    }
+
+    console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
+
+    return allReviews;
+  } catch (err) {
+    console.error('❌ 錯誤:', err);
+    return [];
+  } finally {
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
+  }
+}
+
+module.exports = scrapeGoogleReviews;
