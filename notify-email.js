@@ -154,7 +154,7 @@ async function sendNewReviewEmail(newReviews) {
   `;
 
   await transporter.sendMail({
-    from: `"Google 評論通知" <tgifit.tgif@msa.hinet.net>`,
+    from: `"Google 評論通知" <${user}>`,
     to,
     subject,
     html
