@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "id": "version-1784260910834-1129",
+    "commentId": "1784193256121-9503",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2s5SVRUSkZMV1ZwVjJsa2FGaEhUbTFPWDI1bmQyYxAB",
+    "author": "Elsa",
+    "content": "Coco the best 😻😻",
+    "rating": 5,
+    "date": "1 個月前",
+    "editedText": "",
+    "branch": "FRIDAYS",
+    "brand": "TGIF",
+    "store": "新天地",
+    "group": "TGIF",
+    "savedAt": "2026-07-17T04:01:50.820Z",
+    "replacedAt": "2026-07-17T04:01:50.820Z",
+    "reason": "content_or_rating_changed"
+  },
+  {
+    "id": "version-1784260910834-1096",
+    "commentId": "1784193256121-9470",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT21kWU56UlNUalZmZEhkVmQyTnNXVVV3WVdkWFRGRRAB",
+    "author": "Syabonga junior Dlamini",
+    "content": "The service was absolutely exceptional, and Penny did an excellent job making sure we had everything we needed throughout our visit. Every dish we ordered arrived fresh and delicious, and the overall atmosphere was incredibly welcoming and vibrant. We had a wonderful dining experience and will definitely be back again soon.",
+    "rating": 5,
+    "date": "2 週前",
+    "editedText": "",
+    "branch": "FRIDAYS",
+    "brand": "TGIF",
+    "store": "新天地",
+    "group": "TGIF",
+    "savedAt": "2026-07-17T04:01:50.820Z",
+    "replacedAt": "2026-07-17T04:01:50.820Z",
+    "reason": "content_or_rating_changed"
+  }
+]
