@@ -72,8 +72,8 @@ module.exports = [
     brand: 'TGIF',
     store: '信義',
     branch: 'FRIDAYS',
-    keyword: 'TGI FRIDAYS 信義餐廳 忠孝東路',
-    fallbackUrl: googleMapsSearch('TGI FRIDAYS 信義餐廳 忠孝東路')
+    keyword: 'TGI FRIDAYS 信義餐廳 忠孝',
+    fallbackUrl: googleMapsSearch('TGI FRIDAYS 信義餐廳 忠孝')
   },
   {
     group: 'TGIF',
