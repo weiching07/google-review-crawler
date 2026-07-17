@@ -138,10 +138,15 @@ jobs:
           SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
 
+      # 只有快速同步 scrape_rounds=5 才寄信與推播
+      # 完整同步 scrape_rounds=999 會直接跳過這個步驟
       - name: Manual send notifications
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.scrape_rounds == '5' }}
         run: npm run notify:push
         env:
+          DASHBOARD_GROUP: ${{ env.DASHBOARD_GROUP }}
+          SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
+
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
           SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
           VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
@@ -259,6 +264,9 @@ jobs:
         if: ${{ github.event_name == 'schedule' }}
         run: npm run notify:push
         env:
+          DASHBOARD_GROUP: ${{ env.DASHBOARD_GROUP }}
+          SCRAPE_MAX_ROUNDS: "5"
+
           WORKER_URL: https://dry-butterfly-33.zxcvb2282.workers.dev
           SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
           VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
