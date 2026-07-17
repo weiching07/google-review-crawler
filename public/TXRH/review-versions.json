@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "id": "version-1784264069044-393",
+    "commentId": "1784186251468-3423",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT25CS1NHNXdPWEZwVTJsbU1FaFBORFExVURCQ1RWRRAB",
+    "author": "Susiejiang Jiangyili",
+    "content": "Antchris 服务态度很好 环境很棒 食物也好吃",
+    "rating": 5,
+    "date": "6 天前",
+    "editedText": "",
+    "branch": "ROADHOUSE",
+    "brand": "TXRH",
+    "store": "復興",
+    "group": "TXRH",
+    "savedAt": "2026-07-17T04:54:29.034Z",
+    "replacedAt": "2026-07-17T04:54:29.034Z",
+    "reason": "content_or_rating_changed"
+  },
+  {
+    "id": "version-1784264069042-144",
+    "commentId": "1784186251445-1349",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2xOdE5UaE9kMGs1UzBkTU9WaHNhMmcxYTBSM1VVRRAB",
+    "author": "Tom",
+    "content": "今天吃飯氣氛很好👍餐點美味 adam 服務生服務的很好",
+    "rating": 5,
+    "date": "3 天前",
+    "editedText": "",
+    "branch": "ROADHOUSE",
+    "brand": "TXRH",
+    "store": "台中",
+    "group": "TXRH",
+    "savedAt": "2026-07-17T04:54:29.034Z",
+    "replacedAt": "2026-07-17T04:54:29.034Z",
+    "reason": "content_or_rating_changed"
+  }
+]
