@@ -96,6 +96,7 @@ function getBrandGroupByBrand(brand) {
 
 function getCommentStore(c) {
   const brand = getCommentBrand(c);
+
   const rawStore = normalizeText(
     c.store ||
     c.storeName ||
@@ -236,9 +237,13 @@ function getDashboardTitle() {
   }
 
   for (const brandGroup of DASHBOARD_TEMPLATE.stores) {
-    if (brandGroup.brand !== currentBrandFilter) continue;
+    if (brandGroup.brand !== currentBrandFilter) {
+      continue;
+    }
 
-    const storeItem = brandGroup.stores.find(item => item.store === currentStoreFilter);
+    const storeItem = brandGroup.stores.find(item => {
+      return item.store === currentStoreFilter;
+    });
 
     if (storeItem) {
       return storeItem.title;
@@ -253,7 +258,9 @@ function getDashboardTitle() {
 function updateDashboardTitle() {
   const titleEl = document.getElementById('dashboardTitle');
 
-  if (!titleEl) return;
+  if (!titleEl) {
+    return;
+  }
 
   titleEl.textContent = getDashboardTitle();
 }
@@ -273,7 +280,9 @@ function escapeJS(value) {
 }
 
 function getDashboardGroup() {
-  const configGroup = window.DASHBOARD_CONFIG && window.DASHBOARD_CONFIG.groupId;
+  const configGroup =
+    window.DASHBOARD_CONFIG &&
+    window.DASHBOARD_CONFIG.groupId;
 
   if (configGroup) {
     return configGroup;
@@ -309,6 +318,10 @@ function getCurrentSyncTarget() {
   };
 }
 
+function isSingleStoreTarget(brand, store) {
+  return brand !== 'all' && store !== 'all';
+}
+
 function getSyncTargetLabel(brand, store) {
   if (brand === 'all' && store === 'all') {
     return '全部店別';
@@ -340,14 +353,11 @@ function findTopSyncButton() {
 
   const target = buttons.find(button => {
     const text = normalizeText(button.textContent);
-    const onclick = String(button.getAttribute('onclick') || '');
 
     return (
-      onclick.includes('openManualSync') ||
       text.includes('重新整理資料') ||
-      text.includes('手動同步') ||
-      text.includes('同步全部店別') ||
-      text.includes('同步此店')
+      text.includes('手動同步全部店別') ||
+      text.includes('手動同步此店')
     );
   });
 
@@ -373,12 +383,14 @@ function ensureFullSyncButton() {
   }
 
   fullSyncButton = document.createElement('button');
+
   fullSyncButton.id = 'fullSyncButton';
   fullSyncButton.type = 'button';
-  fullSyncButton.className = 'border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 ml-2';
-  fullSyncButton.onclick = openFullManualSync;
 
-  syncButton.insertAdjacentElement('afterend', fullSyncButton);
+  syncButton.insertAdjacentElement(
+    'afterend',
+    fullSyncButton
+  );
 
   return fullSyncButton;
 }
@@ -392,32 +404,32 @@ function applyTopSyncButtons() {
   }
 
   const { brand, store } = getCurrentSyncTarget();
-  const isSingleStore = brand !== 'all' && store !== 'all';
+  const singleStore = isSingleStoreTarget(brand, store);
 
   syncButton.style.display = '';
-  syncButton.onclick = openManualSync;
-  syncButton.className = 'border p-2 rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-60';
+  syncButton.disabled = false;
+  syncButton.onclick = dashboardOpenManualSync;
+
+  syncButton.className =
+    'border p-2 rounded bg-amber-500 text-white ' +
+    'hover:bg-amber-600 disabled:opacity-60';
+
+  syncButton.textContent = singleStore
+    ? '手動同步此店'
+    : '手動同步全部店別';
 
   if (fullSyncButton) {
     fullSyncButton.style.display = '';
-    fullSyncButton.onclick = openFullManualSync;
-    fullSyncButton.className = 'border p-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 ml-2';
-  }
+    fullSyncButton.disabled = false;
+    fullSyncButton.onclick = dashboardOpenFullSync;
 
-  if (isSingleStore) {
-    syncButton.textContent = '手動同步此店';
+    fullSyncButton.className =
+      'border p-2 rounded bg-red-600 text-white ' +
+      'hover:bg-red-700 disabled:opacity-60 ml-2';
 
-    if (fullSyncButton) {
-      fullSyncButton.textContent = '完整同步此店';
-    }
-
-    return;
-  }
-
-  syncButton.textContent = '手動同步全部店別';
-
-  if (fullSyncButton) {
-    fullSyncButton.textContent = '完整同步全部店別';
+    fullSyncButton.textContent = singleStore
+      ? '完整同步此店'
+      : '完整同步全部店別';
   }
 }
 
@@ -425,35 +437,41 @@ function updateSyncButtonVisibility() {
   applyTopSyncButtons();
 }
 
-async function triggerDashboardSync(scrapeRounds, buttonId, originalText) {
+async function runDashboardSync(scrapeRounds, buttonId) {
   const button = document.getElementById(buttonId);
   const { brand, store } = getCurrentSyncTarget();
 
   const dashboardGroup = getDashboardGroup();
   const targetLabel = getSyncTargetLabel(brand, store);
-  const isFullSync = Number(scrapeRounds) >= 999;
+  const fullSync = Number(scrapeRounds) >= 999;
 
   if (!button) {
     setSyncStatus('找不到同步按鈕，已取消同步。');
     return;
   }
 
+  const originalText = button.textContent;
+
   button.disabled = true;
-  button.textContent = isFullSync ? '完整同步啟動中...' : '同步啟動中...';
+  button.textContent = fullSync
+    ? '完整同步啟動中...'
+    : '同步啟動中...';
 
   setSyncStatus(
-    isFullSync
+    fullSync
       ? `正在觸發完整同步：${targetLabel}`
       : `正在觸發手動同步：${targetLabel}`
   );
 
   try {
-    const res = await fetch(SYNC_WORKER_URL, {
+    const response = await fetch(SYNC_WORKER_URL, {
       method: 'POST',
+
       headers: {
         'Content-Type': 'application/json',
         'X-Sync-Secret': SYNC_SECRET
       },
+
       body: JSON.stringify({
         source: 'review-dashboard',
 
@@ -461,22 +479,25 @@ async function triggerDashboardSync(scrapeRounds, buttonId, originalText) {
         dashboardGroup: dashboardGroup,
         dashboard_group: dashboardGroup,
 
-        scrapeRounds: scrapeRounds,
+        scrapeRounds: Number(scrapeRounds),
         scrape_rounds: String(scrapeRounds),
 
-        brand: brand,
-        store: store
+        brand,
+        store
       })
     });
 
-    const data = await res.json();
+    const data = await response.json();
 
-    if (!res.ok || !data.ok) {
-      throw new Error(data.message || '同步觸發失敗');
+    if (!response.ok || !data.ok) {
+      throw new Error(
+        data.message ||
+        `同步觸發失敗，HTTP ${response.status}`
+      );
     }
 
     setSyncStatus(
-      isFullSync
+      fullSync
         ? `已觸發完整同步：${targetLabel}`
         : `已觸發手動同步：${targetLabel}`
     );
@@ -484,84 +505,121 @@ async function triggerDashboardSync(scrapeRounds, buttonId, originalText) {
     if (typeof startFastReviewWatcher === 'function') {
       startFastReviewWatcher();
     }
-  } catch (err) {
-    console.error(err);
-    setSyncStatus(`同步觸發失敗：${err.message}`);
+  } catch (error) {
+    console.error(error);
+
+    setSyncStatus(
+      `同步觸發失敗：${error.message}`
+    );
   } finally {
     button.disabled = false;
     button.textContent = originalText;
+
     applyTopSyncButtons();
   }
 }
 
-async function openManualSync() {
-  const { brand, store } = getCurrentSyncTarget();
-  const isSingleStore = brand !== 'all' && store !== 'all';
-
-  await triggerDashboardSync(
+/*
+ * 這兩個函式不做任何單店限制。
+ *
+ * 全部品牌：
+ *   brand = all
+ *   store = all
+ *
+ * 單一店：
+ *   brand = 目前品牌
+ *   store = 目前店別
+ */
+async function dashboardOpenManualSync() {
+  await runDashboardSync(
     5,
-    'syncButton',
-    isSingleStore ? '手動同步此店' : '手動同步全部店別'
+    'syncButton'
   );
 }
 
-async function openFullManualSync() {
-  const { brand, store } = getCurrentSyncTarget();
-  const isSingleStore = brand !== 'all' && store !== 'all';
-
-  await triggerDashboardSync(
+async function dashboardOpenFullSync() {
+  await runDashboardSync(
     999,
-    'fullSyncButton',
-    isSingleStore ? '完整同步此店' : '完整同步全部店別'
+    'fullSyncButton'
   );
 }
 
 function loadSidebarState() {
-  sidebarCollapsed = localStorage.getItem('review_sidebar_collapsed_v1') === '1';
+  sidebarCollapsed =
+    localStorage.getItem('review_sidebar_collapsed_v1') === '1';
 }
 
 function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
-  localStorage.setItem('review_sidebar_collapsed_v1', sidebarCollapsed ? '1' : '0');
+
+  localStorage.setItem(
+    'review_sidebar_collapsed_v1',
+    sidebarCollapsed ? '1' : '0'
+  );
+
   renderSidebar();
 }
 
 function renderSidebar() {
   const sidebarMount = document.getElementById('sidebarMount');
 
-  if (!sidebarMount) return;
+  if (!sidebarMount) {
+    return;
+  }
 
-  const sidebarWidthClass = sidebarCollapsed ? 'w-16' : 'w-64';
-  const toggleIcon = sidebarCollapsed ? '›' : '‹';
+  const sidebarWidthClass = sidebarCollapsed
+    ? 'w-16'
+    : 'w-64';
+
+  const toggleIcon = sidebarCollapsed
+    ? '›'
+    : '‹';
 
   let sidebarContent = '';
 
   if (!sidebarCollapsed) {
-    const brandBlocks = DASHBOARD_TEMPLATE.stores.map(brandGroup => {
-      const storeButtons = brandGroup.stores.map(storeItem => {
-        const id = getStoreButtonId(brandGroup.brand, storeItem.store);
+    const brandBlocks = DASHBOARD_TEMPLATE.stores
+      .map(brandGroup => {
+        const storeButtons = brandGroup.stores
+          .map(storeItem => {
+            const id = getStoreButtonId(
+              brandGroup.brand,
+              storeItem.store
+            );
+
+            return `
+              <button
+                onclick="setStoreFilter(
+                  '${escapeJS(brandGroup.brand)}',
+                  '${escapeJS(storeItem.store)}'
+                )"
+                id="${id}"
+                class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
+              >
+                ${renderStoreButtonContent(
+                  storeItem.label,
+                  brandGroup.brand,
+                  storeItem.store
+                )}
+              </button>
+            `;
+          })
+          .join('');
 
         return `
-          <button
-            onclick="setStoreFilter('${escapeJS(brandGroup.brand)}', '${escapeJS(storeItem.store)}')"
-            id="${id}"
-            class="w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2"
-          >
-            ${renderStoreButtonContent(storeItem.label, brandGroup.brand, storeItem.store)}
-          </button>
-        `;
-      }).join('');
+          <div>
+            <div class="text-sm font-bold text-slate-500 mb-2">
+              ${escapeTemplateHTML(
+                brandGroup.brandLabel ||
+                brandGroup.brand
+              )}
+            </div>
 
-      return `
-        <div>
-          <div class="text-sm font-bold text-slate-500 mb-2">
-            ${escapeTemplateHTML(brandGroup.brandLabel || brandGroup.brand)}
+            ${storeButtons}
           </div>
-
-          ${storeButtons}
-        </div>
-      `;
-    }).join('');
+        `;
+      })
+      .join('');
 
     sidebarContent = `
       <h2 class="font-bold text-lg text-slate-800 mb-4">
@@ -583,8 +641,12 @@ function renderSidebar() {
   }
 
   sidebarMount.innerHTML = `
-    <aside class="${sidebarWidthClass} shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8 transition-all duration-200">
-      <div class="flex items-center justify-center ${sidebarCollapsed ? '' : 'mb-4'}">
+    <aside
+      class="${sidebarWidthClass} shrink-0 bg-white rounded shadow p-4 h-fit sticky top-8 transition-all duration-200"
+    >
+      <div
+        class="flex items-center justify-center ${sidebarCollapsed ? '' : 'mb-4'}"
+      >
         <button
           onclick="toggleSidebar()"
           class="border rounded px-3 py-2 text-slate-600 hover:bg-slate-100"
@@ -608,6 +670,7 @@ function setStoreFilter(brand, store) {
 
   updateStoreFilterButtons();
   updateDashboardTitle();
+
   applyTopSyncButtons();
 
   render();
@@ -618,29 +681,38 @@ function updateStoreFilterButtons() {
     return;
   }
 
-  const allButton = document.getElementById('store-all');
+  const allButton =
+    document.getElementById('store-all');
 
   if (allButton) {
-    allButton.className = currentBrandFilter === 'all'
-      ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
-      : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
+    allButton.className =
+      currentBrandFilter === 'all'
+        ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white'
+        : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border';
   }
 
   DASHBOARD_TEMPLATE.stores.forEach(brandGroup => {
     brandGroup.stores.forEach(storeItem => {
-      const btn = document.getElementById(getStoreButtonId(brandGroup.brand, storeItem.store));
+      const button = document.getElementById(
+        getStoreButtonId(
+          brandGroup.brand,
+          storeItem.store
+        )
+      );
 
-      if (!btn) return;
+      if (!button) {
+        return;
+      }
 
       const active =
         currentBrandFilter === brandGroup.brand &&
         currentStoreFilter === storeItem.store;
 
-      btn.className = active
+      button.className = active
         ? 'w-full text-left px-4 py-2 rounded bg-slate-800 text-white mb-2'
         : 'w-full text-left px-4 py-2 rounded bg-white hover:bg-slate-100 border mb-2';
 
-      btn.innerHTML = renderStoreButtonContent(
+      button.innerHTML = renderStoreButtonContent(
         storeItem.label,
         brandGroup.brand,
         storeItem.store
@@ -649,16 +721,50 @@ function updateStoreFilterButtons() {
   });
 }
 
-window.getDashboardGroup = getDashboardGroup;
-window.updateSyncButtonVisibility = updateSyncButtonVisibility;
-window.openManualSync = openManualSync;
-window.openFullManualSync = openFullManualSync;
-window.applyTopSyncButtons = applyTopSyncButtons;
+/*
+ * 強制覆蓋舊版 index.html 裡可能存在的同名函式。
+ * 即使舊版曾禁止單店完整同步，按鈕也會改用這一版。
+ */
+function bindDashboardSyncFunctions() {
+  window.getDashboardGroup = getDashboardGroup;
+  window.updateSyncButtonVisibility = updateSyncButtonVisibility;
 
-window.addEventListener('DOMContentLoaded', () => {
-  applyTopSyncButtons();
-});
+  window.dashboardOpenManualSync =
+    dashboardOpenManualSync;
 
-window.addEventListener('load', () => {
+  window.dashboardOpenFullSync =
+    dashboardOpenFullSync;
+
+  window.openManualSync =
+    dashboardOpenManualSync;
+
+  window.openFullManualSync =
+    dashboardOpenFullSync;
+
+  window.applyTopSyncButtons =
+    applyTopSyncButtons;
+
   applyTopSyncButtons();
-});
+}
+
+bindDashboardSyncFunctions();
+
+window.addEventListener(
+  'DOMContentLoaded',
+  bindDashboardSyncFunctions
+);
+
+window.addEventListener(
+  'load',
+  bindDashboardSyncFunctions
+);
+
+setTimeout(
+  bindDashboardSyncFunctions,
+  300
+);
+
+setTimeout(
+  bindDashboardSyncFunctions,
+  1000
+);
