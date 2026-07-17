@@ -396,15 +396,32 @@ function ensureFullSyncButton() {
 }
 
 function applyTopSyncButtons() {
+  const { brand, store } = getCurrentSyncTarget();
+  const singleStore = isSingleStoreTarget(brand, store);
+
+  if (!singleStore) {
+    Array.from(document.querySelectorAll('button')).forEach(button => {
+      const text = normalizeText(button.textContent);
+
+      if (
+        text === '手動同步全部店別' ||
+        text === '完整同步全部店別' ||
+        text === '手動同步此店' ||
+        text === '完整同步此店'
+      ) {
+        button.style.display = 'none';
+      }
+    });
+
+    return;
+  }
+
   const syncButton = findTopSyncButton();
   const fullSyncButton = ensureFullSyncButton();
 
   if (!syncButton) {
     return;
   }
-
-  const { brand, store } = getCurrentSyncTarget();
-  const singleStore = isSingleStoreTarget(brand, store);
 
   syncButton.style.display = '';
   syncButton.disabled = false;
@@ -414,9 +431,7 @@ function applyTopSyncButtons() {
     'border p-2 rounded bg-amber-500 text-white ' +
     'hover:bg-amber-600 disabled:opacity-60';
 
-  syncButton.textContent = singleStore
-    ? '手動同步此店'
-    : '手動同步全部店別';
+  syncButton.textContent = '手動同步此店';
 
   if (fullSyncButton) {
     fullSyncButton.style.display = '';
@@ -427,9 +442,7 @@ function applyTopSyncButtons() {
       'border p-2 rounded bg-red-600 text-white ' +
       'hover:bg-red-700 disabled:opacity-60 ml-2';
 
-    fullSyncButton.textContent = singleStore
-      ? '完整同步此店'
-      : '完整同步全部店別';
+    fullSyncButton.textContent = '完整同步此店';
   }
 }
 
