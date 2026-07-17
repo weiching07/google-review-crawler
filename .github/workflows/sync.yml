@@ -138,8 +138,143 @@ jobs:
           SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
 
+      # =========================
+      # 完整同步通知基準
+      #
+      # 完整同步 999：
+      # 1. 不寄信
+      # 2. 不推播
+      # 3. 將該次同步範圍內已存在的評論 ID
+      #    靜默補進 notified-review-ids.json
+      #
+      # 避免下一次排程把完整同步抓到的舊評論
+      # 誤判成新評論再次寄出
+      # =========================
+      - name: Baseline notified IDs after full sync
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.scrape_rounds == '999' }}
+        env:
+          SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+
+          const commentsPath = 'public/comments.json';
+          const notifiedPath = 'public/notified-review-ids.json';
+
+          function readArray(filePath) {
+            try {
+              if (!fs.existsSync(filePath)) {
+                return [];
+              }
+
+              const parsed = JSON.parse(
+                fs.readFileSync(filePath, 'utf8')
+              );
+
+              return Array.isArray(parsed)
+                ? parsed
+                : [];
+            } catch (error) {
+              console.error(
+                `讀取 ${filePath} 失敗：${error.message}`
+              );
+
+              process.exit(1);
+            }
+          }
+
+          function normalize(value) {
+            return String(value ?? '').trim();
+          }
+
+          function getReviewId(review) {
+            return normalize(
+              review?.reviewId ||
+              review?.id ||
+              ''
+            );
+          }
+
+          function getReviewStore(review) {
+            return normalize(
+              review?.store ||
+              review?.storeName ||
+              review?.location ||
+              review?.shop ||
+              review?.branchStore ||
+              ''
+            );
+          }
+
+          const comments = readArray(commentsPath);
+          const oldNotifiedIds = readArray(notifiedPath);
+
+          const targetStore = normalize(
+            process.env.SCRAPE_TARGET_STORE || 'all'
+          );
+
+          const notifiedSet = new Set(
+            oldNotifiedIds
+              .map(normalize)
+              .filter(Boolean)
+          );
+
+          let matchedCount = 0;
+          let addedCount = 0;
+          let skippedWithoutId = 0;
+
+          for (const review of comments) {
+            if (!review || review.isDeleted === true) {
+              continue;
+            }
+
+            const reviewStore = getReviewStore(review);
+
+            const matchesTargetStore =
+              targetStore === 'all' ||
+              reviewStore === targetStore;
+
+            if (!matchesTargetStore) {
+              continue;
+            }
+
+            matchedCount++;
+
+            const reviewId = getReviewId(review);
+
+            if (!reviewId) {
+              skippedWithoutId++;
+              continue;
+            }
+
+            if (!notifiedSet.has(reviewId)) {
+              notifiedSet.add(reviewId);
+              addedCount++;
+            }
+          }
+
+          fs.writeFileSync(
+            notifiedPath,
+            JSON.stringify(
+              Array.from(notifiedSet),
+              null,
+              2
+            ) + '\n',
+            'utf8'
+          );
+
+          console.log('完整同步通知基準更新完成');
+          console.log(`完整同步店別：${targetStore}`);
+          console.log(`符合範圍評論數：${matchedCount}`);
+          console.log(`原本已通知 ID 數：${oldNotifiedIds.length}`);
+          console.log(`本次靜默補入 ID 數：${addedCount}`);
+          console.log(`缺少評論 ID 數：${skippedWithoutId}`);
+          console.log(`更新後已通知 ID 數：${notifiedSet.size}`);
+          console.log('完整同步不寄信、不推播');
+          NODE
+
       # 只有快速同步 scrape_rounds=5 才寄信與推播
-      # 完整同步 scrape_rounds=999 會直接跳過這個步驟
+      # 完整同步 scrape_rounds=999 會跳過這個步驟
       - name: Manual send notifications
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.scrape_rounds == '5' }}
         run: npm run notify:push
@@ -199,7 +334,10 @@ jobs:
           cp /tmp/review-versions.json "public/$GROUP/review-versions.json"
           cp /tmp/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
 
-          git add "public/$GROUP/comments.json" "public/$GROUP/review-versions.json" "public/$GROUP/notified-review-ids.json"
+          git add \
+            "public/$GROUP/comments.json" \
+            "public/$GROUP/review-versions.json" \
+            "public/$GROUP/notified-review-ids.json"
 
           if git diff --cached --quiet; then
             echo "No manual JSON changes to commit"
@@ -319,7 +457,10 @@ jobs:
           cp /tmp/review-versions.json "public/$GROUP/review-versions.json"
           cp /tmp/notified-review-ids.json "public/$GROUP/notified-review-ids.json"
 
-          git add "public/$GROUP/comments.json" "public/$GROUP/review-versions.json" "public/$GROUP/notified-review-ids.json"
+          git add \
+            "public/$GROUP/comments.json" \
+            "public/$GROUP/review-versions.json" \
+            "public/$GROUP/notified-review-ids.json"
 
           if git diff --cached --quiet; then
             echo "No scheduled JSON changes to commit"
