@@ -36,8 +36,8 @@ function getDashboardGroup() {
 }
 
 function getGroupLabel(group) {
-  if (group === 'TGIF') return 'FRIDAYS';
-  if (group === 'TXRH') return 'ROADHOUSE';
+  if (group === 'TGIF') return 'TGI FRIDAYS';
+  if (group === 'TXRH') return ' Texas Roadhouse';
 
   return 'NEW BRAND';
 }
