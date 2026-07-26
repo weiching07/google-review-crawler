@@ -6681,7 +6681,10 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-20T13:39:00.371Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z"
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1784554740377-24",
@@ -6703,7 +6706,10 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-20T13:39:00.371Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z"
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1784547326186-1305",
@@ -15857,7 +15863,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-17T06:25:40.607Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -25832,7 +25838,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-17T06:25:40.607Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -29295,7 +29301,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "上次編輯：3 週前",
+    "date": "上次編輯：4 週前",
     "editedText": "",
     "isEdited": true,
     "hasReply": true,
@@ -29307,7 +29313,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-17T06:25:40.607Z",
     "updatedAt": "2026-07-20T00:34:33.016Z",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -33282,7 +33288,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-17T04:01:50.820Z",
     "updatedAt": "2026-07-17T09:42:34.225Z",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -44320,7 +44326,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "3 個月前",
+    "date": "4 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -44332,7 +44338,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -45482,7 +45488,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -50982,7 +50988,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -72132,7 +72138,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -73332,7 +73338,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -73757,7 +73763,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -86820,7 +86826,7 @@
     "rating": 5,
     "storeRating": "4.8",
     "averageRating": "4.8",
-    "date": "4 個月前",
+    "date": "5 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -86832,7 +86838,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-16T09:14:16.090Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -89582,7 +89588,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -90732,7 +90738,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -111632,7 +111638,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "2026-07-20T13:39:00.371Z",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -113245,7 +113251,7 @@
     "rating": 5,
     "storeRating": "4.8",
     "averageRating": "4.8",
-    "date": "2 個月前",
+    "date": "3 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -113257,7 +113263,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -115632,7 +115638,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -132993,9 +132999,9 @@
     "author": "Oscar Hung",
     "content": "餐點好吃，擺盤呈現也不錯，雖然現場人多，不過出餐速度並沒有影響太多，服務我們這桌的人員 Cindy很專業，熱心講解menu且動作迅速，給她個讚 👍👍👍",
     "rating": 5,
-    "storeRating": "4.4",
-    "averageRating": "4.4",
-    "date": "5 個月前",
+    "storeRating": "4.5",
+    "averageRating": "4.5",
+    "date": "6 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -133007,7 +133013,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -135243,8 +135249,8 @@
     "author": "黃啟先",
     "content": "活動烤豬肋排買一送一，兩個人吃不完真吃不完~\n\n2026/3/27週五1700用餐，服務到胃~\n\n點了湯 麵 沙拉 飲料 最後豬排上桌，前菜就8分飽了只能打包...",
     "rating": 5,
-    "storeRating": "4.4",
-    "averageRating": "4.4",
+    "storeRating": "4.5",
+    "averageRating": "4.5",
     "date": "3 個月前",
     "editedText": "",
     "isEdited": false,
@@ -135257,7 +135263,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -137357,7 +137363,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "2026-07-26T04:20:19.653Z",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -149545,7 +149551,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "1 個月前",
+    "date": "2 個月前",
     "editedText": "",
     "isEdited": true,
     "hasReply": true,
@@ -149557,7 +149563,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "2026-07-20T13:39:00.371Z",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -160995,7 +161001,7 @@
     "rating": 4,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "4 週前",
+    "date": "1 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -161007,7 +161013,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -163395,7 +163401,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "3 週前",
+    "date": "4 週前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -163407,7 +163413,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -183907,7 +183913,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -185082,7 +185088,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -188957,7 +188963,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -198893,9 +198899,9 @@
     "author": "曉芸",
     "content": "太喜歡Hana的服務，豬肋排軟嫩又好吃，壽星禮的田納西雙拼組合炸蝦超酥脆好吃，布朗尼香甜美味，螞蟻人最愛，摩西多必喝，鮮蝦雞肉麵口味不錯，要是麵體再軟點就好！整體而言，用餐感受都很棒喔～下次要再來！",
     "rating": 5,
-    "storeRating": "4.4",
-    "averageRating": "4.4",
-    "date": "7 個月前",
+    "storeRating": "4.5",
+    "averageRating": "4.5",
+    "date": "8 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -198907,7 +198913,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-16T09:14:16.090Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -210107,7 +210113,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -211707,7 +211713,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -221020,7 +221026,7 @@
     "rating": 5,
     "storeRating": "4.5",
     "averageRating": "4.5",
-    "date": "上次編輯：7 個月前",
+    "date": "上次編輯：8 個月前",
     "editedText": "",
     "isEdited": true,
     "hasReply": true,
@@ -221032,7 +221038,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -221807,7 +221813,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -226507,7 +226513,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -236082,7 +236088,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -243107,7 +243113,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -247807,7 +247813,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -263482,7 +263488,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -267295,7 +267301,7 @@
     "rating": 5,
     "storeRating": "4.4",
     "averageRating": "4.4",
-    "date": "1 個月前",
+    "date": "2 個月前",
     "editedText": "",
     "isEdited": false,
     "hasReply": true,
@@ -267307,7 +267313,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -270657,7 +270663,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "2026-07-17T09:42:34.225Z",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -284107,7 +284113,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -286082,7 +286088,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -287707,7 +287713,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T04:20:19.653Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -307932,7 +307938,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-20T13:39:00.371Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -308382,7 +308388,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -310032,7 +310038,7 @@
     "group": "TGIF",
     "scrapedAt": "2026-07-16T09:14:16.090Z",
     "updatedAt": "2026-07-17T09:42:34.225Z",
-    "lastSeenAt": "2026-07-26T07:25:04.407Z",
+    "lastSeenAt": "2026-07-26T09:45:47.123Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
