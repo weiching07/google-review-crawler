@@ -184,8 +184,8 @@ module.exports = [
     store: '草衙',
     storeCode: '5528',
     branch: 'FRIDAYS',
-    keyword: 'TGI FRIDAYS 草衙道餐廳',
-    fallbackUrl: googleMapsSearch('TGI FRIDAYS 草衙道')
+    keyword: 'TGI FRIDAYS SKM Park餐廳',
+    fallbackUrl: googleMapsSearch('TGI FRIDAYS SKM Park餐廳')
   },
   {
     group: 'TGIF',
