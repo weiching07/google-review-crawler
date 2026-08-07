@@ -26,21 +26,35 @@ function getRating(value) {
 }
 
 function isNegativeReview(review) {
-  return getRating(review.rating) <= 2 && getRating(review.rating) > 0;
+  return getRating(review.rating) <= 2 &&
+    getRating(review.rating) > 0;
 }
 
 function getDashboardGroup() {
-  const group = text(process.env.DASHBOARD_GROUP || 'new-brand');
+  const group = text(
+    process.env.DASHBOARD_GROUP ||
+    'new-brand'
+  );
 
-  if (group === 'TGIF') return 'TGIF';
-  if (group === 'TXRH') return 'TXRH';
+  if (group === 'TGIF') {
+    return 'TGIF';
+  }
+
+  if (group === 'TXRH') {
+    return 'TXRH';
+  }
 
   return 'new-brand';
 }
 
 function getGroupLabel(group) {
-  if (group === 'TGIF') return 'TGI FRIDAYS';
-  if (group === 'TXRH') return 'Texas Roadhouse';
+  if (group === 'TGIF') {
+    return 'TGI FRIDAYS';
+  }
+
+  if (group === 'TXRH') {
+    return 'Texas Roadhouse';
+  }
 
   return 'NEW BRAND';
 }
@@ -74,32 +88,47 @@ function normalizeStoreName(value) {
     .trim();
 }
 
-function getStoreConfig(group, storeName) {
-  const normalizedStoreName = normalizeStoreName(storeName);
+function getStoreConfig(
+  group,
+  storeName
+) {
+  const normalizedStoreName =
+    normalizeStoreName(storeName);
 
-  if (!normalizedStoreName || !Array.isArray(stores)) {
+  if (
+    !normalizedStoreName ||
+    !Array.isArray(stores)
+  ) {
     return null;
   }
 
   return stores.find(storeItem => {
     return (
       text(storeItem.group) === group &&
-      normalizeStoreName(storeItem.store) === normalizedStoreName
+      normalizeStoreName(
+        storeItem.store
+      ) === normalizedStoreName
     );
   }) || null;
 }
 
-function getReviewStoreCode(group, review) {
-  const reviewStoreCode = text(review.storeCode);
+function getReviewStoreCode(
+  group,
+  review
+) {
+  const reviewStoreCode = text(
+    review.storeCode
+  );
 
   if (reviewStoreCode) {
     return reviewStoreCode;
   }
 
-  const storeConfig = getStoreConfig(
-    group,
-    review.store
-  );
+  const storeConfig =
+    getStoreConfig(
+      group,
+      review.store
+    );
 
   return text(
     storeConfig &&
@@ -107,7 +136,14 @@ function getReviewStoreCode(group, review) {
   );
 }
 
-function getStoreManagerEmail(group, storeCode, brand) {
+/*
+ * GM 信箱
+ */
+function getStoreManagerEmail(
+  group,
+  storeCode,
+  brand
+) {
   if (!storeCode) {
     return '';
   }
@@ -121,19 +157,28 @@ function getStoreManagerEmail(group, storeCode, brand) {
   }
 
   if (group === 'new-brand') {
-    const normalizedBrand = text(brand).toUpperCase();
+    const normalizedBrand =
+      text(brand).toUpperCase();
 
-    if (normalizedBrand === 'SALT&STONE') {
+    if (
+      normalizedBrand ===
+      'SALT&STONE'
+    ) {
       return `${storeCode}.gm@saltandstonedining.com`;
     }
 
-    if (normalizedBrand === 'LILLA') {
+    if (
+      normalizedBrand ===
+      'LILLA'
+    ) {
       return `${storeCode}.gm@lillaeats.com`;
     }
 
     if (
       text(brand) === '泰勒肉舖' ||
-      normalizedBrand.includes('TAYLOR')
+      normalizedBrand.includes(
+        'TAYLOR'
+      )
     ) {
       return '1801@taylorbutchery.com.tw';
     }
@@ -142,8 +187,58 @@ function getStoreManagerEmail(group, storeCode, brand) {
   return '';
 }
 
+/*
+ * STORE 信箱
+ *
+ * 1801 泰勒肉舖例外：
+ * 不新增 store 帳號。
+ */
+function getStoreAccountEmail(
+  group,
+  storeCode,
+  brand
+) {
+  if (!storeCode) {
+    return '';
+  }
+
+  if (storeCode === '1801') {
+    return '';
+  }
+
+  if (group === 'TGIF') {
+    return `${storeCode}.store@tgifridays.com.tw`;
+  }
+
+  if (group === 'TXRH') {
+    return `${storeCode}.store@texasroadhouse.com.tw`;
+  }
+
+  if (group === 'new-brand') {
+    const normalizedBrand =
+      text(brand).toUpperCase();
+
+    if (
+      normalizedBrand ===
+      'SALT&STONE'
+    ) {
+      return `${storeCode}.store@saltandstonedining.com`;
+    }
+
+    if (
+      normalizedBrand ===
+      'LILLA'
+    ) {
+      return `${storeCode}.store@lillaeats.com`;
+    }
+  }
+
+  return '';
+}
+
 function isReviewWithinOneDay(review) {
-  const dateText = text(review.date).toLowerCase();
+  const dateText =
+    text(review.date).toLowerCase();
 
   if (!dateText) {
     return false;
@@ -159,12 +254,15 @@ function isReviewWithinOneDay(review) {
     return true;
   }
 
-  const chineseDayMatch = dateText.match(
-    /(\d+)\s*天前/
-  );
+  const chineseDayMatch =
+    dateText.match(
+      /(\d+)\s*天前/
+    );
 
   if (chineseDayMatch) {
-    return Number(chineseDayMatch[1]) <= 1;
+    return Number(
+      chineseDayMatch[1]
+    ) <= 1;
   }
 
   if (
@@ -178,56 +276,108 @@ function isReviewWithinOneDay(review) {
     return true;
   }
 
-  const englishDayMatch = dateText.match(
-    /(\d+)\s*day[s]?\s*ago/
-  );
+  const englishDayMatch =
+    dateText.match(
+      /(\d+)\s*day[s]?\s*ago/
+    );
 
   if (englishDayMatch) {
-    return Number(englishDayMatch[1]) <= 1;
+    return Number(
+      englishDayMatch[1]
+    ) <= 1;
   }
 
   return false;
 }
 
 function renderReviewCard(review) {
-  const negative = isNegativeReview(review);
+  const negative =
+    isNegativeReview(review);
 
-  const borderColor = negative
-    ? '#dc2626'
-    : '#ddd';
+  const borderColor =
+    negative
+      ? '#dc2626'
+      : '#ddd';
 
-  const backgroundColor = negative
-    ? '#fff1f2'
-    : '#ffffff';
+  const backgroundColor =
+    negative
+      ? '#fff1f2'
+      : '#ffffff';
 
-  const titleColor = negative
-    ? '#b91c1c'
-    : '#111827';
+  const titleColor =
+    negative
+      ? '#b91c1c'
+      : '#111827';
 
   return `
     <div style="border:2px solid ${borderColor}; background:${backgroundColor}; padding:12px; margin:12px 0; border-radius:8px;">
       ${
         negative
-          ? `<p style="margin:0 0 10px 0; color:${titleColor}; font-size:16px; font-weight:bold;">⚠️ 負評提醒：${escapeHtml(review.rating || '-')} 星</p>`
+          ? `
+            <p style="margin:0 0 10px 0; color:${titleColor}; font-size:16px; font-weight:bold;">
+              ⚠️ 負評提醒：${escapeHtml(
+                review.rating || '-'
+              )} 星
+            </p>
+          `
           : ''
       }
 
-      <p><b>品牌：</b>${escapeHtml(review.brand || review.branch || '-')}</p>
-      <p><b>店別：</b>${escapeHtml(review.store || '-')}</p>
-      <p><b>作者：</b>${escapeHtml(review.author || '-')}</p>
+      <p>
+        <b>品牌：</b>
+        ${escapeHtml(
+          review.brand ||
+          review.branch ||
+          '-'
+        )}
+      </p>
+
+      <p>
+        <b>店別：</b>
+        ${escapeHtml(
+          review.store || '-'
+        )}
+      </p>
+
+      <p>
+        <b>作者：</b>
+        ${escapeHtml(
+          review.author || '-'
+        )}
+      </p>
 
       <p>
         <b>星等：</b>
-        <span style="font-weight:bold; color:${negative ? '#dc2626' : '#111827'};">
-          ${escapeHtml(review.rating || '-')} 星
+
+        <span
+          style="
+            font-weight:bold;
+            color:${
+              negative
+                ? '#dc2626'
+                : '#111827'
+            };
+          "
+        >
+          ${escapeHtml(
+            review.rating || '-'
+          )} 星
         </span>
       </p>
 
-      <p><b>日期：</b>${escapeHtml(review.date || '-')}</p>
+      <p>
+        <b>日期：</b>
+        ${escapeHtml(
+          review.date || '-'
+        )}
+      </p>
 
       <p>
         <b>內容：</b><br>
-        ${escapeHtml(review.content || '-').replace(/\n/g, '<br>')}
+
+        ${escapeHtml(
+          review.content || '-'
+        ).replace(/\n/g, '<br>')}
       </p>
     </div>
   `;
@@ -237,28 +387,55 @@ function groupNegativeReviewsByStore(
   group,
   negativeReviews
 ) {
-  const groupedReviews = new Map();
+  const groupedReviews =
+    new Map();
 
-  for (const review of negativeReviews) {
-    const storeName = text(
-      review.store || '未知店別'
-    );
+  for (
+    const review of
+    negativeReviews
+  ) {
+    const storeName =
+      text(
+        review.store ||
+        '未知店別'
+      );
 
-    const storeCode = getReviewStoreCode(
-      group,
-      review
-    );
+    /*
+     * new-brand 需要 brand
+     * 才知道 SALT&STONE / LILLA
+     * 要使用哪個 mail domain。
+     */
+    const brand =
+      text(
+        review.brand ||
+        review.branch ||
+        ''
+      );
+
+    const storeCode =
+      getReviewStoreCode(
+        group,
+        review
+      );
 
     const key =
       storeCode ||
-      `STORE:${normalizeStoreName(storeName)}`;
+      `${brand}:STORE:${normalizeStoreName(
+        storeName
+      )}`;
 
-    if (!groupedReviews.has(key)) {
-      groupedReviews.set(key, {
-        storeCode,
-        storeName,
-        reviews: []
-      });
+    if (
+      !groupedReviews.has(key)
+    ) {
+      groupedReviews.set(
+        key,
+        {
+          storeCode,
+          storeName,
+          brand,
+          reviews: []
+        }
+      );
     }
 
     groupedReviews
@@ -280,19 +457,21 @@ async function sendStoreNegativeReviewEmails({
   negativeReviews
 }) {
   if (
-    !Array.isArray(negativeReviews) ||
+    !Array.isArray(
+      negativeReviews
+    ) ||
     negativeReviews.length === 0
   ) {
     return;
   }
 
   if (
-  group !== 'TGIF' &&
-  group !== 'TXRH' &&
-  group !== 'new-brand'
-) {
-  return;
-}
+    group !== 'TGIF' &&
+    group !== 'TXRH' &&
+    group !== 'new-brand'
+  ) {
+    return;
+  }
 
   const groupedStores =
     groupNegativeReviewsByStore(
@@ -300,31 +479,60 @@ async function sendStoreNegativeReviewEmails({
       negativeReviews
     );
 
-  for (const storeGroup of groupedStores) {
+  for (
+    const storeGroup of
+    groupedStores
+  ) {
     const {
       storeCode,
       storeName,
+      brand,
       reviews
     } = storeGroup;
 
     const managerEmail =
       getStoreManagerEmail(
         group,
-        storeCode
+        storeCode,
+        brand
       );
 
-    const recipients = managerEmail
-      ? [
-          managerEmail,
-          IT_GROUP_EMAIL
-        ]
-      : [
-          IT_GROUP_EMAIL
-        ];
+    const storeEmail =
+      getStoreAccountEmail(
+        group,
+        storeCode,
+        brand
+      );
 
-    const storeLabel = storeCode
-      ? `${storeCode} ${storeName}`
-      : storeName;
+    /*
+     * 第二封負評信收件人：
+     *
+     * 一般門店：
+     * 1. 店號.gm@
+     * 2. 店號.store@
+     * 3. IT Group
+     *
+     * 1801：
+     * 1. 1801@taylorbutchery.com.tw
+     * 2. IT Group
+     */
+    const recipients = [
+      managerEmail,
+      storeEmail,
+      IT_GROUP_EMAIL
+    ].filter(Boolean);
+
+    /*
+     * 避免任何信箱重複。
+     */
+    const uniqueRecipients = [
+      ...new Set(recipients)
+    ];
+
+    const storeLabel =
+      storeCode
+        ? `${storeCode} ${storeName}`
+        : storeName;
 
     const subject =
       `⚠️【${groupLabel} ${storeLabel} Google 負評通知】` +
@@ -333,40 +541,62 @@ async function sendStoreNegativeReviewEmails({
     const html = `
       <div style="font-family: Arial, 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
         <h2 style="color:#b91c1c;">
-          ⚠️ ${groupLabel} ${escapeHtml(storeLabel)} Google 負評通知
+          ⚠️ ${groupLabel}
+          ${escapeHtml(
+            storeLabel
+          )}
+          Google 負評通知
         </h2>
 
         <p>
           本次偵測到
           <b>${reviews.length}</b>
-          筆一天內的 1 星或 2 星負評，請優先處理。
+          筆一天內的 1 星或 2 星負評，
+          請優先處理。
         </p>
 
         ${
           !storeCode
             ? `
-              <p style="color:#b91c1c; font-weight:bold;">
-                ⚠️ 找不到此店店號，因此本封只寄給 IT Group。
+              <p
+                style="
+                  color:#b91c1c;
+                  font-weight:bold;
+                "
+              >
+                ⚠️ 找不到此店店號，
+                因此本封只寄給 IT Group。
               </p>
             `
             : ''
         }
 
-        ${reviews.map(renderReviewCard).join('')}
+        ${
+          reviews
+            .map(
+              renderReviewCard
+            )
+            .join('')
+        }
       </div>
     `;
 
     try {
       await transporter.sendMail({
-        from: `"Google 評論通知" <${user}>`,
-        to: recipients,
+        from:
+          `"Google 評論通知" <${user}>`,
+
+        to:
+          uniqueRecipients,
+
         subject,
         html
       });
 
       console.log(
         `📧 已寄出 ${groupLabel} ${storeLabel} 負評通知：` +
-        `${reviews.length} 筆 → ${recipients.join(', ')}`
+        `${reviews.length} 筆 → ` +
+        `${uniqueRecipients.join(', ')}`
       );
     } catch (error) {
       console.error(
@@ -377,7 +607,9 @@ async function sendStoreNegativeReviewEmails({
   }
 }
 
-async function sendNewReviewEmail(newReviews) {
+async function sendNewReviewEmail(
+  newReviews
+) {
   if (
     !Array.isArray(newReviews) ||
     newReviews.length === 0
@@ -385,9 +617,14 @@ async function sendNewReviewEmail(newReviews) {
     return;
   }
 
-  const group = getDashboardGroup();
-  const groupLabel = getGroupLabel(group);
-  const to = getNotifyTo();
+  const group =
+    getDashboardGroup();
+
+  const groupLabel =
+    getGroupLabel(group);
+
+  const to =
+    getNotifyTo();
 
   if (!to) {
     console.warn(
@@ -397,12 +634,17 @@ async function sendNewReviewEmail(newReviews) {
     return;
   }
 
+  /*
+   * 只寄一天內的評論。
+   */
   const reviewsWithinOneDay =
     newReviews.filter(
       isReviewWithinOneDay
     );
 
-  if (reviewsWithinOneDay.length === 0) {
+  if (
+    reviewsWithinOneDay.length === 0
+  ) {
     console.log(
       `📭 ${groupLabel} 本次沒有一天內的新評論，略過寄信`
     );
@@ -410,10 +652,16 @@ async function sendNewReviewEmail(newReviews) {
     return;
   }
 
-  const user = process.env.O365_SMTP_USER;
-  const pass = process.env.O365_SMTP_PASS;
+  const user =
+    process.env.O365_SMTP_USER;
 
-  if (!user || !pass) {
+  const pass =
+    process.env.O365_SMTP_PASS;
+
+  if (
+    !user ||
+    !pass
+  ) {
     console.warn(
       '⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過寄信'
     );
@@ -450,16 +698,36 @@ async function sendNewReviewEmail(newReviews) {
     });
 
   /*
-   * 第一封信：
-   * 保留原本主旨、內容與收件人邏輯不變
+   * =========================
+   * 第一封信
+   * =========================
+   *
+   * 原本主旨、內容、
+   * 收件人邏輯全部維持不變。
    */
-  const subject = hasNegativeReview
-    ? `⚠️【${groupLabel} Google 負評提醒】一天內新增 ${reviewsWithinOneDay.length} 筆評論，其中 ${negativeReviews.length} 筆 1-2 星`
-    : `【${groupLabel} Google 新評論通知】一天內新增 ${reviewsWithinOneDay.length} 筆評論`;
+  const subject =
+    hasNegativeReview
+      ? (
+        `⚠️【${groupLabel} Google 負評提醒】` +
+        `一天內新增 ${reviewsWithinOneDay.length} 筆評論，` +
+        `其中 ${negativeReviews.length} 筆 1-2 星`
+      )
+      : (
+        `【${groupLabel} Google 新評論通知】` +
+        `一天內新增 ${reviewsWithinOneDay.length} 筆評論`
+      );
 
   const html = `
     <div style="font-family: Arial, 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
-      <h2 style="color:${hasNegativeReview ? '#b91c1c' : '#111827'};">
+      <h2
+        style="
+          color:${
+            hasNegativeReview
+              ? '#b91c1c'
+              : '#111827'
+          };
+        "
+      >
         ${
           hasNegativeReview
             ? `⚠️ ${groupLabel} Google 新評論通知：含負評`
@@ -469,16 +737,22 @@ async function sendNewReviewEmail(newReviews) {
 
       <p>
         本次偵測到
-        <b>${reviewsWithinOneDay.length}</b>
+        <b>
+          ${reviewsWithinOneDay.length}
+        </b>
         筆一天內的新評論。
       </p>
 
       ${
-        newReviews.length !== reviewsWithinOneDay.length
+        newReviews.length !==
+        reviewsWithinOneDay.length
           ? `
             <p style="color:#64748b;">
               已排除
-              ${newReviews.length - reviewsWithinOneDay.length}
+              ${
+                newReviews.length -
+                reviewsWithinOneDay.length
+              }
               筆超過一天的評論。
             </p>
           `
@@ -488,21 +762,35 @@ async function sendNewReviewEmail(newReviews) {
       ${
         hasNegativeReview
           ? `
-            <p style="color:#b91c1c; font-weight:bold;">
+            <p
+              style="
+                color:#b91c1c;
+                font-weight:bold;
+              "
+            >
               其中有
               ${negativeReviews.length}
-              筆 1 星或 2 星負評，請優先處理。
+              筆 1 星或 2 星負評，
+              請優先處理。
             </p>
           `
           : ''
       }
 
-      ${reviewsWithinOneDay.map(renderReviewCard).join('')}
+      ${
+        reviewsWithinOneDay
+          .map(
+            renderReviewCard
+          )
+          .join('')
+      }
     </div>
   `;
 
   await transporter.sendMail({
-    from: `"Google 評論通知" <${user}>`,
+    from:
+      `"Google 評論通知" <${user}>`,
+
     to,
     subject,
     html
@@ -519,20 +807,34 @@ async function sendNewReviewEmail(newReviews) {
   ) {
     console.log(
       `📭 ${groupLabel} 已略過超過一天評論：` +
-      `${newReviews.length - reviewsWithinOneDay.length} 筆`
+      `${
+        newReviews.length -
+        reviewsWithinOneDay.length
+      } 筆`
     );
   }
 
-  if (hasNegativeReview) {
+  if (
+    hasNegativeReview
+  ) {
     console.log(
       `⚠️ ${groupLabel} 其中負評 ${negativeReviews.length} 筆`
     );
   }
 
   /*
-   * 第二封信：
-   * 只寄一天內的 1 星、2 星負評
-   * 並依店號分開寄給該店 GM 與 IT Group
+   * =========================
+   * 第二封信
+   * =========================
+   *
+   * 只寄一天內的 1 星、2 星負評。
+   *
+   * 一般店：
+   * GM + STORE + IT Group
+   *
+   * 1801：
+   * 1801@taylorbutchery.com.tw
+   * + IT Group
    */
   await sendStoreNegativeReviewEmails({
     transporter,
