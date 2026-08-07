@@ -11,6 +11,7 @@ module.exports = [
     group: 'new-brand',
     brand: 'LILLA',
     store: 'DREAM PLAZA',
+    storeCode: '9002',
     branch: 'LILLA',
     keyword: 'LillA 台北',
     fallbackUrl: googleMapsSearch('LillA DREAM PLAZA')
@@ -19,6 +20,7 @@ module.exports = [
     group: 'new-brand',
     brand: 'SALT&STONE',
     store: '南港',
+    storeCode: '6602',
     branch: 'SALT&STONE',
     keyword: 'SALT&STONE 南港店',
     fallbackUrl: googleMapsSearch('SALT&STONE 南港店')
@@ -27,6 +29,7 @@ module.exports = [
     group: 'new-brand',
     brand: 'SALT&STONE',
     store: '101',
+    storeCode: '6601',
     branch: 'SALT&STONE',
     keyword: 'SALT&STONE 101店',
     fallbackUrl: googleMapsSearch('SALT&STONE 101店')
@@ -35,6 +38,7 @@ module.exports = [
     group: 'new-brand',
     brand: '泰勒肉舖',
     store: '台北',
+    storeCode: '1801',
     branch: '泰勒肉舖',
     keyword: '泰勒肉舖 Taylor Butchery',
     fallbackUrl: googleMapsSearch('泰勒肉舖 Taylor Butchery')

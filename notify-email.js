@@ -107,7 +107,7 @@ function getReviewStoreCode(group, review) {
   );
 }
 
-function getStoreManagerEmail(group, storeCode) {
+function getStoreManagerEmail(group, storeCode, brand) {
   if (!storeCode) {
     return '';
   }
@@ -118,6 +118,25 @@ function getStoreManagerEmail(group, storeCode) {
 
   if (group === 'TXRH') {
     return `${storeCode}.gm@texasroadhouse.com.tw`;
+  }
+
+  if (group === 'new-brand') {
+    const normalizedBrand = text(brand).toUpperCase();
+
+    if (normalizedBrand === 'SALT&STONE') {
+      return `${storeCode}.gm@saltandstonedining.com`;
+    }
+
+    if (normalizedBrand === 'LILLA') {
+      return `${storeCode}.gm@lillaeats.com`;
+    }
+
+    if (
+      text(brand) === '泰勒肉舖' ||
+      normalizedBrand.includes('TAYLOR')
+    ) {
+      return '1801@taylorbutchery.com.tw';
+    }
   }
 
   return '';
@@ -268,11 +287,12 @@ async function sendStoreNegativeReviewEmails({
   }
 
   if (
-    group !== 'TGIF' &&
-    group !== 'TXRH'
-  ) {
-    return;
-  }
+  group !== 'TGIF' &&
+  group !== 'TXRH' &&
+  group !== 'new-brand'
+) {
+  return;
+}
 
   const groupedStores =
     groupNegativeReviewsByStore(
