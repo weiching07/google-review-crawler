@@ -890,6 +890,190 @@
       });
     }
 
+    /*
+     * 評論時間自動更新
+     *
+     * 原理：
+     * 1. c.date 保留 Google 上次抓到的文字，例如「12 分鐘前」、「3 天前」、「1 年前」。
+     * 2. c.lastSeenAt 是最後一次真的爬到這筆評論的時間。
+     * 3. 如果這筆評論之後沒有再被爬到，網頁就把「經過多久」加回原本的相對時間。
+     *
+     * 因此：
+     * 12 分鐘前 -> 13 分鐘前 -> 1 小時前 -> 1 天前
+     * 即使 comments.json 沒再次更新這筆評論，畫面仍會自己往後走。
+     *
+     * 注意：
+     * 「1 年前」不會被假裝轉成某年某月某日；
+     * 我們只讓相對時間繼續自然增加。
+     */
+    function getOriginalReviewAgeMs(dateText) {
+      let value = String(dateText || '').trim().toLowerCase();
+
+      if (!value) return null;
+
+      value = value
+        .replace(/上次編輯[:：]?\s*/gi, '')
+        .replace(/已編輯[:：]?\s*/gi, '')
+        .replace(/last edited[:：]?\s*/gi, '')
+        .replace(/edited[:：]?\s*/gi, '')
+        .trim();
+
+      value = value
+        .replace(/一(?=\s*(分鐘|小時|天|週|周|個月|月|年)前)/g, '1')
+        .replace(/兩(?=\s*(分鐘|小時|天|週|周|個月|月|年)前)/g, '2');
+
+      if (value === '剛剛' || value === 'just now') {
+        return 0;
+      }
+
+      if (value === '昨天' || value === 'yesterday') {
+        return 24 * 60 * 60 * 1000;
+      }
+
+      const rules = [
+        [/^(\d+)\s*分鐘前$/, 60 * 1000],
+        [/^(\d+)\s*小時前$/, 60 * 60 * 1000],
+        [/^(\d+)\s*天前$/, 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*(?:週|周)前$/, 7 * 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*個?月前$/, 30 * 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*年前$/, 365 * 24 * 60 * 60 * 1000],
+
+        [/^(\d+)\s*minutes?\s*ago$/i, 60 * 1000],
+        [/^(\d+)\s*hours?\s*ago$/i, 60 * 60 * 1000],
+        [/^(\d+)\s*days?\s*ago$/i, 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*weeks?\s*ago$/i, 7 * 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*months?\s*ago$/i, 30 * 24 * 60 * 60 * 1000],
+        [/^(\d+)\s*years?\s*ago$/i, 365 * 24 * 60 * 60 * 1000]
+      ];
+
+      for (const [pattern, unitMs] of rules) {
+        const match = value.match(pattern);
+
+        if (match) {
+          return Number(match[1]) * unitMs;
+        }
+      }
+
+      const singleEnglishRules = [
+        [/^(?:a|an)\s+minute\s+ago$/i, 60 * 1000],
+        [/^(?:a|an)\s+hour\s+ago$/i, 60 * 60 * 1000],
+        [/^(?:a|an)\s+day\s+ago$/i, 24 * 60 * 60 * 1000],
+        [/^(?:a|an)\s+week\s+ago$/i, 7 * 24 * 60 * 60 * 1000],
+        [/^(?:a|an)\s+month\s+ago$/i, 30 * 24 * 60 * 60 * 1000],
+        [/^(?:a|an)\s+year\s+ago$/i, 365 * 24 * 60 * 60 * 1000]
+      ];
+
+      for (const [pattern, ageMs] of singleEnglishRules) {
+        if (pattern.test(value)) {
+          return ageMs;
+        }
+      }
+
+      // 如果 Google 本身給的是固定日期，就不要亂改。
+      return null;
+    }
+
+    function formatReviewAgeMs(ageMs) {
+      const safeAgeMs = Math.max(0, Number(ageMs) || 0);
+
+      const minuteMs = 60 * 1000;
+      const hourMs = 60 * minuteMs;
+      const dayMs = 24 * hourMs;
+
+      const minutes = Math.floor(safeAgeMs / minuteMs);
+      const hours = Math.floor(safeAgeMs / hourMs);
+      const days = Math.floor(safeAgeMs / dayMs);
+
+      if (minutes < 1) {
+        return '剛剛';
+      }
+
+      if (minutes < 60) {
+        return `${minutes} 分鐘前`;
+      }
+
+      if (hours < 24) {
+        return `${hours} 小時前`;
+      }
+
+      if (days < 7) {
+        return `${days} 天前`;
+      }
+
+      if (days < 30) {
+        return `${Math.floor(days / 7)} 週前`;
+      }
+
+      if (days < 365) {
+        return `${Math.floor(days / 30)} 個月前`;
+      }
+
+      return `${Math.floor(days / 365)} 年前`;
+    }
+
+    function getAutoReviewTimeText(comment) {
+      const originalText = String(comment?.date || '').trim();
+
+      if (!originalText) {
+        return '未知時間';
+      }
+
+      const originalAgeMs = getOriginalReviewAgeMs(originalText);
+
+      // Google 已經直接給固定日期時，照原文顯示。
+      if (originalAgeMs === null) {
+        return originalText;
+      }
+
+      const baseTime = parseTime(
+        comment?.lastSeenAt ||
+        comment?.scrapedAt
+      );
+
+      // 舊資料若沒有時間基準，就照 Google 原本文字顯示。
+      if (!baseTime) {
+        return originalText;
+      }
+
+      const elapsedMs = Math.max(
+        0,
+        Date.now() - baseTime
+      );
+
+      const totalAgeMs =
+        originalAgeMs + elapsedMs;
+
+      const editedPrefix =
+        /上次編輯|已編輯|last edited|edited/i.test(originalText)
+          ? '上次編輯：'
+          : '';
+
+      return editedPrefix + formatReviewAgeMs(totalAgeMs);
+    }
+
+    function updateReviewRelativeTimes() {
+      document
+        .querySelectorAll('.auto-review-time')
+        .forEach(element => {
+          try {
+            const dateText = decodeURIComponent(
+              element.dataset.reviewDate || ''
+            );
+
+            const baseTime =
+              element.dataset.reviewBase || '';
+
+            element.textContent =
+              getAutoReviewTimeText({
+                date: dateText,
+                lastSeenAt: baseTime
+              });
+          } catch (err) {
+            console.error('更新評論時間失敗：', err);
+          }
+        });
+    }
+
     function getSummaryFilteredData() {
   let data = [...rawData];
 
@@ -1389,7 +1573,11 @@ if (typeof isStoreInCurrentDashboard === 'function') {
                 ${versionBadge}
               </div>
 
-              <span class="text-xs text-slate-400">${escapeHTML(c.date || '未知時間')}</span>
+              <span
+                class="text-xs text-slate-400 auto-review-time"
+                data-review-date="${encodeURIComponent(c.date || '')}"
+                data-review-base="${escapeHTML(c.lastSeenAt || c.scrapedAt || '')}"
+              >${escapeHTML(getAutoReviewTimeText(c))}</span>
             </div>
 
             ${c.author ? `<div class="text-sm text-slate-500 mt-2">作者：${escapeHTML(c.author)}</div>` : ''}
@@ -1513,6 +1701,9 @@ if (typeof isStoreInCurrentDashboard === 'function') {
     registerServiceWorker().then(() => {
       updateNotificationToggleButton();
     });
+
+    // 每分鐘只更新畫面上的評論時間，不需要重新抓 comments.json。
+    setInterval(updateReviewRelativeTimes, 60000);
 
     loadData();
   </script>
