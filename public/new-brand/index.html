@@ -1051,6 +1051,54 @@
       return editedPrefix + formatReviewAgeMs(totalAgeMs);
     }
 
+
+    /*
+     * 排序也使用與右上角顯示相同的動態時間。
+     * 這樣即使某筆評論沒有再次被爬到，
+     * 它也不會因為 comments.json 裡仍是舊的「12 分鐘前」
+     * 而永遠卡在最新的位置。
+     */
+    function getAutoReviewTimeWeight(comment) {
+      const originalText = String(comment?.date || '').trim();
+
+      if (!originalText) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+
+      const originalAgeMs = getOriginalReviewAgeMs(originalText);
+
+      const baseTime = parseTime(
+        comment?.lastSeenAt ||
+        comment?.scrapedAt
+      );
+
+      if (
+        originalAgeMs !== null &&
+        baseTime
+      ) {
+        const elapsedMs = Math.max(
+          0,
+          Date.now() - baseTime
+        );
+
+        return originalAgeMs + elapsedMs;
+      }
+
+      /*
+       * Google 原本若就是固定日期，
+       * 沿用既有 getTimeWeight() 的判斷。
+       * getTimeWeight() 回傳的是小時，因此轉成毫秒後
+       * 才能和上面的動態時間使用同一單位比較。
+       */
+      const normalWeight = getTimeWeight(originalText);
+
+      if (normalWeight === Number.MAX_SAFE_INTEGER) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+
+      return normalWeight * 60 * 60 * 1000;
+    }
+
     function updateReviewRelativeTimes() {
       document
         .querySelectorAll('.auto-review-time')
@@ -1496,8 +1544,8 @@ if (typeof isStoreInCurrentDashboard === 'function') {
       }
 
       displayData.sort((a, b) => {
-        const weightA = getTimeWeight(a.date);
-        const weightB = getTimeWeight(b.date);
+        const weightA = getAutoReviewTimeWeight(a);
+        const weightB = getAutoReviewTimeWeight(b);
 
         if (weightA === weightB) {
           return a.sortIndex - b.sortIndex;
