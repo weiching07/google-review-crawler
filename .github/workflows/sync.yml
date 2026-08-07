@@ -58,17 +58,24 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  sync-and-deploy:
-    runs-on: ubuntu-latest
+  # ============================================================
+  # 1. 同步工作
+  #
+  # 三組各自有自己的 concurrency：
+  # new-brand、TGIF、TXRH 不會互相排隊。
+  #
+  # 同一組如果上一輪真的還沒跑完，
+  # 下一輪才會等待，避免同一組同時改同一份 JSON。
+  # ============================================================
+  sync:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: sync-${{ github.event.schedule || github.event.inputs.group || 'manual' }}
+      cancel-in-progress: false
+
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
@@ -146,9 +153,6 @@ jobs:
       # 2. 不推播
       # 3. 將該次同步範圍內已存在的評論 ID
       #    靜默補進 notified-review-ids.json
-      #
-      # 避免下一次排程把完整同步抓到的舊評論
-      # 誤判成新評論再次寄出
       # =========================
       - name: Baseline notified IDs after full sync
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.scrape_rounds == '999' }}
@@ -274,7 +278,6 @@ jobs:
           NODE
 
       # 只有快速同步 scrape_rounds=5 才寄信與推播
-      # 完整同步 scrape_rounds=999 會跳過這個步驟
       - name: Manual send notifications
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.scrape_rounds == '5' }}
         run: npm run notify:push
@@ -343,14 +346,31 @@ jobs:
             echo "No manual JSON changes to commit"
           else
             git commit -m "auto sync reviews for $GROUP"
-            git push origin HEAD:main
+
+            PUSH_OK=0
+
+            for ATTEMPT in 1 2 3 4 5; do
+              echo "Push attempt $ATTEMPT/5"
+
+              if git push origin HEAD:main; then
+                PUSH_OK=1
+                break
+              fi
+
+              echo "Push 被其他同步搶先更新，重新 rebase 後再試..."
+              git fetch origin main
+              git rebase origin/main
+              sleep $((ATTEMPT * 2))
+            done
+
+            if [ "$PUSH_OK" -ne 1 ]; then
+              echo "連續 5 次 push 失敗"
+              exit 1
+            fi
           fi
 
       # =========================
-      # 排程同步：每小時三組分開跑
-      # 03 分 new-brand
-      # 23 分 TGIF
-      # 43 分 TXRH
+      # 排程同步
       # =========================
       - name: Prepare scheduled group JSON
         if: ${{ github.event_name == 'schedule' }}
@@ -466,8 +486,57 @@ jobs:
             echo "No scheduled JSON changes to commit"
           else
             git commit -m "auto scheduled sync reviews for $GROUP"
-            git push origin HEAD:main
+
+            PUSH_OK=0
+
+            for ATTEMPT in 1 2 3 4 5; do
+              echo "Push attempt $ATTEMPT/5"
+
+              if git push origin HEAD:main; then
+                PUSH_OK=1
+                break
+              fi
+
+              echo "Push 被其他同步搶先更新，重新 rebase 後再試..."
+              git fetch origin main
+              git rebase origin/main
+              sleep $((ATTEMPT * 2))
+            done
+
+            if [ "$PUSH_OK" -ne 1 ]; then
+              echo "連續 5 次 push 失敗"
+              exit 1
+            fi
           fi
+
+  # ============================================================
+  # 2. Pages 部署
+  #
+  # 只鎖部署，不鎖同步。
+  # 新部署來時會取消舊部署，避免 Pages 排隊數小時。
+  # ============================================================
+  deploy:
+    needs: sync
+
+    if: ${{ always() && (github.event_name == 'push' || needs.sync.result == 'success') }}
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 20
+
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
