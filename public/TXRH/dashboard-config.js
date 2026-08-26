@@ -50,7 +50,13 @@ window.DASHBOARD_CONFIG = {
           label: '復興 店',
           title: 'ROADHOUSE 復興店 評論分析儀表板',
           aliases: ['復興', '復興店']
-        }
+        },
+        {
+         store: '大巨蛋',
+         label: '大巨蛋 店',
+         title: 'ROADHOUSE 大巨蛋店 評論分析儀表板',
+         aliases: ['大巨蛋', '大巨蛋店']
+}
       ]
     }
   ]

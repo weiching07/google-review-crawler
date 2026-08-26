@@ -35,6 +35,15 @@ module.exports = [
     fallbackUrl: googleMapsSearch('SALT&STONE 101店')
   },
   {
+  group: 'new-brand',
+  brand: 'SALT&STONE',
+  store: '大巨蛋',
+  storeCode: '6603',
+  branch: 'SALT&STONE',
+  keyword: 'SALT&STONE 大巨蛋店',
+  fallbackUrl: googleMapsSearch('SALT&STONE 大巨蛋店')
+},
+  {
     group: 'new-brand',
     brand: '泰勒肉舖',
     store: '台北',
@@ -257,5 +266,14 @@ module.exports = [
     branch: 'ROADHOUSE',
     keyword: 'Texas Roadhouse 復興店',
     fallbackUrl: googleMapsSearch('Texas Roadhouse 復興店')
-  }
+  },
+  {
+  group: 'TXRH',
+  brand: 'TXRH',
+  store: '大巨蛋',
+  storeCode: '8010',
+  branch: 'ROADHOUSE',
+  keyword: 'Texas Roadhouse 大巨蛋店',
+  fallbackUrl: googleMapsSearch('Texas Roadhouse 大巨蛋店')
+}
 ];

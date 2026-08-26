@@ -25,6 +25,10 @@ window.DASHBOARD_CONFIG = {
         {
           store: '101',
           label: '101 店'
+        },
+         {
+          store: '大巨蛋',
+          label: '大巨蛋 店'
         }
       ]
     },
