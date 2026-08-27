@@ -8,8 +8,8 @@ window.DASHBOARD_CONFIG = {
       stores: [
         {
           store: 'DREAM PLAZA',
-          label: 'DREAM PLAZA 店',
-          title: 'LillA DREAM PLAZA店 評論分析儀表板'
+          label: '信義 店',
+          title: 'LillA 信義店 評論分析儀表板'
         }
       ]
     },
@@ -20,15 +20,15 @@ window.DASHBOARD_CONFIG = {
       stores: [
         {
           store: '南港',
-          label: '南港 店'
+          label: 'LaLaport南港 餐廳'
         },
         {
           store: '101',
-          label: '101 店'
+          label: '101 餐廳'
         },
          {
           store: '大巨蛋',
-          label: '大巨蛋 店'
+          label: '遠東GARDEN CITY大巨蛋 餐廳'
         }
       ]
     },
@@ -39,7 +39,7 @@ window.DASHBOARD_CONFIG = {
       stores: [
         {
           store: '台北',
-          label: '台北 店',
+          label: '仁愛 店',
           title: '泰勒肉舖 台北店 評論分析儀表板'
         }
       ]
