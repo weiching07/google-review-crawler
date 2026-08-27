@@ -20,15 +20,18 @@ window.DASHBOARD_CONFIG = {
       stores: [
         {
           store: '南港',
-          label: 'LaLaport南港 餐廳'
+          label: 'LaLaport南港 餐廳',
+          title: 'SALT&STONE LaLaport南港 餐廳 評論分析儀表板'
         },
         {
           store: '101',
-          label: '101 餐廳'
+          label: '101 餐廳',
+          title: 'SALT&STONE 101 餐廳 評論分析儀表板'
         },
          {
           store: '大巨蛋',
-          label: '遠東GARDEN CITY大巨蛋 餐廳'
+          label: '遠東GARDEN CITY大巨蛋 餐廳',
+          title: 'SALT&STONE 遠東GARDEN CITY大巨蛋 餐廳 評論分析儀表板'
         }
       ]
     },
@@ -40,7 +43,7 @@ window.DASHBOARD_CONFIG = {
         {
           store: '台北',
           label: '仁愛 店',
-          title: '泰勒肉舖 台北店 評論分析儀表板'
+          title: '泰勒肉舖 仁愛店 評論分析儀表板'
         }
       ]
     }
