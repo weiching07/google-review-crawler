@@ -52,6 +52,15 @@ module.exports = [
     keyword: '泰勒肉舖 Taylor Butchery',
     fallbackUrl: googleMapsSearch('泰勒肉舖 Taylor Butchery')
   },
+  {
+  group: 'new-brand',
+  brand: '囕盈豚',
+  store: '大巨蛋',
+  storeCode: '1601',
+  branch: '囕盈豚',
+  keyword: '囕盈豚 大巨蛋店',
+  fallbackUrl: googleMapsSearch('囕盈豚 大巨蛋店')
+},
 
   // =========================
   // TGIF / FRIDAYS

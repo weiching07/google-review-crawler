@@ -90,10 +90,14 @@ function normalizeStoreName(value) {
 
 function getStoreConfig(
   group,
-  storeName
+  storeName,
+  brand
 ) {
   const normalizedStoreName =
     normalizeStoreName(storeName);
+
+  const normalizedBrand =
+    text(brand).toUpperCase();
 
   if (
     !normalizedStoreName ||
@@ -105,9 +109,8 @@ function getStoreConfig(
   return stores.find(storeItem => {
     return (
       text(storeItem.group) === group &&
-      normalizeStoreName(
-        storeItem.store
-      ) === normalizedStoreName
+      text(storeItem.brand).toUpperCase() === normalizedBrand &&
+      normalizeStoreName(storeItem.store) === normalizedStoreName
     );
   }) || null;
 }
@@ -124,11 +127,12 @@ function getReviewStoreCode(
     return reviewStoreCode;
   }
 
-  const storeConfig =
-    getStoreConfig(
-      group,
-      review.store
-    );
+ const storeConfig =
+  getStoreConfig(
+    group,
+    review.store,
+    review.brand || review.branch
+  );
 
   return text(
     storeConfig &&

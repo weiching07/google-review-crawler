@@ -46,6 +46,15 @@ window.DASHBOARD_CONFIG = {
           title: '泰勒肉舖 仁愛店 評論分析儀表板'
         }
       ]
-    }
+    },
+        {
+      brand: '囕盈豚',
+      brandLabel: '囕盈豚',
+      stores: [
+        {
+          store: '大巨蛋',
+          label: '大巨蛋 店',
+          title: '囕盈豚 大巨蛋店 評論分析儀表板'
+        }
   ]
-};
+}]};
