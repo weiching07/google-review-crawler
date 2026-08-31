@@ -52,7 +52,7 @@ module.exports = [
     keyword: '泰勒肉舖 Taylor Butchery',
     fallbackUrl: googleMapsSearch('泰勒肉舖 Taylor Butchery')
   },
-  {
+  
   {
   group: 'new-brand',
   brand: '囕盈豚',
