@@ -1185,14 +1185,29 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     return false;
   });
 
-  if (!opened) {
-    console.log('⚠️ 直接開地圖 fallback');
+  if (opened) {
+  await randomDelay(4000, 6000);
+}
 
-    await page.goto(forceGoogleChineseUrl(storeConfig.fallbackUrl), {
+let currentUrl = page.url();
+
+if (!currentUrl.includes('/maps/')) {
+  console.log('⚠️ 尚未真正進入 Google Maps，改用 fallback');
+
+  await page.goto(
+    forceGoogleChineseUrl(storeConfig.fallbackUrl),
+    {
       waitUntil: 'networkidle2',
       timeout: 60000
-    });
-  }
+    }
+  );
+
+  await randomDelay(8000, 10000);
+
+  currentUrl = page.url();
+}
+
+console.log('🗺️目前 Maps URL:', currentUrl);
 
   await randomDelay(8000, 10000);
 
