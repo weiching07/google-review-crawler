@@ -13,7 +13,7 @@ module.exports = [
     store: 'DREAM PLAZA',
     storeCode: '9002',
     branch: 'LILLA',
-    keyword: 'LillA 台北',
+    keyword: 'LillA 評論',
     fallbackUrl: googleMapsSearch('LillA DREAM PLAZA')
   },
   {
