@@ -1198,44 +1198,233 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
 
   console.log('🎯 找評論按鈕...');
 
-  const tabClicked = await page.evaluate(() => {
-    const getText = (el) => {
+let tabClicked = false;
+
+for (let attempt = 1; attempt <= 4; attempt++) {
+  const clickResult = await page.evaluate(() => {
+    function getText(el) {
       return (
         (el.innerText || '') +
+        ' ' +
         (el.textContent || '') +
+        ' ' +
         (el.getAttribute('aria-label') || '') +
+        ' ' +
         (el.getAttribute('title') || '')
-      ).toLowerCase();
-    };
+      )
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
 
-    const keywords = [
-      '評論',
-      'reviews',
-      '查看評論',
-      '查看全部評論'
-    ];
+    function isVisible(el) {
+      if (!el) return false;
 
-    const elements = Array.from(document.querySelectorAll('button, a, div'));
+      const r = el.getBoundingClientRect();
+      const s = window.getComputedStyle(el);
+
+      return (
+        r.width > 0 &&
+        r.height > 0 &&
+        s.display !== 'none' &&
+        s.visibility !== 'hidden'
+      );
+    }
+
+    /*
+     * 只找真正可點擊的元素。
+     * 不再直接掃所有 div。
+     */
+    const elements = Array.from(
+      document.querySelectorAll(
+        'button, [role="tab"], [role="button"], a'
+      )
+    ).filter(el => {
+      return (
+        isVisible(el) &&
+        el.dataset.reviewClickTried !== '1'
+      );
+    });
+
+    const candidates = [];
 
     for (const el of elements) {
       const text = getText(el);
+      const lower = text.toLowerCase();
 
-      if (keywords.some(k => text.includes(k))) {
-        el.click();
-        return true;
+      const aria = String(
+        el.getAttribute('aria-label') || ''
+      ).toLowerCase();
+
+      const role = String(
+        el.getAttribute('role') || ''
+      ).toLowerCase();
+
+      let score = 0;
+
+      /*
+       * Google Maps 真正的評論分頁優先。
+       */
+      if (
+        role === 'tab' &&
+        (
+          lower.includes('評論') ||
+          lower.includes('review')
+        )
+      ) {
+        score += 100;
+      }
+
+      /*
+       * aria-label 含評論通常也很可靠。
+       */
+      if (
+        aria.includes('評論') ||
+        aria.includes('review')
+      ) {
+        score += 80;
+      }
+
+      /*
+       * 按鈕文字直接是「評論」。
+       */
+      if (
+        text === '評論' ||
+        lower === 'reviews'
+      ) {
+        score += 70;
+      }
+
+      /*
+       * 例如：
+       * 查看全部評論
+       * 662 則評論
+       * Google 評論
+       */
+      if (
+        lower.includes('查看全部評論') ||
+        lower.includes('查看評論') ||
+        lower.includes('all reviews') ||
+        lower.includes('google 評論') ||
+        /\d+\s*則.*評論/.test(text)
+      ) {
+        score += 50;
+      }
+
+      if (score > 0) {
+        candidates.push({
+          el,
+          text,
+          score
+        });
       }
     }
 
-    return false;
+    candidates.sort(
+      (a, b) => b.score - a.score
+    );
+
+    if (candidates.length === 0) {
+      return {
+        success: false,
+        text: '',
+        score: 0,
+        candidateCount: 0
+      };
+    }
+
+    const target = candidates[0];
+
+    /*
+     * 避免下一輪又點完全相同的元素。
+     */
+    target.el.dataset.reviewClickTried = '1';
+
+    target.el.scrollIntoView({
+      block: 'center',
+      inline: 'center'
+    });
+
+    target.el.click();
+
+    return {
+      success: true,
+      text: target.text,
+      score: target.score,
+      candidateCount: candidates.length
+    };
   });
 
-  console.log('🎯 review tab result:', tabClicked);
+  console.log(
+    `🎯 評論按鈕嘗試 ${attempt}/4:`,
+    clickResult
+  );
 
-  if (tabClicked) {
-    await randomDelay(6000, 8000);
-  } else {
-    console.log('⚠️ 沒點到評論');
+  if (!clickResult.success) {
+    break;
   }
+
+  await randomDelay(2500, 3500);
+
+  /*
+   * 關鍵：
+   * click 成功不算成功，
+   * 一定要真的看到評論清單。
+   */
+  const reviewPanelOpened = await page.evaluate(() => {
+    const reviewCount =
+      document.querySelectorAll(
+        'div[data-review-id]'
+      ).length;
+
+    const feed =
+      document.querySelector(
+        'div[role="feed"]'
+      );
+
+    const reviewContainer =
+      document.querySelector(
+        '.m6U62c'
+      );
+
+    return (
+      reviewCount > 0 ||
+      Boolean(feed) ||
+      Boolean(reviewContainer)
+    );
+  });
+
+  console.log(
+    `🎯 評論清單確認 ${attempt}/4:`,
+    reviewPanelOpened
+  );
+
+  if (reviewPanelOpened) {
+    tabClicked = true;
+
+    console.log(
+      '✅ 已確認真正進入評論清單'
+    );
+
+    break;
+  }
+
+  console.log(
+    '⚠️ 點擊後沒有出現評論清單，改試下一個評論按鈕'
+  );
+}
+
+console.log(
+  '🎯 review tab result:',
+  tabClicked
+);
+
+if (tabClicked) {
+  await randomDelay(3000, 4500);
+} else {
+  console.log(
+    '❌ 沒有成功打開真正的評論清單'
+  );
+}
 
   await clickNewestSort(page);
 
