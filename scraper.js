@@ -2474,61 +2474,60 @@ async function scrapeOneStore(
            * 第二階段：
            * 找「776 則 Google 評論」。
            */
-          if (
-            mode ===
-            'count'
-          ) {
-            if (
-              /^\d[\d,]*\s*則\s*Google\s*評論$/i.test(
-                ownText
-              )
-            ) {
-              score += 500;
-            } else if (
-              /\d[\d,]*\s*則\s*Google\s*評論/i.test(
-                text
-              )
-            ) {
-              score += 450;
-            } else if (
-              /^\d[\d,]*\s*則\s*評論$/i.test(
-                ownText
-              )
-            ) {
-              score += 420;
-            } else if (
-              /\d[\d,]*\s*則\s*評論/i.test(
-                text
-              )
-            ) {
-              score += 380;
-            } else if (
-              /\d[\d,]*\s*Google\s*reviews?/i.test(
-                text
-              )
-            ) {
-              score += 350;
-            } else if (
-              /\d[\d,]*\s*reviews?/i.test(
-                text
-              )
-            ) {
-              score += 300;
-            }
+          if (mode === 'count') {
+  let reviewCountMatched = false;
 
-            /*
-             * 商家摘要通常在頁面上半部。
-             */
-            if (
-              r.top >= 0 &&
-              r.top <
-                window
-                  .innerHeight *
-                  0.65
-            ) {
-              score += 50;
-            }
-          }
+  if (
+    /^\d[\d,]*\s*則\s*Google\s*評論$/i.test(ownText)
+  ) {
+    score += 500;
+    reviewCountMatched = true;
+  } else if (
+    /\d[\d,]*\s*則\s*Google\s*評論/i.test(text)
+  ) {
+    score += 450;
+    reviewCountMatched = true;
+  } else if (
+    /^\d[\d,]*\s*則\s*評論$/i.test(ownText)
+  ) {
+    score += 420;
+    reviewCountMatched = true;
+  } else if (
+    /\d[\d,]*\s*則\s*評論/i.test(text)
+  ) {
+    score += 380;
+    reviewCountMatched = true;
+  } else if (
+    /\d[\d,]*\s*Google\s*reviews?/i.test(text)
+  ) {
+    score += 350;
+    reviewCountMatched = true;
+  } else if (
+    /\d[\d,]*\s*reviews?/i.test(text)
+  ) {
+    score += 300;
+    reviewCountMatched = true;
+  }
+
+  /*
+   * 沒有真的符合「N 則評論」，
+   * 直接排除，不准靠位置加分混進來。
+   */
+  if (!reviewCountMatched) {
+    continue;
+  }
+
+  /*
+   * 已經確認是評論數量連結後，
+   * 才用位置當額外排序分數。
+   */
+  if (
+    r.top >= 0 &&
+    r.top < window.innerHeight * 0.65
+  ) {
+    score += 50;
+  }
+}
 
           if (
             score <= 0
