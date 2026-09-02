@@ -854,7 +854,12 @@ async function jsScrollReviewList(page, options = {}) {
         await sleep(waitAfter);
 
         const after = container.scrollTop;
-        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
+        const remaining = Math.max(
+          0,
+          container.scrollHeight -
+          container.clientHeight -
+          after
+        );
 
         return {
           success: true,
@@ -866,7 +871,14 @@ async function jsScrollReviewList(page, options = {}) {
           timeout: false,
           method: label
         };
-      }, { label, step, times, delay, waitAfter, backtrack }),
+      }, {
+        label,
+        step,
+        times,
+        delay,
+        waitAfter,
+        backtrack
+      }),
       timeout,
       label
     );
@@ -918,7 +930,9 @@ async function normalMouseScroll(page) {
 
     for (let i = 0; i < 6; i++) {
       try {
-        await page.mouse.wheel({ deltaY: 2200 });
+        await page.mouse.wheel({
+          deltaY: 2200
+        });
       } catch (err) {
         console.warn('⚠️ mouse.wheel 失敗，改用 JS:', err.message);
 
@@ -942,10 +956,19 @@ async function normalMouseScroll(page) {
       'getReviewScrollBox after'
     );
 
-    const after = afterBox ? afterBox.top : before;
+    const after =
+      afterBox
+        ? afterBox.top
+        : before;
+
     const remaining =
       afterBox && after >= 0
-        ? Math.max(0, afterBox.height - afterBox.clientHeight - after)
+        ? Math.max(
+            0,
+            afterBox.height -
+            afterBox.clientHeight -
+            after
+          )
         : -1;
 
     return {
@@ -974,7 +997,6 @@ async function normalMouseScroll(page) {
 async function fastScrollReviews(page, totalReviews = 0, maxRounds = 30) {
   const isFullSync = maxRounds > 5;
 
-  // 完整同步：加速下拉，不用滑太保守
   if (isFullSync) {
     if (totalReviews >= 1000) {
       return await jsScrollReviewList(page, {
@@ -999,7 +1021,6 @@ async function fastScrollReviews(page, totalReviews = 0, maxRounds = 30) {
     });
   }
 
-  // 快速同步：維持原本保守一點，避免漏最新評論
   if (totalReviews >= 1000) {
     return await jsScrollReviewList(page, {
       label: 'js-after-1000',
@@ -1038,7 +1059,10 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   for (let round = 0; round < maxRounds; round++) {
     const beforeTotal = reviewMap.size;
 
-    const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
+    const beforeExpandCount = await collectCurrentReviews(
+      page,
+      reviewMap
+    );
 
     const expanded = await expandCurrentMore(page);
 
@@ -1049,8 +1073,14 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       );
     }
 
-    const afterExpandCount = await collectCurrentReviews(page, reviewMap);
-    const gained = reviewMap.size - beforeTotal;
+    const afterExpandCount = await collectCurrentReviews(
+      page,
+      reviewMap
+    );
+
+    const gained =
+      reviewMap.size -
+      beforeTotal;
 
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，本輪新增 ${gained}，累積 ${reviewMap.size}`
@@ -1064,17 +1094,28 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     if (gained > 0) {
-      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
+      console.log(
+        `✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`
+      );
     } else {
-      console.log(`⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`);
+      console.log(
+        `⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`
+      );
     }
 
     if (stableCount >= maxStableRounds) {
-      console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`);
+      console.log(
+        `🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`
+      );
+
       break;
     }
 
-    const scrollResult = await fastScrollReviews(page, reviewMap.size, maxRounds);
+    const scrollResult = await fastScrollReviews(
+      page,
+      reviewMap.size,
+      maxRounds
+    );
 
     if (typeof scrollResult.remaining === 'number') {
       lastRemaining = scrollResult.remaining;
@@ -1102,20 +1143,28 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     if (noMoveCount >= 3) {
-      console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`);
+      console.log(
+        `⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`
+      );
+
       await randomDelay(
         isFullSync ? 1500 : 3000,
         isFullSync ? 2500 : 5000
       );
+
       noMoveCount = 0;
     }
 
     if (timeoutCount >= 2) {
-      console.log(`⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`);
+      console.log(
+        `⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`
+      );
+
       await randomDelay(
         isFullSync ? 2500 : 5000,
         isFullSync ? 4000 : 8000
       );
+
       timeoutCount = 0;
     }
 
@@ -1125,13 +1174,24 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     );
   }
 
-  const reviews = Array.from(reviewMap.values());
+  const reviews =
+    Array.from(
+      reviewMap.values()
+    );
 
-  console.log(`⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`);
-  console.log(`✅ 抓到 ${reviews.length} 筆評論`);
+  console.log(
+    `⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`
+  );
+
+  console.log(
+    `✅ 抓到 ${reviews.length} 筆評論`
+  );
 
   if (reviews.length > 0) {
-    console.log('✅ 第一筆範例:', reviews[0]);
+    console.log(
+      '✅ 第一筆範例:',
+      reviews[0]
+    );
   }
 
   return reviews;
@@ -1141,137 +1201,667 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
 
   console.log('➡️ 前往 Google...');
-  await page.goto(forceGoogleChineseUrl('https://www.google.com.tw/?hl=zh-TW&gl=TW'), {
-    waitUntil: 'networkidle2',
-    timeout: 60000
-  });
-
-  await randomDelay(2000, 3000);
-
-  console.log(`🔍 搜尋 ${storeConfig.keyword}...`);
-
-  const searchBox = 'textarea[name="q"], input[name="q"]';
-
-  await page.waitForSelector(searchBox, {
-    timeout: 30000
-  });
-
-  await page.click(searchBox, { clickCount: 3 });
-  await page.keyboard.press('Backspace');
-
-  for (const char of storeConfig.keyword) {
-    await page.type(searchBox, char);
-    await randomDelay(100, 200);
-  }
-
-  await page.keyboard.press('Enter');
-  await randomDelay(5000, 6000);
-
-  console.log('🚀 嘗試進入 Google Maps...');
-
-  const opened = await page.evaluate(() => {
-    const els = Array.from(document.querySelectorAll('a, button, span'));
-
-    const target = els.find(el => {
-      const t = (el.innerText || '').toLowerCase();
-      return t.includes('地圖') || t.includes('google 地圖');
-    });
-
-    if (target) {
-      target.click();
-      return true;
-    }
-
-    return false;
-  });
-
-  if (opened) {
-  await randomDelay(4000, 6000);
-}
-
-let currentUrl = page.url();
-
-if (!currentUrl.includes('/maps/')) {
-  console.log('⚠️ 尚未真正進入 Google Maps，改用 fallback');
 
   await page.goto(
-    forceGoogleChineseUrl(storeConfig.fallbackUrl),
+    forceGoogleChineseUrl(
+      'https://www.google.com.tw/?hl=zh-TW&gl=TW'
+    ),
     {
       waitUntil: 'networkidle2',
       timeout: 60000
     }
   );
 
-  await randomDelay(8000, 10000);
+  await randomDelay(2000, 3000);
 
-  currentUrl = page.url();
-}
+  console.log(`🔍 搜尋 ${storeConfig.keyword}...`);
 
-console.log('🗺️目前 Maps URL:', currentUrl);
+  const searchBox =
+    'textarea[name="q"], input[name="q"]';
 
-  await randomDelay(8000, 10000);
-
-  console.log('🎯 找評論按鈕...');
-
-const tabClicked = await page.evaluate(() => {
-  const getText = (el) => {
-    return (
-      (el.innerText || '') +
-      (el.textContent || '') +
-      (el.getAttribute('aria-label') || '') +
-      (el.getAttribute('title') || '')
-    ).toLowerCase();
-  };
-
-  const keywords = [
-    '評論',
-    'reviews',
-    '查看評論',
-    '查看全部評論'
-  ];
-
-  const elements = Array.from(
-    document.querySelectorAll('button, a, div')
+  await page.waitForSelector(
+    searchBox,
+    {
+      timeout: 30000
+    }
   );
 
-  for (const el of elements) {
-    const text = getText(el);
+  await page.click(
+    searchBox,
+    {
+      clickCount: 3
+    }
+  );
 
-    if (keywords.some(k => text.includes(k))) {
-      el.click();
-      return true;
+  await page.keyboard.press(
+    'Backspace'
+  );
+
+  for (const char of storeConfig.keyword) {
+    await page.type(
+      searchBox,
+      char
+    );
+
+    await randomDelay(
+      100,
+      200
+    );
+  }
+
+  await page.keyboard.press(
+    'Enter'
+  );
+
+  await randomDelay(
+    5000,
+    6000
+  );
+
+  /*
+   * ============================================================
+   * Google 搜尋頁先嘗試直接開評論
+   *
+   * 1. 先找右側商家資訊的「評論」
+   * 2. 找不到 / 沒開成功
+   *    再找「776 則 Google 評論」這種連結
+   * 3. 還是不行才進 Google Maps
+   *
+   * 所有店共用。
+   * ============================================================
+   */
+
+  async function hasReviewListOpen() {
+    return await page.evaluate(() => {
+      const reviewCards =
+        document.querySelectorAll(
+          'div[data-review-id]'
+        ).length;
+
+      const feed =
+        document.querySelector(
+          'div[role="feed"]'
+        );
+
+      const mapsContainer =
+        document.querySelector(
+          '.m6U62c'
+        );
+
+      return (
+        reviewCards > 0 ||
+        Boolean(feed) ||
+        Boolean(mapsContainer)
+      );
+    });
+  }
+
+  console.log(
+    '🎯 先找 Google 搜尋頁右側評論入口...'
+  );
+
+  const rightReviewClicked =
+    await page.evaluate(() => {
+      function getText(el) {
+        return (
+          (el.innerText || '') +
+          ' ' +
+          (el.textContent || '') +
+          ' ' +
+          (el.getAttribute('aria-label') || '') +
+          ' ' +
+          (el.getAttribute('title') || '')
+        )
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function isVisible(el) {
+        if (!el) return false;
+
+        const r =
+          el.getBoundingClientRect();
+
+        const s =
+          window.getComputedStyle(el);
+
+        return (
+          r.width > 0 &&
+          r.height > 0 &&
+          s.display !== 'none' &&
+          s.visibility !== 'hidden'
+        );
+      }
+
+      const elements =
+        Array.from(
+          document.querySelectorAll(
+            'a, button, [role="button"], [role="tab"]'
+          )
+        ).filter(isVisible);
+
+      const candidates = [];
+
+      for (const el of elements) {
+        const text = getText(el);
+        const lower =
+          text.toLowerCase();
+
+        /*
+         * 不要誤點「撰寫評論」。
+         */
+        if (
+          lower.includes('撰寫評論') ||
+          lower.includes('寫評論') ||
+          lower.includes('write a review')
+        ) {
+          continue;
+        }
+
+        const aria =
+          String(
+            el.getAttribute(
+              'aria-label'
+            ) || ''
+          )
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+
+        let score = 0;
+
+        if (
+          text === '評論' ||
+          lower === 'reviews'
+        ) {
+          score += 100;
+        }
+
+        if (
+          aria === '評論' ||
+          aria === 'reviews'
+        ) {
+          score += 100;
+        }
+
+        if (
+          lower === '查看評論' ||
+          lower === '查看全部評論' ||
+          lower === 'view reviews' ||
+          lower === 'all reviews'
+        ) {
+          score += 80;
+        }
+
+        if (score > 0) {
+          const r =
+            el.getBoundingClientRect();
+
+          candidates.push({
+            el,
+            text,
+            score,
+            right: r.left
+          });
+        }
+      }
+
+      /*
+       * 同分時優先畫面右邊，
+       * 對應 Google 商家資訊區。
+       */
+      candidates.sort(
+        (a, b) => {
+          if (
+            a.score !== b.score
+          ) {
+            return (
+              b.score -
+              a.score
+            );
+          }
+
+          return (
+            b.right -
+            a.right
+          );
+        }
+      );
+
+      if (
+        candidates.length === 0
+      ) {
+        return {
+          success: false,
+          text: '',
+          count: 0
+        };
+      }
+
+      const target =
+        candidates[0];
+
+      target.el.scrollIntoView({
+        block: 'center',
+        inline: 'center'
+      });
+
+      target.el.click();
+
+      return {
+        success: true,
+        text: target.text,
+        count:
+          candidates.length
+      };
+    });
+
+  console.log(
+    '🎯 Google 搜尋頁右側評論入口:',
+    rightReviewClicked
+  );
+
+  let searchReviewOpened = false;
+
+  if (
+    rightReviewClicked.success
+  ) {
+    await randomDelay(
+      4000,
+      6000
+    );
+
+    searchReviewOpened =
+      await hasReviewListOpen();
+
+    console.log(
+      '🎯 右側評論列表確認:',
+      searchReviewOpened
+    );
+  }
+
+  /*
+   * ============================================================
+   * 右側找不到：
+   * 改找「776 則 Google 評論」這種藍色連結
+   * ============================================================
+   */
+  if (!searchReviewOpened) {
+    console.log(
+      '🔎 右側評論沒開啟，改找「N 則 Google 評論」連結...'
+    );
+
+    const reviewCountClicked =
+      await page.evaluate(() => {
+        function getText(el) {
+          return (
+            (el.innerText || '') +
+            ' ' +
+            (el.textContent || '') +
+            ' ' +
+            (el.getAttribute('aria-label') || '') +
+            ' ' +
+            (el.getAttribute('title') || '')
+          )
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+
+        function isVisible(el) {
+          if (!el) return false;
+
+          const r =
+            el.getBoundingClientRect();
+
+          const s =
+            window.getComputedStyle(el);
+
+          return (
+            r.width > 0 &&
+            r.height > 0 &&
+            s.display !== 'none' &&
+            s.visibility !== 'hidden'
+          );
+        }
+
+        const elements =
+          Array.from(
+            document.querySelectorAll(
+              'a, button, [role="button"], [role="tab"]'
+            )
+          ).filter(isVisible);
+
+        const candidates = [];
+
+        for (const el of elements) {
+          const text =
+            getText(el);
+
+          const matched =
+            /\d[\d,]*\s*則\s*Google\s*評論/i.test(text) ||
+            /\d[\d,]*\s*則\s*評論/i.test(text) ||
+            /\d[\d,]*\s*Google\s*reviews?/i.test(text) ||
+            /\d[\d,]*\s*reviews?/i.test(text);
+
+          if (!matched) {
+            continue;
+          }
+
+          const r =
+            el.getBoundingClientRect();
+
+          candidates.push({
+            el,
+            text,
+            top: r.top,
+            left: r.left
+          });
+        }
+
+        /*
+         * Google 商家資訊通常在畫面上方，
+         * 優先最上面的評論數量連結。
+         */
+        candidates.sort(
+          (a, b) => {
+            if (
+              a.top !== b.top
+            ) {
+              return (
+                a.top -
+                b.top
+              );
+            }
+
+            return (
+              a.left -
+              b.left
+            );
+          }
+        );
+
+        if (
+          candidates.length === 0
+        ) {
+          return {
+            success: false,
+            text: '',
+            count: 0
+          };
+        }
+
+        const target =
+          candidates[0];
+
+        target.el.scrollIntoView({
+          block: 'center',
+          inline: 'center'
+        });
+
+        target.el.click();
+
+        return {
+          success: true,
+          text: target.text,
+          count:
+            candidates.length
+        };
+      });
+
+    console.log(
+      '🔎 Google 評論數量連結:',
+      reviewCountClicked
+    );
+
+    if (
+      reviewCountClicked.success
+    ) {
+      await randomDelay(
+        5000,
+        7000
+      );
+
+      searchReviewOpened =
+        await hasReviewListOpen();
+
+      console.log(
+        '🔎 評論數量連結開啟確認:',
+        searchReviewOpened
+      );
     }
   }
 
-  return false;
-});
+  let tabClicked =
+    searchReviewOpened;
 
-console.log('🎯 review tab result:', tabClicked);
+  /*
+   * ============================================================
+   * Google 搜尋頁仍然開不到評論
+   * 才走原本 Google Maps 流程
+   * ============================================================
+   */
+  if (!searchReviewOpened) {
+    console.log(
+      '🚀 Google 搜尋頁沒開到評論，嘗試進入 Google Maps...'
+    );
 
-if (tabClicked) {
-  await randomDelay(6000, 8000);
-} else {
-  console.log('⚠️ 沒點到評論');
-}
+    const opened =
+      await page.evaluate(() => {
+        const els =
+          Array.from(
+            document.querySelectorAll(
+              'a, button, span'
+            )
+          );
 
-  await clickNewestSort(page);
+        const target =
+          els.find(el => {
+            const t =
+              (el.innerText || '')
+                .toLowerCase()
+                .trim();
 
-  const storeRating = await extractStoreRating(page);
+            return (
+              t === '地圖' ||
+              t === 'google 地圖' ||
+              t.includes(
+                '在地圖上查看'
+              )
+            );
+          });
 
-  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || '未抓到');
-  console.log('🔁 本次評論滑動輪數:', maxRounds);
+        if (target) {
+          target.click();
+          return true;
+        }
 
-  const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+        return false;
+      });
+
+    if (opened) {
+      await randomDelay(
+        4000,
+        6000
+      );
+    }
+
+    let currentUrl =
+      page.url();
+
+    /*
+     * 有 click 到「地圖」
+     * 不代表真的進 Maps。
+     * URL 沒有 /maps/ 就走 fallback。
+     */
+    if (
+      !currentUrl.includes(
+        '/maps/'
+      )
+    ) {
+      console.log(
+        '⚠️ 尚未真正進入 Google Maps，改用 fallback'
+      );
+
+      await page.goto(
+        forceGoogleChineseUrl(
+          storeConfig.fallbackUrl
+        ),
+        {
+          waitUntil:
+            'networkidle2',
+          timeout: 60000
+        }
+      );
+
+      await randomDelay(
+        8000,
+        10000
+      );
+
+      currentUrl =
+        page.url();
+    }
+
+    console.log(
+      '🗺️目前 Maps URL:',
+      currentUrl
+    );
+
+    await randomDelay(
+      8000,
+      10000
+    );
+
+    console.log(
+      '🎯 找評論按鈕...'
+    );
+
+    /*
+     * 這裡維持你原本 Maps 評論按鈕邏輯。
+     */
+    tabClicked =
+      await page.evaluate(() => {
+        const getText =
+          (el) => {
+            return (
+              (el.innerText || '') +
+              (el.textContent || '') +
+              (el.getAttribute('aria-label') || '') +
+              (el.getAttribute('title') || '')
+            ).toLowerCase();
+          };
+
+        const keywords = [
+          '評論',
+          'reviews',
+          '查看評論',
+          '查看全部評論'
+        ];
+
+        const elements =
+          Array.from(
+            document.querySelectorAll(
+              'button, a, div'
+            )
+          );
+
+        for (
+          const el of elements
+        ) {
+          const text =
+            getText(el);
+
+          if (
+            keywords.some(
+              k =>
+                text.includes(k)
+            )
+          ) {
+            el.click();
+            return true;
+          }
+        }
+
+        return false;
+      });
+
+    console.log(
+      '🎯 review tab result:',
+      tabClicked
+    );
+
+    if (tabClicked) {
+      await randomDelay(
+        6000,
+        8000
+      );
+    } else {
+      console.log(
+        '⚠️ 沒點到評論'
+      );
+    }
+  } else {
+    console.log(
+      '✅ 已直接從 Google 搜尋頁開啟評論，不需要進 Maps'
+    );
+
+    console.log(
+      '🎯 review tab result:',
+      tabClicked
+    );
+  }
+
+  /*
+   * ============================================================
+   * 後面維持你原本邏輯
+   * ============================================================
+   */
+
+  await clickNewestSort(
+    page
+  );
+
+  const storeRating =
+    await extractStoreRating(
+      page
+    );
+
+  console.log(
+    `⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`,
+    storeRating || '未抓到'
+  );
+
+  console.log(
+    '🔁 本次評論滑動輪數:',
+    maxRounds
+  );
+
+  const reviews =
+    await fastLoadAndCollectReviews(
+      page,
+      maxRounds
+    );
 
   reviews.forEach(review => {
-    review.brand = storeConfig.brand;
-    review.store = storeConfig.store;
-    review.branch = storeConfig.branch;
-    review.storeRating = storeRating;
-    review.averageRating = storeRating;
+    review.brand =
+      storeConfig.brand;
+
+    review.store =
+      storeConfig.store;
+
+    review.branch =
+      storeConfig.branch;
+
+    review.storeRating =
+      storeRating;
+
+    review.averageRating =
+      storeRating;
   });
 
-  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`);
+  console.log(
+    `✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`
+  );
 
   return reviews;
 }
@@ -1280,103 +1870,205 @@ async function scrapeGoogleReviews() {
   let browser;
 
   try {
-    console.log('➡️ 啟動防偵測 Chrome...');
+    console.log(
+      '➡️ 啟動防偵測 Chrome...'
+    );
 
-    const isCloud = isCloudEnv();
-    const chromePath = getChromeExecutablePath(isCloud);
+    const isCloud =
+      isCloudEnv();
 
-    console.log('☁️ isCloud:', isCloud);
-    console.log('🧭 Chrome executablePath:', chromePath || '使用 Puppeteer 預設');
+    const chromePath =
+      getChromeExecutablePath(
+        isCloud
+      );
 
-    browser = await puppeteer.launch({
-      headless: isCloud ? 'new' : false,
-      protocolTimeout: 600000,
-      executablePath: chromePath,
-      defaultViewport: isCloud
-        ? { width: 1366, height: 768 }
-        : null,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled',
-        '--no-first-run',
-        '--no-default-browser-check',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--window-size=1366,768',
-        '--lang=zh-TW',
-        '--accept-lang=zh-TW,zh,en-US,en'
-      ]
-    });
+    console.log(
+      '☁️ isCloud:',
+      isCloud
+    );
 
-    const page = (await browser.pages())[0] || await browser.newPage();
+    console.log(
+      '🧭 Chrome executablePath:',
+      chromePath ||
+      '使用 Puppeteer 預設'
+    );
+
+    browser =
+      await puppeteer.launch({
+        headless:
+          isCloud
+            ? 'new'
+            : false,
+
+        protocolTimeout:
+          600000,
+
+        executablePath:
+          chromePath,
+
+        defaultViewport:
+          isCloud
+            ? {
+                width: 1366,
+                height: 768
+              }
+            : null,
+
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled',
+          '--no-first-run',
+          '--no-default-browser-check',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--window-size=1366,768',
+          '--lang=zh-TW',
+          '--accept-lang=zh-TW,zh,en-US,en'
+        ]
+      });
+
+    const page =
+      (await browser.pages())[0] ||
+      await browser.newPage();
 
     await page.setExtraHTTPHeaders({
-      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+      'Accept-Language':
+        'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     });
 
-    await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'webdriver', {
-        get: () => undefined
-      });
+    await page.evaluateOnNewDocument(
+      () => {
+        Object.defineProperty(
+          navigator,
+          'webdriver',
+          {
+            get: () =>
+              undefined
+          }
+        );
 
-      Object.defineProperty(navigator, 'language', {
-        get: () => 'zh-TW'
-      });
+        Object.defineProperty(
+          navigator,
+          'language',
+          {
+            get: () =>
+              'zh-TW'
+          }
+        );
 
-      Object.defineProperty(navigator, 'languages', {
-        get: () => ['zh-TW', 'zh', 'en-US', 'en']
-      });
-    });
+        Object.defineProperty(
+          navigator,
+          'languages',
+          {
+            get: () => [
+              'zh-TW',
+              'zh',
+              'en-US',
+              'en'
+            ]
+          }
+        );
+      }
+    );
 
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
       '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     );
 
-    const maxRounds = getMaxRounds();
+    const maxRounds =
+      getMaxRounds();
+
     const allReviews = [];
 
-    const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
-    const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+    const targetBrand =
+      process.env.SCRAPE_TARGET_BRAND ||
+      'all';
 
-    const targetStores = STORES.filter(storeConfig => {
-      const brandMatched =
-        targetBrand === 'all' ||
-        storeConfig.brand === targetBrand;
+    const targetStore =
+      process.env.SCRAPE_TARGET_STORE ||
+      'all';
 
-      const storeMatched =
-        targetStore === 'all' ||
-        storeConfig.store === targetStore;
+    const targetStores =
+      STORES.filter(
+        storeConfig => {
+          const brandMatched =
+            targetBrand === 'all' ||
+            storeConfig.brand ===
+              targetBrand;
 
-      return brandMatched && storeMatched;
-    });
+          const storeMatched =
+            targetStore === 'all' ||
+            storeConfig.store ===
+              targetStore;
 
-    console.log('🎯 本次同步目標:', targetBrand, targetStore);
-    console.log('🎯 本次店家數:', targetStores.length);
+          return (
+            brandMatched &&
+            storeMatched
+          );
+        }
+      );
 
-    for (const storeConfig of targetStores) {
+    console.log(
+      '🎯 本次同步目標:',
+      targetBrand,
+      targetStore
+    );
+
+    console.log(
+      '🎯 本次店家數:',
+      targetStores.length
+    );
+
+    for (
+      const storeConfig of
+      targetStores
+    ) {
       try {
-        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
-        allReviews.push(...reviews);
+        const reviews =
+          await scrapeOneStore(
+            page,
+            storeConfig,
+            maxRounds
+          );
+
+        allReviews.push(
+          ...reviews
+        );
       } catch (err) {
-        console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
+        console.error(
+          `❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`,
+          err.message
+        );
       }
 
-      await randomDelay(3000, 5000);
+      await randomDelay(
+        3000,
+        5000
+      );
     }
 
-    console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
+    console.log(
+      `✅ 全部店家合計抓到 ${allReviews.length} 筆評論`
+    );
 
     return allReviews;
   } catch (err) {
-    console.error('❌ 錯誤:', err);
+    console.error(
+      '❌ 錯誤:',
+      err
+    );
+
     return [];
   } finally {
     if (browser) {
-      await browser.close().catch(() => {});
+      await browser
+        .close()
+        .catch(() => {});
     }
   }
 }
 
-module.exports = scrapeGoogleReviews;
+module.exports =
+  scrapeGoogleReviews;
