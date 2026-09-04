@@ -7,7 +7,7 @@
     "rating": 3,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "5 小時前",
+    "date": "7 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -19,7 +19,10 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T21:47:21.502Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z"
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
   },
   {
     "id": "1788445853359-3",
@@ -29,7 +32,7 @@
     "rating": 5,
     "storeRating": "4.7",
     "averageRating": "4.7",
-    "date": "11 小時前",
+    "date": "13 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -41,7 +44,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T14:30:53.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -51,6 +54,31 @@
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2s0dGQzVkdPREpDZWs4NVpsOTZXV054T0ZsR1FrRRAB",
     "author": "Ashley",
     "content": "Kenxin服務很好～",
+    "rating": 5,
+    "storeRating": "4.7",
+    "averageRating": "4.7",
+    "date": "12 小時前",
+    "editedText": "",
+    "isEdited": false,
+    "hasReply": false,
+    "replyContent": "",
+    "replyDate": "",
+    "branch": "LILLA",
+    "brand": "LILLA",
+    "store": "DREAM PLAZA",
+    "group": "new-brand",
+    "scrapedAt": "2026-09-03T14:30:53.359Z",
+    "updatedAt": "",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
+    "isDeleted": false,
+    "deleted": false,
+    "deletedAt": ""
+  },
+  {
+    "id": "1788445853359-1",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2tKWGRqRlFZV05oZFhVM2JUSnJkV1J4U0haTExXYxAB",
+    "author": "Bella Hsu",
+    "content": "可欣介紹的都讚讚好吃唷",
     "rating": 5,
     "storeRating": "4.7",
     "averageRating": "4.7",
@@ -66,32 +94,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T14:30:53.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
-    "isDeleted": false,
-    "deleted": false,
-    "deletedAt": ""
-  },
-  {
-    "id": "1788445853359-1",
-    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2tKWGRqRlFZV05oZFhVM2JUSnJkV1J4U0haTExXYxAB",
-    "author": "Bella Hsu",
-    "content": "可欣介紹的都讚讚好吃唷",
-    "rating": 5,
-    "storeRating": "4.7",
-    "averageRating": "4.7",
-    "date": "8 小時前",
-    "editedText": "",
-    "isEdited": false,
-    "hasReply": false,
-    "replyContent": "",
-    "replyDate": "",
-    "branch": "LILLA",
-    "brand": "LILLA",
-    "store": "DREAM PLAZA",
-    "group": "new-brand",
-    "scrapedAt": "2026-09-03T14:30:53.359Z",
-    "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -104,7 +107,7 @@
     "rating": 5,
     "storeRating": "4.7",
     "averageRating": "4.7",
-    "date": "8 小時前",
+    "date": "10 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -116,7 +119,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T14:30:53.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -129,7 +132,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "15 小時前",
+    "date": "17 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -141,7 +144,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T09:45:24.140Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -154,7 +157,7 @@
     "rating": 5,
     "storeRating": "4.6",
     "averageRating": "4.6",
-    "date": "12 小時前",
+    "date": "14 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -166,7 +169,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T09:45:24.140Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -179,7 +182,7 @@
     "rating": 5,
     "storeRating": "4.7",
     "averageRating": "4.7",
-    "date": "16 小時前",
+    "date": "19 小時前",
     "editedText": "",
     "isEdited": false,
     "hasReply": false,
@@ -191,7 +194,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-03T09:45:24.140Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -216,7 +219,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T18:41:36.253Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -241,7 +244,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T14:28:11.512Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -266,7 +269,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T14:28:11.512Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -291,7 +294,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -316,7 +319,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -341,7 +344,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -366,7 +369,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -391,7 +394,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -416,7 +419,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -441,7 +444,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -466,7 +469,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -491,7 +494,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -516,7 +519,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T06:45:32.130Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -541,7 +544,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-02T04:22:49.478Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -566,7 +569,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-01T14:50:36.636Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -591,7 +594,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-01T14:50:36.636Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -616,7 +619,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-09-01T14:50:36.636Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -641,7 +644,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T20:03:53.872Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -666,7 +669,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T20:03:53.872Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -713,7 +716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T13:37:05.717Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -738,7 +741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T13:37:05.717Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -763,7 +766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T13:37:05.717Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -788,7 +791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -813,7 +816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -838,7 +841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -863,7 +866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -888,7 +891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -913,7 +916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -938,7 +941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -963,7 +966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -988,7 +991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1013,7 +1016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1038,7 +1041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1063,7 +1066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1088,7 +1091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1113,7 +1116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1138,7 +1141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1163,7 +1166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1188,7 +1191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1213,7 +1216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1238,7 +1241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1263,7 +1266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T08:51:38.904Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1288,7 +1291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T05:25:13.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1313,7 +1316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T05:25:13.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1338,7 +1341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-31T05:25:13.359Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1363,7 +1366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T17:25:49.800Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1388,7 +1391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1413,7 +1416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1438,7 +1441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1463,7 +1466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1488,7 +1491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1513,7 +1516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1538,7 +1541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-30T12:52:07.837Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1563,7 +1566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T21:45:13.930Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1588,7 +1591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T18:26:31.751Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1613,7 +1616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "2026-08-30T23:28:40.432Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1638,7 +1641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1663,7 +1666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1688,7 +1691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1713,7 +1716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1738,7 +1741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1763,7 +1766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T15:05:38.423Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1788,7 +1791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T10:03:35.874Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1813,7 +1816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-29T10:03:35.874Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1838,7 +1841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1863,7 +1866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1888,7 +1891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1913,7 +1916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1938,7 +1941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1963,7 +1966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1988,7 +1991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2013,7 +2016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2038,7 +2041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2063,7 +2066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2088,7 +2091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2113,7 +2116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2138,7 +2141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2163,7 +2166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2188,7 +2191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2213,7 +2216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2238,7 +2241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2263,7 +2266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2288,7 +2291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2313,7 +2316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2338,7 +2341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2351,7 +2354,7 @@
     "rating": 5,
     "storeRating": "4.7",
     "averageRating": "4.7",
-    "date": "上次編輯：16 小時前",
+    "date": "上次編輯：18 小時前",
     "editedText": "",
     "isEdited": true,
     "hasReply": false,
@@ -2363,7 +2366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "2026-09-03T09:45:24.140Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2388,7 +2391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T18:38:22.523Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2413,7 +2416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2438,7 +2441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2463,7 +2466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2488,7 +2491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2513,7 +2516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2538,7 +2541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2563,7 +2566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2588,7 +2591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2613,7 +2616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2638,7 +2641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2663,7 +2666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2688,7 +2691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2713,7 +2716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-28T05:20:28.767Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2738,7 +2741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2763,7 +2766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2788,7 +2791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2813,7 +2816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2838,7 +2841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2863,7 +2866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2888,7 +2891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T20:23:15.465Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2913,7 +2916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-27T09:29:22.370Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2938,7 +2941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T19:18:15.537Z",
     "updatedAt": "2026-08-29T15:05:38.423Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2963,7 +2966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -2988,7 +2991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3013,7 +3016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3038,7 +3041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3063,7 +3066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3088,7 +3091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3113,7 +3116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3138,7 +3141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3163,7 +3166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3188,7 +3191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3213,7 +3216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3238,7 +3241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3263,7 +3266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3288,7 +3291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3313,7 +3316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3338,7 +3341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3363,7 +3366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T14:59:23.035Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -3538,7 +3541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T08:59:48.517Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4088,7 +4091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4113,7 +4116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4138,7 +4141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4163,7 +4166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4188,7 +4191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4213,7 +4216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4238,7 +4241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4263,7 +4266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4288,7 +4291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4313,7 +4316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4338,7 +4341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4363,7 +4366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4388,7 +4391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4413,7 +4416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4438,7 +4441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4463,7 +4466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4488,7 +4491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4513,7 +4516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4538,7 +4541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4563,7 +4566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4588,7 +4591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4613,7 +4616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4638,7 +4641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4663,7 +4666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4688,7 +4691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4713,7 +4716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4738,7 +4741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4763,7 +4766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4788,7 +4791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4813,7 +4816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4838,7 +4841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4863,7 +4866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4888,7 +4891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4913,7 +4916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4938,7 +4941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4963,7 +4966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -4988,7 +4991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5013,7 +5016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5038,7 +5041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5063,7 +5066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5088,7 +5091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5113,7 +5116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5138,7 +5141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5163,7 +5166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5188,7 +5191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5213,7 +5216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5238,7 +5241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5263,7 +5266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5288,7 +5291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5313,7 +5316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5338,7 +5341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5363,7 +5366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5388,7 +5391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5413,7 +5416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:47:07.340Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5438,7 +5441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:13:39.605Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5463,7 +5466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:13:39.605Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5488,7 +5491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T05:13:39.605Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5513,7 +5516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5538,7 +5541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5563,7 +5566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5588,7 +5591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5613,7 +5616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5638,7 +5641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5663,7 +5666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T04:54:14.647Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5688,7 +5691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-26T03:18:11.304Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5713,7 +5716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-25T16:52:30.867Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5738,7 +5741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-25T13:07:27.935Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5763,7 +5766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-25T11:40:18.598Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5788,7 +5791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-25T04:52:32.561Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5813,7 +5816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T16:53:36.577Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5838,7 +5841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T14:56:30.540Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5863,7 +5866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T14:56:30.540Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5888,7 +5891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T14:56:30.540Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5913,7 +5916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T11:41:29.153Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5938,7 +5941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-24T09:02:20.530Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5963,7 +5966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T16:40:04.498Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -5988,7 +5991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T15:35:07.027Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6013,7 +6016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T15:35:07.027Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6038,7 +6041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6063,7 +6066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6088,7 +6091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6113,7 +6116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6138,7 +6141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6163,7 +6166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T12:59:51.450Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6188,7 +6191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T09:39:56.033Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6213,7 +6216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T08:45:18.339Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6238,7 +6241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T08:45:18.339Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6263,7 +6266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T01:57:54.177Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6288,7 +6291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-23T01:57:54.177Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6313,7 +6316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T21:34:05.950Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6338,7 +6341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T15:33:50.946Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6363,7 +6366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T14:39:34.149Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6388,7 +6391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6413,7 +6416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6438,7 +6441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6463,7 +6466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6488,7 +6491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6513,7 +6516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6538,7 +6541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6563,7 +6566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6588,7 +6591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6613,7 +6616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T12:58:47.534Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6638,7 +6641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T11:32:47.604Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6663,7 +6666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6688,7 +6691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6713,7 +6716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6738,7 +6741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6763,7 +6766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6788,7 +6791,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6813,7 +6816,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T06:58:12.324Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6838,7 +6841,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-22T01:47:47.970Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6863,7 +6866,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6888,7 +6891,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6913,7 +6916,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6938,7 +6941,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6963,7 +6966,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -6988,7 +6991,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7013,7 +7016,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T22:38:01.999Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7038,7 +7041,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T13:07:44.860Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7063,7 +7066,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T10:42:43.923Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7088,7 +7091,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T10:42:43.923Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7113,7 +7116,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T10:42:43.923Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7138,7 +7141,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T10:42:43.923Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7163,7 +7166,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T10:42:43.923Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7188,7 +7191,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T05:44:18.327Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7213,7 +7216,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T03:15:46.393Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7238,7 +7241,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-21T01:54:06.001Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7263,7 +7266,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T16:48:04.896Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7288,7 +7291,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T13:08:34.981Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7313,7 +7316,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T13:08:34.981Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7338,7 +7341,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T13:08:34.981Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7363,7 +7366,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T11:39:26.479Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7388,7 +7391,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T10:43:33.511Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7413,7 +7416,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T03:10:09.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7438,7 +7441,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T03:10:09.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7463,7 +7466,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-20T03:10:09.297Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7488,7 +7491,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7513,7 +7516,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7538,7 +7541,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7563,7 +7566,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7588,7 +7591,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7613,7 +7616,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7638,7 +7641,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7663,7 +7666,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7688,7 +7691,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7713,7 +7716,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-19T21:45:15.897Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7738,7 +7741,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T15:44:11.247Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7763,7 +7766,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T15:44:11.247Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7810,7 +7813,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T15:44:11.247Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7835,7 +7838,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T15:44:11.247Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7860,7 +7863,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T15:44:11.247Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7885,7 +7888,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-18T10:41:50.640Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7910,7 +7913,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-17T07:14:31.467Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7935,7 +7938,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-16T14:35:53.932Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7960,7 +7963,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-16T13:42:14.859Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -7985,7 +7988,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-16T07:42:59.109Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8010,7 +8013,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-16T07:42:59.109Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8035,7 +8038,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-15T11:32:20.997Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8060,7 +8063,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-15T08:42:50.930Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8085,7 +8088,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-15T08:42:50.930Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8110,7 +8113,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8135,7 +8138,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8160,7 +8163,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8185,7 +8188,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8210,7 +8213,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8235,7 +8238,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T08:42:32.225Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8260,7 +8263,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-13T05:03:38.926Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8285,7 +8288,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-12T10:19:52.012Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8310,7 +8313,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-12T08:29:44.662Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8335,7 +8338,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-12T08:29:44.662Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8360,7 +8363,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8385,7 +8388,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8410,7 +8413,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8435,7 +8438,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8460,7 +8463,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8485,7 +8488,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T13:28:27.882Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8510,7 +8513,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-11T02:24:13.827Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -8985,7 +8988,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T14:44:14.541Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9010,7 +9013,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9035,7 +9038,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9060,7 +9063,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9085,7 +9088,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9110,7 +9113,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9135,7 +9138,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-08T13:09:10.040Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9210,7 +9213,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-07T13:25:40.502Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9310,7 +9313,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-06T15:30:32.600Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9335,7 +9338,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-06T15:30:32.600Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9360,7 +9363,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-06T12:12:48.726Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9385,7 +9388,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-06T12:12:48.726Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9410,7 +9413,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-06T03:31:28.953Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9435,7 +9438,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-05T15:26:47.765Z",
     "updatedAt": "2026-08-20T18:56:32.362Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9460,7 +9463,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-05T15:26:47.765Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -9485,7 +9488,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-05T15:26:47.765Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10060,7 +10063,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T17:14:03.084Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10160,7 +10163,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10185,7 +10188,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10210,7 +10213,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10235,7 +10238,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10260,7 +10263,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10285,7 +10288,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-02T13:50:20.280Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10660,7 +10663,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-01T07:37:59.659Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10685,7 +10688,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-08-01T04:32:17.601Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -10710,7 +10713,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-07-31T16:55:08.295Z",
     "updatedAt": "2026-08-21T10:42:43.923Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -11085,7 +11088,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-07-30T14:28:59.686Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -11110,7 +11113,7 @@
     "group": "new-brand",
     "scrapedAt": "2026-07-30T14:28:59.686Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -14347,7 +14350,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14372,7 +14375,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14397,7 +14400,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14422,7 +14425,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14447,7 +14450,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14472,7 +14475,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14497,7 +14500,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14522,7 +14525,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14547,7 +14550,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14572,7 +14575,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14597,7 +14600,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14622,7 +14625,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14647,7 +14650,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14672,7 +14675,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14697,7 +14700,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -14722,7 +14725,7 @@
     "store": "台北",
     "scrapedAt": "2026-07-15T06:04:36.828Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -29717,7 +29720,7 @@
     "store": "南港",
     "scrapedAt": "2026-06-14T12:27:51.004Z",
     "updatedAt": "2026-08-06T15:30:32.600Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -41567,7 +41570,7 @@
     "store": "南港",
     "scrapedAt": "2026-06-15T09:32:19.272Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -49117,7 +49120,7 @@
     "store": "101",
     "scrapedAt": "2026-06-12T10:19:08.651Z",
     "updatedAt": "2026-08-28T18:38:22.523Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
@@ -52067,7 +52070,7 @@
     "store": "101",
     "scrapedAt": "2026-06-16T03:40:20.566Z",
     "updatedAt": "2026-08-14T18:04:41.839Z",
-    "lastSeenAt": "2026-09-03T21:47:21.502Z",
+    "lastSeenAt": "2026-09-04T00:07:50.130Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": "",
