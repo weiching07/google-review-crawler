@@ -28,10 +28,7 @@ on:
         required: false
         default: "all"
 
-  schedule:
-    - cron: "3 * * * *"    # new-brand，每小時 03 分
-    - cron: "23 * * * *"   # TGIF，每小時 23 分
-    - cron: "43 * * * *"   # TXRH，每小時 43 分
+
 
   push:
     branches:
