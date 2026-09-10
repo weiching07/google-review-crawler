@@ -1,5 +1,27 @@
 [
   {
+    "id": "1789023014580-18",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT21wUGVEWkRUbHBoUzBsRE5GZEpNbk4xVjFKVk4xRRAB",
+    "author": "曾千語",
+    "content": "服務員態度有夠差，（店員自己說錯重量）多問確認還翻白眼🙄東西其實也很普通….不推薦！",
+    "rating": 3,
+    "storeRating": "4.8",
+    "averageRating": "4.8",
+    "date": "44 分鐘前",
+    "editedText": "",
+    "isEdited": false,
+    "hasReply": false,
+    "replyContent": "",
+    "replyDate": "",
+    "branch": "ROADHOUSE",
+    "brand": "TXRH",
+    "store": "大巨蛋",
+    "group": "TXRH",
+    "scrapedAt": "2026-09-10T06:50:14.579Z",
+    "updatedAt": "",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z"
+  },
+  {
     "id": "1789017915956-413",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT210b1prWnRiR1p0TlhacWNETlhXWFpvUWsxQ1gxRRAB",
     "author": "Wayne LI",
@@ -576,7 +598,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-09-08T05:23:48.694Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -1151,7 +1173,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-09-06T19:38:34.677Z",
     "updatedAt": "2026-09-08T10:14:12.227Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -22723,7 +22745,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-08-04T12:36:18.424Z",
     "updatedAt": "2026-08-16T15:11:49.756Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -26098,7 +26120,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-31T11:28:43.559Z",
     "updatedAt": "2026-08-03T08:58:00.882Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -28173,7 +28195,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-27T05:37:29.926Z",
     "updatedAt": "2026-08-15T14:15:41.680Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -28448,7 +28470,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-26T12:05:51.881Z",
     "updatedAt": "2026-07-29T11:15:17.657Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -30823,7 +30845,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-23T23:48:19.404Z",
     "updatedAt": "2026-07-29T11:15:17.657Z",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -41211,7 +41233,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -49836,7 +49858,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -65036,7 +65058,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -66561,7 +66583,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -66961,7 +66983,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -87736,7 +87758,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -90861,7 +90883,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -96736,7 +96758,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -99936,7 +99958,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -116986,7 +117008,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -120661,7 +120683,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -134761,7 +134783,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
@@ -135711,7 +135733,7 @@
     "group": "TXRH",
     "scrapedAt": "2026-07-16T07:17:31.438Z",
     "updatedAt": "",
-    "lastSeenAt": "2026-09-10T05:50:06.511Z",
+    "lastSeenAt": "2026-09-10T06:50:14.579Z",
     "isDeleted": false,
     "deleted": false,
     "deletedAt": ""
