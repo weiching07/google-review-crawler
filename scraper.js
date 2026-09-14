@@ -1276,7 +1276,7 @@ if (tabClicked) {
   return reviews;
 }
 
-async function scrapeGoogleReviews() {
+async function scrapeGoogleReviews(retryCount = 0) {
   let browser;
 
   try {
@@ -1356,15 +1356,35 @@ async function scrapeGoogleReviews() {
     console.log('🎯 本次店家數:', targetStores.length);
 
     for (const storeConfig of targetStores) {
-      try {
-        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
-        allReviews.push(...reviews);
-      } catch (err) {
-        console.error(`❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`, err.message);
-      }
+  try {
+    const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
 
-      await randomDelay(3000, 5000);
+    // 第一間店就只抓到 3 筆，代表這次 Google session 很可能異常
+    // 整個 Chrome 關掉重開，整輪只重試一次
+    if (
+      allReviews.length === 0 &&
+      reviews.length === 3 &&
+      retryCount < 1
+    ) {
+      console.log('⚠️ 第一間店只抓到 3 筆，判定本次 Google session 異常');
+      console.log('🔄 關閉 Chrome，整輪重新執行一次');
+
+      await browser.close().catch(() => {});
+      browser = null;
+
+      return await scrapeGoogleReviews(retryCount + 1);
     }
+
+    allReviews.push(...reviews);
+  } catch (err) {
+    console.error(
+      `❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`,
+      err.message
+    );
+  }
+
+  await randomDelay(3000, 5000);
+}
 
     console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
 
