@@ -1,3 +1,4 @@
+
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const STORES = require('./stores');
@@ -6,14 +7,20 @@ puppeteer.use(StealthPlugin());
 
 const randomDelay = (min, max) =>
   new Promise(resolve =>
-    setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min)
+    setTimeout(
+      resolve,
+      Math.floor(Math.random() * (max - min + 1)) + min
+    )
   );
 
 function withTimeout(promise, ms, label = 'operation') {
   return Promise.race([
     promise,
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timeout after ${ms}ms`)), ms)
+      setTimeout(
+        () => reject(new Error(`${label} timeout after ${ms}ms`)),
+        ms
+      )
     )
   ]);
 }
@@ -42,9 +49,14 @@ function isCloudEnv() {
 }
 
 function getChromeExecutablePath(isCloud) {
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
-  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
-  if (process.env.GOOGLE_CHROME_BIN) return process.env.GOOGLE_CHROME_BIN;
+  if (process.env.PUPPETEER_EXECUTABLE_PATH)
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+
+  if (process.env.CHROME_PATH)
+    return process.env.CHROME_PATH;
+
+  if (process.env.GOOGLE_CHROME_BIN)
+    return process.env.GOOGLE_CHROME_BIN;
 
   if (!isCloud) {
     return 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
@@ -58,7 +70,6 @@ function getMaxRounds() {
 
   if (!Number.isFinite(value) || value <= 0) return 5;
   if (value <= 5) return Math.floor(value);
-
   if (value >= 999) return 15000;
   if (value >= 100) return 10000;
 
@@ -72,6 +83,10 @@ function getReviewKey(review) {
     `${review.author || ''}-${review.date || ''}-${review.rating || ''}-${String(review.content || '').slice(0, 120)}`
   );
 }
+
+// ========================================
+// 取得店家平均星等
+// ========================================
 
 async function extractStoreRating(page) {
   return await page.evaluate(() => {
@@ -95,20 +110,33 @@ async function extractStoreRating(page) {
 
     function isValidAverageRating(value) {
       const n = Number(value);
-      return Number.isFinite(n) && n >= 1 && n <= 5 && String(value).includes('.');
+
+      return (
+        Number.isFinite(n) &&
+        n >= 1 &&
+        n <= 5 &&
+        String(value).includes('.')
+      );
     }
 
-    const ratingBlocks = Array.from(document.querySelectorAll('.F7nice'));
+    const ratingBlocks = Array.from(
+      document.querySelectorAll('.F7nice')
+    );
 
     for (const block of ratingBlocks) {
       if (!isVisible(block)) continue;
 
-      const items = Array.from(block.querySelectorAll('span, div'));
+      const items = Array.from(
+        block.querySelectorAll('span, div')
+      );
 
       for (const el of items) {
         if (!isVisible(el)) continue;
 
-        const text = clean(el.innerText || el.textContent || '');
+        const text = clean(
+          el.innerText || el.textContent || ''
+        );
+
         const match = text.match(/^([1-5]\.\d)$/);
 
         if (match && isValidAverageRating(match[1])) {
@@ -116,19 +144,31 @@ async function extractStoreRating(page) {
         }
       }
 
-      const blockText = clean(block.innerText || block.textContent || '');
-      const blockMatch = blockText.match(/\b([1-5]\.\d)\b/);
+      const blockText = clean(
+        block.innerText || block.textContent || ''
+      );
 
-      if (blockMatch && isValidAverageRating(blockMatch[1])) {
+      const blockMatch = blockText.match(
+        /\b([1-5]\.\d)\b/
+      );
+
+      if (
+        blockMatch &&
+        isValidAverageRating(blockMatch[1])
+      ) {
         return blockMatch[1];
       }
     }
 
-    const visibleElements = Array.from(document.querySelectorAll('span, div'))
-      .filter(isVisible);
+    const visibleElements = Array.from(
+      document.querySelectorAll('span, div')
+    ).filter(isVisible);
 
     for (const el of visibleElements) {
-      const text = clean(el.innerText || el.textContent || '');
+      const text = clean(
+        el.innerText || el.textContent || ''
+      );
+
       const match = text.match(/^([1-5]\.\d)$/);
 
       if (match && isValidAverageRating(match[1])) {
@@ -137,11 +177,19 @@ async function extractStoreRating(page) {
     }
 
     for (const el of visibleElements) {
-      const aria = clean(el.getAttribute('aria-label') || '');
-      const title = clean(el.getAttribute('title') || '');
+      const aria = clean(
+        el.getAttribute('aria-label') || ''
+      );
+
+      const title = clean(
+        el.getAttribute('title') || ''
+      );
+
       const source = `${aria} ${title}`;
 
-      const match = source.match(/([1-5]\.\d)\s*(?:星|顆星|stars?)/i);
+      const match = source.match(
+        /([1-5]\.\d)\s*(?:星|顆星|stars?)/i
+      );
 
       if (match && isValidAverageRating(match[1])) {
         return match[1];
@@ -151,6 +199,10 @@ async function extractStoreRating(page) {
     return '';
   });
 }
+
+// ========================================
+// 切換 Google Maps 最新評論排序
+// ========================================
 
 async function clickNewestSort(page) {
   console.log('🔃 嘗試切換最新排序...');
@@ -163,7 +215,9 @@ async function clickNewestSort(page) {
       document.querySelector('.m6U62c');
 
     if (!container) {
-      const firstReview = document.querySelector('div[data-review-id]');
+      const firstReview = document.querySelector(
+        'div[data-review-id]'
+      );
 
       if (firstReview) {
         let p = firstReview.parentElement;
@@ -173,7 +227,9 @@ async function clickNewestSort(page) {
 
           if (
             p.scrollHeight > p.clientHeight &&
-            ['auto', 'scroll', 'overlay'].includes(style.overflowY)
+            ['auto', 'scroll', 'overlay'].includes(
+              style.overflowY
+            )
           ) {
             container = p;
             break;
@@ -216,9 +272,11 @@ async function clickNewestSort(page) {
       );
     }
 
-    const elements = Array.from(document.querySelectorAll(
-      'button, div[role="button"], [aria-haspopup="menu"]'
-    ));
+    const elements = Array.from(
+      document.querySelectorAll(
+        'button, div[role="button"], [aria-haspopup="menu"]'
+      )
+    );
 
     const candidates = [];
 
@@ -275,7 +333,9 @@ async function clickNewestSort(page) {
   console.log('🔃 sort result:', sortResult);
 
   if (!sortResult.success) {
-    console.log('❌ 找不到排序按鈕，繼續用目前排序');
+    console.log(
+      '❌ 找不到排序按鈕，繼續用目前排序'
+    );
     return false;
   }
 
@@ -310,16 +370,23 @@ async function clickNewestSort(page) {
       );
     }
 
-    const menuRoots = Array.from(document.querySelectorAll(
-      '[role="menu"], [role="listbox"], [role="presentation"], div[aria-modal="true"]'
-    )).filter(isVisible);
+    const menuRoots = Array.from(
+      document.querySelectorAll(
+        '[role="menu"], [role="listbox"], [role="presentation"], div[aria-modal="true"]'
+      )
+    ).filter(isVisible);
 
-    const roots = menuRoots.length > 0 ? menuRoots : [document.body];
+    const roots =
+      menuRoots.length > 0
+        ? menuRoots
+        : [document.body];
 
     for (const root of roots) {
-      const items = Array.from(root.querySelectorAll(
-        '[role="menuitem"], [role="menuitemradio"], [role="option"], button, div[role="button"], div, span'
-      ));
+      const items = Array.from(
+        root.querySelectorAll(
+          '[role="menuitem"], [role="menuitemradio"], [role="option"], button, div[role="button"], div, span'
+        )
+      );
 
       for (const item of items) {
         if (!isVisible(item)) continue;
@@ -372,12 +439,13 @@ async function clickNewestSort(page) {
   console.log('🆕 newest result:', newestResult);
 
   if (!newestResult.success) {
-    console.log('⚠️ DOM 沒點到最新，改用鍵盤備援');
+    console.log(
+      '⚠️ DOM 沒點到最新，改用鍵盤備援'
+    );
 
     await page.keyboard.press('ArrowDown');
     await randomDelay(300, 500);
     await page.keyboard.press('Enter');
-
     await randomDelay(5000, 7000);
 
     console.log('✅ 已用鍵盤備援選最新');
@@ -390,102 +458,118 @@ async function clickNewestSort(page) {
   return true;
 }
 
+// ========================================
+// 修正：重新偵測真正評論捲動容器
+// ========================================
+
 async function getReviewScrollBox(page) {
-  return await page.evaluate(() => {
-    function isScrollable(el) {
-      if (!el) return false;
+  return page.evaluate(() => {
+    const review = document.querySelector(
+      'div[data-review-id]'
+    );
 
-      const s = window.getComputedStyle(el);
+    const candidates = new Set();
 
-      return (
-        el.scrollHeight > el.clientHeight + 100 &&
-        s.display !== 'none' &&
-        s.visibility !== 'hidden' &&
-        s.overflowY !== 'hidden'
-      );
-    }
+    if (review) {
+      let p = review.parentElement;
 
-    let container =
-      document.querySelector('div[role="feed"]') ||
-      document.querySelector('.m6U62c');
-
-    if (!isScrollable(container)) {
-      container = null;
-    }
-
-    if (!container) {
-      const firstReview = document.querySelector('div[data-review-id]');
-
-      if (firstReview) {
-        let p = firstReview.parentElement;
-
-        while (p && p !== document.body) {
-          if (isScrollable(p)) {
-            container = p;
-            break;
-          }
-
-          p = p.parentElement;
-        }
+      while (p && p !== document.body) {
+        candidates.add(p);
+        p = p.parentElement;
       }
     }
 
-    if (!container) {
-      const divs = Array.from(document.querySelectorAll('div'));
+    document.querySelectorAll(
+      'div[role="feed"], .m6U62c, div[tabindex]'
+    ).forEach(e => candidates.add(e));
 
-      const candidates = divs
-        .filter(isScrollable)
-        .map(el => {
-          const r = el.getBoundingClientRect();
+    const scored = [...candidates]
+      .map(el => {
+        const r = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
 
-          return {
-            el,
-            left: r.left,
-            top: r.top,
-            width: r.width,
-            height: r.height,
-            scrollHeight: el.scrollHeight,
-            clientHeight: el.clientHeight
-          };
-        })
-        .filter(x => {
-          return (
-            x.width > 260 &&
-            x.height > 300 &&
-            x.left < window.innerWidth * 0.75
-          );
-        })
-        .sort((a, b) => {
-          if (a.left !== b.left) return a.left - b.left;
-          return b.scrollHeight - a.scrollHeight;
-        });
+        const scrollable =
+          el.scrollHeight > el.clientHeight + 30;
 
-      if (candidates.length > 0) {
-        container = candidates[0].el;
-      }
-    }
+        const visible =
+          r.width > 200 &&
+          r.height > 180 &&
+          r.bottom > 0 &&
+          r.top < innerHeight;
 
-    if (!container) {
-      return null;
-    }
+        const containsReviews =
+          !!el.querySelector('div[data-review-id]');
 
-    const r = container.getBoundingClientRect();
+        const overflow =
+          /auto|scroll|overlay/.test(style.overflowY);
+
+        const score =
+          (containsReviews ? 100 : 0) +
+          (overflow ? 40 : 0) +
+          (scrollable ? 30 : 0) +
+          (r.left < innerWidth * 0.7 ? 10 : 0) -
+          (r.width > innerWidth * 0.85 ? 80 : 0);
+
+        return {
+          el,
+          r,
+          scrollable,
+          visible,
+          score
+        };
+      })
+      .filter(x => x.scrollable && x.visible)
+      .sort((a, b) => b.score - a.score);
+
+    if (!scored.length) return null;
+
+    const { el, r } = scored[0];
 
     return {
-      x: r.left + r.width / 2,
-      y: r.top + r.height / 2,
-      top: container.scrollTop,
-      height: container.scrollHeight,
-      clientHeight: container.clientHeight,
-      remaining: Math.max(0, container.scrollHeight - container.clientHeight - container.scrollTop)
+      x: Math.max(
+        1,
+        Math.min(
+          innerWidth - 2,
+          r.left + r.width * 0.5
+        )
+      ),
+
+      y: Math.max(
+        1,
+        Math.min(
+          innerHeight - 2,
+          Math.max(r.top, 0) +
+          Math.min(r.height, innerHeight) * 0.5
+        )
+      ),
+
+      top: el.scrollTop,
+      height: el.scrollHeight,
+      clientHeight: el.clientHeight,
+
+      remaining: Math.max(
+        0,
+        el.scrollHeight -
+        el.clientHeight -
+        el.scrollTop
+      )
     };
   });
 }
 
+// ========================================
+// 擷取目前已載入的評論
+// ========================================
+
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
-    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+
+    const reviewEls = Array.from(
+      document.querySelectorAll(
+        'div[data-review-id]'
+      )
+    );
 
     const REPLY_KEYWORD =
       /店家回覆|店家回應|業主回覆|業主回應|商家回覆|商家回應|Response from the owner|Owner response/i;
@@ -542,7 +626,9 @@ async function collectCurrentReviews(page, reviewMap) {
 
       if (!el) return empty;
 
-      const sourceText = String(el.innerText || el.textContent || '')
+      const sourceText = String(
+        el.innerText || el.textContent || ''
+      )
         .replace(/\u00a0/g, ' ')
         .replace(/\r/g, '\n')
         .trim();
@@ -556,11 +642,11 @@ async function collectCurrentReviews(page, reviewMap) {
         .map(line => line.trim())
         .filter(Boolean);
 
-      const startIndex = lines.findIndex(line => REPLY_KEYWORD.test(line));
+      const startIndex = lines.findIndex(
+        line => REPLY_KEYWORD.test(line)
+      );
 
-      if (startIndex === -1) {
-        return empty;
-      }
+      if (startIndex === -1) return empty;
 
       let replyDate = '';
       const replyLines = [];
@@ -570,37 +656,62 @@ async function collectCurrentReviews(page, reviewMap) {
         .replace(/^[:：]\s*/, '')
         .trim();
 
-      if (firstLine && !isJunkReplyLine(firstLine) && !isReplyDateLine(firstLine)) {
+      if (
+        firstLine &&
+        !isJunkReplyLine(firstLine) &&
+        !isReplyDateLine(firstLine)
+      ) {
         replyLines.push(firstLine);
       }
 
-      for (let i = startIndex + 1; i < lines.length; i++) {
+      for (
+        let i = startIndex + 1;
+        i < lines.length;
+        i++
+      ) {
         const line = lines[i];
 
         if (!line) continue;
 
-        if (!replyDate && isReplyDateLine(line)) {
+        if (
+          !replyDate &&
+          isReplyDateLine(line)
+        ) {
           replyDate = normalizeText(line);
           continue;
         }
 
         if (isJunkReplyLine(line)) continue;
 
-        if (/^由\s*Google\s*提供翻譯/i.test(line)) break;
+        if (
+          /^由\s*Google\s*提供翻譯/i.test(line)
+        ) break;
+
         if (/^查看原文/i.test(line)) break;
-        if (/^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)) break;
+
+        if (
+          /^餐點[:：]|^服務[:：]|^氣氛[:：]/.test(line)
+        ) break;
+
         if (/^\d+\s*星$/.test(line)) break;
-        if (/在地嚮導/.test(line) && /則評論|張相片/.test(line)) break;
-        if (/^排序$|^最相關$|^最新$|^評論$/i.test(line)) break;
+
+        if (
+          /在地嚮導/.test(line) &&
+          /則評論|張相片/.test(line)
+        ) break;
+
+        if (
+          /^排序$|^最相關$|^最新$|^評論$/i.test(line)
+        ) break;
 
         replyLines.push(line);
       }
 
-      const replyContent = cleanReplyText(replyLines.join('\n'));
+      const replyContent = cleanReplyText(
+        replyLines.join('\n')
+      );
 
-      if (!replyContent) {
-        return empty;
-      }
+      if (!replyContent) return empty;
 
       return {
         hasReply: true,
@@ -610,15 +721,21 @@ async function collectCurrentReviews(page, reviewMap) {
     }
 
     reviewEls.forEach((el, i) => {
-      const id = el.getAttribute('data-review-id') || `r-${i}`;
+      const id =
+        el.getAttribute('data-review-id') ||
+        `r-${i}`;
 
       const textEl =
         el.querySelector('.wiI7pd') ||
         el.querySelector('[jsname="fbQN7e"]');
 
       const ratingEl =
-        el.querySelector('[role="img"][aria-label*="星"]') ||
-        el.querySelector('[role="img"][aria-label*="star"]') ||
+        el.querySelector(
+          '[role="img"][aria-label*="星"]'
+        ) ||
+        el.querySelector(
+          '[role="img"][aria-label*="star"]'
+        ) ||
         el.querySelector('[role="img"]');
 
       const authorEl =
@@ -628,21 +745,36 @@ async function collectCurrentReviews(page, reviewMap) {
       const dateEl =
         el.querySelector('.rsqaWe') ||
         el.querySelector('.xRkPPb') ||
-        Array.from(el.querySelectorAll('span')).find(s => {
+        Array.from(
+          el.querySelectorAll('span')
+        ).find(s => {
           const t = (s.innerText || '').trim();
 
           return /剛剛|分鐘前|小時前|天前|週前|個月前|年前|分鐘|小時|天|週|個月|年|minute|hour|day|week|month|year/i.test(t);
         });
 
-      const content = textEl ? textEl.innerText.trim() : '';
-      const author = authorEl ? authorEl.innerText.trim() : '';
-      const date = dateEl ? dateEl.innerText.trim() : '';
+      const content = textEl
+        ? textEl.innerText.trim()
+        : '';
+
+      const author = authorEl
+        ? authorEl.innerText.trim()
+        : '';
+
+      const date = dateEl
+        ? dateEl.innerText.trim()
+        : '';
 
       let rating = 5;
 
       if (ratingEl) {
-        const m = ratingEl.getAttribute('aria-label')?.match(/\d/);
-        if (m) rating = parseInt(m[0], 10);
+        const m = ratingEl
+          .getAttribute('aria-label')
+          ?.match(/\d/);
+
+        if (m) {
+          rating = parseInt(m[0], 10);
+        }
       }
 
       if (
@@ -685,9 +817,20 @@ async function collectCurrentReviews(page, reviewMap) {
       reviewMap.set(key, {
         ...old,
         ...r,
-        hasReply: Boolean(r.replyContent || old.replyContent),
-        replyContent: r.replyContent || old.replyContent || '',
-        replyDate: r.replyDate || old.replyDate || ''
+
+        hasReply: Boolean(
+          r.replyContent || old.replyContent
+        ),
+
+        replyContent:
+          r.replyContent ||
+          old.replyContent ||
+          '',
+
+        replyDate:
+          r.replyDate ||
+          old.replyDate ||
+          ''
       });
     }
   });
@@ -695,13 +838,24 @@ async function collectCurrentReviews(page, reviewMap) {
   return current.length;
 }
 
+// ========================================
+// 展開評論「更多」按鈕
+// ========================================
+
 async function expandCurrentMore(page) {
   const count = await page.evaluate(() => {
-    const reviewEls = Array.from(document.querySelectorAll('div[data-review-id]'));
+    const reviewEls = Array.from(
+      document.querySelectorAll(
+        'div[data-review-id]'
+      )
+    );
+
     let count = 0;
 
     reviewEls.forEach(review => {
-      const buttons = Array.from(review.querySelectorAll('button'));
+      const buttons = Array.from(
+        review.querySelectorAll('button')
+      );
 
       buttons.forEach(btn => {
         const t = (
@@ -728,300 +882,203 @@ async function expandCurrentMore(page) {
   return count;
 }
 
-async function jsScrollReviewList(page, options = {}) {
+// ========================================
+// 修正：評論捲動
+// 使用真實滑鼠滾輪
+// 滑不動時使用 JS 備援
+// ========================================
+
+async function jsScrollReviewList(
+  page,
+  options = {}
+) {
   const {
     label = 'js-scroll',
-    step = 900,
-    times = 4,
+    step = 850,
+    times = 3,
     delay = 900,
-    waitAfter = 3000,
-    backtrack = 0,
-    timeout = 35000
+    waitAfter = 2000
   } = options;
 
   try {
-    const result = await withTimeout(
-      page.evaluate(async ({ label, step, times, delay, waitAfter, backtrack }) => {
-        function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
-        }
+    const before = await getReviewScrollBox(page);
 
-        function isScrollable(el) {
-          if (!el) return false;
+    if (!before) {
+      return {
+        success: false,
+        before: -1,
+        after: -1,
+        remaining: -1,
+        method: label + '-no-container'
+      };
+    }
 
-          const s = window.getComputedStyle(el);
+    for (let i = 0; i < times; i++) {
+      const box = await getReviewScrollBox(page);
 
-          return (
-            el.scrollHeight > el.clientHeight + 100 &&
-            s.display !== 'none' &&
-            s.visibility !== 'hidden' &&
-            s.overflowY !== 'hidden'
-          );
-        }
+      if (!box) break;
 
-        function findReviewContainer() {
-          let container =
-            document.querySelector('div[role="feed"]') ||
-            document.querySelector('.m6U62c');
+      await page.mouse.move(
+        box.x,
+        box.y
+      );
 
-          if (isScrollable(container)) return container;
+      await page.mouse.wheel({
+        deltaY: step
+      });
 
-          const firstReview = document.querySelector('div[data-review-id]');
+      await randomDelay(
+        delay,
+        delay + 250
+      );
+    }
 
-          if (firstReview) {
-            let p = firstReview.parentElement;
+    await randomDelay(
+      waitAfter,
+      waitAfter + 500
+    );
 
-            while (p && p !== document.body) {
-              if (isScrollable(p)) return p;
-              p = p.parentElement;
+    let after = await getReviewScrollBox(page);
+
+    if (
+      after &&
+      after.top === before.top
+    ) {
+      console.log(
+        '⚠️ 滑鼠捲動位置未改變，嘗試 JS 備援'
+      );
+
+      await page.evaluate(amount => {
+        const review = document.querySelector(
+          'div[data-review-id]'
+        );
+
+        let p = review?.parentElement;
+
+        while (
+          p &&
+          p !== document.body
+        ) {
+          if (
+            p.scrollHeight >
+            p.clientHeight + 30
+          ) {
+            const old = p.scrollTop;
+
+            p.scrollTop = Math.min(
+              p.scrollHeight,
+              p.scrollTop + amount
+            );
+
+            p.dispatchEvent(
+              new Event('scroll', {
+                bubbles: true
+              })
+            );
+
+            if (p.scrollTop !== old) {
+              break;
             }
           }
 
-          const candidates = Array.from(document.querySelectorAll('div'))
-            .filter(isScrollable)
-            .map(el => {
-              const r = el.getBoundingClientRect();
-
-              return {
-                el,
-                left: r.left,
-                top: r.top,
-                width: r.width,
-                height: r.height,
-                scrollHeight: el.scrollHeight,
-                clientHeight: el.clientHeight
-              };
-            })
-            .filter(x => {
-              return (
-                x.width > 260 &&
-                x.height > 300 &&
-                x.left < window.innerWidth * 0.75
-              );
-            })
-            .sort((a, b) => {
-              if (a.left !== b.left) return a.left - b.left;
-              return b.scrollHeight - a.scrollHeight;
-            });
-
-          return candidates.length > 0 ? candidates[0].el : null;
+          p = p.parentElement;
         }
+      }, step * times);
 
-        const container = findReviewContainer();
+      await randomDelay(1800, 2500);
 
-        if (!container) {
-          const before = window.scrollY;
-          window.scrollBy(0, step);
-          await sleep(waitAfter);
+      after = await getReviewScrollBox(page);
+    }
 
-          return {
-            success: false,
-            before,
-            after: window.scrollY,
-            height: document.documentElement.scrollHeight || 0,
-            clientHeight: window.innerHeight || 0,
-            remaining: -1,
-            timeout: false,
-            method: `${label}-window`
-          };
-        }
-
-        const before = container.scrollTop;
-
-        if (backtrack > 0) {
-          container.scrollTop = Math.max(0, container.scrollTop - backtrack);
-          container.dispatchEvent(new Event('scroll', { bubbles: true }));
-          await sleep(1500);
-        }
-
-        for (let i = 0; i < times; i++) {
-          container.dispatchEvent(
-            new WheelEvent('wheel', {
-              deltaY: step,
-              deltaMode: 0,
-              bubbles: true,
-              cancelable: true,
-              view: window
-            })
-          );
-
-          container.scrollTop += step;
-          container.dispatchEvent(new Event('scroll', { bubbles: true }));
-
-          await sleep(delay);
-        }
-
-        await sleep(waitAfter);
-
-        const after = container.scrollTop;
-        const remaining = Math.max(0, container.scrollHeight - container.clientHeight - after);
-
-        return {
-          success: true,
-          before,
-          after,
-          height: container.scrollHeight,
-          clientHeight: container.clientHeight,
-          remaining,
-          timeout: false,
-          method: label
-        };
-      }, { label, step, times, delay, waitAfter, backtrack }),
-      timeout,
-      label
-    );
-
-    return result;
+    return {
+      success: !!after,
+      before: before.top,
+      after: after?.top ?? -1,
+      height: after?.height ?? -1,
+      clientHeight: after?.clientHeight ?? -1,
+      remaining: after?.remaining ?? -1,
+      timeout: false,
+      method: label
+    };
   } catch (err) {
-    console.warn(`⚠️ ${label} 失敗:`, err.message);
+    console.warn(
+      '⚠️ 捲動失敗:',
+      err.message
+    );
 
     return {
       success: false,
       before: -1,
       after: -1,
-      height: -1,
-      clientHeight: -1,
       remaining: -1,
-      timeout: true,
-      method: `${label}-timeout`
+      timeout: false,
+      method: label + '-error'
     };
   }
 }
 
 async function normalMouseScroll(page) {
-  try {
-    const box = await withTimeout(
-      getReviewScrollBox(page),
-      10000,
-      'getReviewScrollBox'
-    );
-
-    if (!box) {
-      console.log('⚠️ 找不到評論捲動容器，改用 JS');
-
-      return await jsScrollReviewList(page, {
-        label: 'js-no-container',
-        step: 1200,
-        times: 5,
-        delay: 600,
-        waitAfter: 2000
-      });
-    }
-
-    const before = box.top;
-
-    try {
-      await page.mouse.move(box.x, box.y);
-    } catch (err) {
-      console.warn('⚠️ mouse.move 失敗，略過 move 直接 wheel:', err.message);
-    }
-
-    for (let i = 0; i < 6; i++) {
-      try {
-        await page.mouse.wheel({ deltaY: 2200 });
-      } catch (err) {
-        console.warn('⚠️ mouse.wheel 失敗，改用 JS:', err.message);
-
-        return await jsScrollReviewList(page, {
-          label: 'js-after-mouse-failed',
-          step: 1200,
-          times: 5,
-          delay: 700,
-          waitAfter: 2500
-        });
-      }
-
-      await randomDelay(200, 350);
-    }
-
-    await randomDelay(900, 1300);
-
-    const afterBox = await withTimeout(
-      getReviewScrollBox(page),
-      10000,
-      'getReviewScrollBox after'
-    );
-
-    const after = afterBox ? afterBox.top : before;
-    const remaining =
-      afterBox && after >= 0
-        ? Math.max(0, afterBox.height - afterBox.clientHeight - after)
-        : -1;
-
-    return {
-      success: true,
-      before,
-      after,
-      height: afterBox ? afterBox.height : -1,
-      clientHeight: afterBox ? afterBox.clientHeight : -1,
-      remaining,
-      timeout: false,
-      method: 'mouse-wheel-fast'
-    };
-  } catch (err) {
-    console.warn('⚠️ normalMouseScroll 失敗，改用 JS:', err.message);
-
-    return await jsScrollReviewList(page, {
-      label: 'js-after-mouse-error',
-      step: 1200,
-      times: 5,
-      delay: 700,
-      waitAfter: 2500
-    });
-  }
+  return jsScrollReviewList(page, {
+    label: 'mouse-wheel',
+    step: 950,
+    times: 4,
+    delay: 850,
+    waitAfter: 2200
+  });
 }
 
-async function fastScrollReviews(page, totalReviews = 0, maxRounds = 30) {
-  const isFullSync = maxRounds > 5;
+// ========================================
+// 快速／完整同步的捲動策略
+// ========================================
 
-  // 完整同步：加速下拉，不用滑太保守
-  if (isFullSync) {
-    if (totalReviews >= 1000) {
-      return await jsScrollReviewList(page, {
-        label: 'js-full-after-1000-fast',
-        step: 4200,
-        times: 10,
-        delay: 250,
-        waitAfter: 1200,
-        backtrack: 6000,
-        timeout: 30000
-      });
-    }
+async function fastScrollReviews(
+  page,
+  totalReviews = 0,
+  maxRounds = 30
+) {
+  return jsScrollReviewList(page, {
+    label:
+      maxRounds > 5
+        ? 'full-wheel'
+        : 'quick-wheel',
 
-    return await jsScrollReviewList(page, {
-      label: 'js-full-fast',
-      step: 3200,
-      times: 8,
-      delay: 250,
-      waitAfter: 1200,
-      backtrack: 0,
-      timeout: 30000
-    });
-  }
+    step:
+      maxRounds > 5
+        ? 1100
+        : 850,
 
-  // 快速同步：維持原本保守一點，避免漏最新評論
-  if (totalReviews >= 1000) {
-    return await jsScrollReviewList(page, {
-      label: 'js-after-1000',
-      step: 1800,
-      times: 7,
-      delay: 900,
-      waitAfter: 3500,
-      backtrack: 10000,
-      timeout: 40000
-    });
-  }
+    times:
+      maxRounds > 5
+        ? 5
+        : 4,
 
-  return await normalMouseScroll(page);
+    delay:
+      maxRounds > 5
+        ? 700
+        : 900,
+
+    waitAfter: 2600
+  });
 }
 
-async function fastLoadAndCollectReviews(page, maxRounds = 30) {
-  console.log('➡️ 開始快速載入並抓評論...');
+// ========================================
+// 快速載入並收集評論
+// ========================================
+
+async function fastLoadAndCollectReviews(
+  page,
+  maxRounds = 30
+) {
+  console.log(
+    '➡️ 開始快速載入並抓評論...'
+  );
 
   const reviewMap = new Map();
 
   const isFullSync = maxRounds > 5;
-  const maxStableRounds = isFullSync ? 5 : 10;
+
+  const maxStableRounds =
+    isFullSync ? 5 : 10;
 
   console.log(
     isFullSync
@@ -1035,12 +1092,21 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
   let lastTotal = 0;
   let lastRemaining = -1;
 
-  for (let round = 0; round < maxRounds; round++) {
+  for (
+    let round = 0;
+    round < maxRounds;
+    round++
+  ) {
     const beforeTotal = reviewMap.size;
 
-    const beforeExpandCount = await collectCurrentReviews(page, reviewMap);
+    const beforeExpandCount =
+      await collectCurrentReviews(
+        page,
+        reviewMap
+      );
 
-    const expanded = await expandCurrentMore(page);
+    const expanded =
+      await expandCurrentMore(page);
 
     if (expanded > 0) {
       await randomDelay(
@@ -1049,8 +1115,14 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
       );
     }
 
-    const afterExpandCount = await collectCurrentReviews(page, reviewMap);
-    const gained = reviewMap.size - beforeTotal;
+    const afterExpandCount =
+      await collectCurrentReviews(
+        page,
+        reviewMap
+      );
+
+    const gained =
+      reviewMap.size - beforeTotal;
 
     console.log(
       `🌀 批次 ${round + 1}/${maxRounds}，畫面 ${beforeExpandCount}->${afterExpandCount}，展開 ${expanded}，本輪新增 ${gained}，累積 ${reviewMap.size}`
@@ -1064,20 +1136,38 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     if (gained > 0) {
-      console.log(`✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`);
+      console.log(
+        `✅ 本輪新增 ${gained} 筆，目前累積 ${reviewMap.size}`
+      );
     } else {
-      console.log(`⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`);
+      console.log(
+        `⏳ 本輪沒有新增，連續未新增 ${stableCount}/${maxStableRounds}`
+      );
     }
 
-    if (stableCount >= maxStableRounds) {
-      console.log(`🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`);
+    if (
+      stableCount >= maxStableRounds
+    ) {
+      console.log(
+        `🛑 已連續 ${stableCount} 輪沒有新增評論，結束本店抓取，跳下一間店`
+      );
+
       break;
     }
 
-    const scrollResult = await fastScrollReviews(page, reviewMap.size, maxRounds);
+    const scrollResult =
+      await fastScrollReviews(
+        page,
+        reviewMap.size,
+        maxRounds
+      );
 
-    if (typeof scrollResult.remaining === 'number') {
-      lastRemaining = scrollResult.remaining;
+    if (
+      typeof scrollResult.remaining ===
+      'number'
+    ) {
+      lastRemaining =
+        scrollResult.remaining;
     }
 
     console.log(
@@ -1087,7 +1177,8 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     const moved =
       scrollResult.before >= 0 &&
       scrollResult.after >= 0 &&
-      scrollResult.after !== scrollResult.before;
+      scrollResult.after !==
+        scrollResult.before;
 
     if (scrollResult.timeout) {
       timeoutCount++;
@@ -1102,20 +1193,32 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     }
 
     if (noMoveCount >= 3) {
-      console.log(`⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`);
+      console.log(
+        '⚠️ 連續三輪無法滑動，重新等待評論載入；若仍無新增將結束本店'
+      );
+
+      console.log(
+        `⏳ 捲軸連續 ${noMoveCount} 次沒變，短暫等待後繼續`
+      );
+
       await randomDelay(
         isFullSync ? 1500 : 3000,
         isFullSync ? 2500 : 5000
       );
+
       noMoveCount = 0;
     }
 
     if (timeoutCount >= 2) {
-      console.log(`⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`);
+      console.log(
+        `⏳ 連續 timeout ${timeoutCount} 次，短暫等待後繼續`
+      );
+
       await randomDelay(
         isFullSync ? 2500 : 5000,
         isFullSync ? 4000 : 8000
       );
+
       timeoutCount = 0;
     }
 
@@ -1125,56 +1228,108 @@ async function fastLoadAndCollectReviews(page, maxRounds = 30) {
     );
   }
 
-  const reviews = Array.from(reviewMap.values());
+  const reviews = Array.from(
+    reviewMap.values()
+  );
 
-  console.log(`⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`);
-  console.log(`✅ 抓到 ${reviews.length} 筆評論`);
+  console.log(
+    `⚠️ 前台滑動結束，抓到 ${reviews.length} 筆。最後 remaining=${lastRemaining}`
+  );
+
+  console.log(
+    `✅ 抓到 ${reviews.length} 筆評論`
+  );
 
   if (reviews.length > 0) {
-    console.log('✅ 第一筆範例:', reviews[0]);
+    console.log(
+      '✅ 第一筆範例:',
+      reviews[0]
+    );
   }
 
   return reviews;
 }
 
-async function scrapeOneStore(page, storeConfig, maxRounds) {
-  console.log(`➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`);
+// ========================================
+// 單一店家爬取
+// ========================================
+
+async function scrapeOneStore(
+  page,
+  storeConfig,
+  maxRounds
+) {
+  console.log(
+    `➡️ 開始抓取：${storeConfig.brand} ${storeConfig.store}`
+  );
 
   console.log('➡️ 前往 Google...');
-  await page.goto(forceGoogleChineseUrl('https://www.google.com.tw/?hl=zh-TW&gl=TW'), {
-    waitUntil: 'networkidle2',
-    timeout: 60000
-  });
+
+  await page.goto(
+    forceGoogleChineseUrl(
+      'https://www.google.com.tw/?hl=zh-TW&gl=TW'
+    ),
+    {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    }
+  );
 
   await randomDelay(2000, 3000);
 
-  console.log(`🔍 搜尋 ${storeConfig.keyword}...`);
+  console.log(
+    `🔍 搜尋 ${storeConfig.keyword}...`
+  );
 
-  const searchBox = 'textarea[name="q"], input[name="q"]';
+  const searchBox =
+    'textarea[name="q"], input[name="q"]';
 
-  await page.waitForSelector(searchBox, {
-    timeout: 30000
+  await page.waitForSelector(
+    searchBox,
+    {
+      timeout: 30000
+    }
+  );
+
+  await page.click(searchBox, {
+    clickCount: 3
   });
 
-  await page.click(searchBox, { clickCount: 3 });
   await page.keyboard.press('Backspace');
 
   for (const char of storeConfig.keyword) {
-    await page.type(searchBox, char);
+    await page.type(
+      searchBox,
+      char
+    );
+
     await randomDelay(100, 200);
   }
 
   await page.keyboard.press('Enter');
+
   await randomDelay(5000, 6000);
 
-  console.log('🚀 嘗試進入 Google Maps...');
+  console.log(
+    '🚀 嘗試進入 Google Maps...'
+  );
 
   const opened = await page.evaluate(() => {
-    const els = Array.from(document.querySelectorAll('a, button, span'));
+    const els = Array.from(
+      document.querySelectorAll(
+        'a, button, span'
+      )
+    );
 
     const target = els.find(el => {
-      const t = (el.innerText || '').toLowerCase();
-      return t.includes('地圖') || t.includes('google 地圖');
+      const t = (
+        el.innerText || ''
+      ).toLowerCase();
+
+      return (
+        t.includes('地圖') ||
+        t.includes('google 地圖')
+      );
     });
 
     if (target) {
@@ -1192,10 +1347,14 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   let currentUrl = page.url();
 
   if (!currentUrl.includes('/maps/')) {
-    console.log('⚠️ 尚未真正進入 Google Maps，改用 fallback');
+    console.log(
+      '⚠️ 尚未真正進入 Google Maps，改用 fallback'
+    );
 
     await page.goto(
-      forceGoogleChineseUrl(storeConfig.fallbackUrl),
+      forceGoogleChineseUrl(
+        storeConfig.fallbackUrl
+      ),
       {
         waitUntil: 'networkidle2',
         timeout: 60000
@@ -1207,44 +1366,59 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     currentUrl = page.url();
   }
 
-  console.log('🗺️目前 Maps URL:', currentUrl);
+  console.log(
+    '🗺️目前 Maps URL:',
+    currentUrl
+  );
 
   await randomDelay(8000, 10000);
 
   console.log('🎯 找評論按鈕...');
 
-  const tabClicked = await page.evaluate(() => {
-    const getText = (el) => {
-      return (
-        (el.innerText || '') +
-        (el.textContent || '') +
-        (el.getAttribute('aria-label') || '') +
-        (el.getAttribute('title') || '')
-      ).toLowerCase();
-    };
+  const tabClicked =
+    await page.evaluate(() => {
+      const getText = el => {
+        return (
+          (el.innerText || '') +
+          (el.textContent || '') +
+          (el.getAttribute('aria-label') || '') +
+          (el.getAttribute('title') || '')
+        ).toLowerCase();
+      };
 
-    const keywords = [
-      '評論',
-      'reviews',
-      '查看評論',
-      '查看全部評論'
-    ];
+      const keywords = [
+        '評論',
+        'reviews',
+        '查看評論',
+        '查看全部評論'
+      ];
 
-    const elements = Array.from(document.querySelectorAll('button, a, div'));
+      const elements = Array.from(
+        document.querySelectorAll(
+          'button, a, div'
+        )
+      );
 
-    for (const el of elements) {
-      const text = getText(el);
+      for (const el of elements) {
+        const text = getText(el);
 
-      if (keywords.some(k => text.includes(k))) {
-        el.click();
-        return true;
+        if (
+          keywords.some(k =>
+            text.includes(k)
+          )
+        ) {
+          el.click();
+          return true;
+        }
       }
-    }
 
-    return false;
-  });
+      return false;
+    });
 
-  console.log('🎯 review tab result:', tabClicked);
+  console.log(
+    '🎯 review tab result:',
+    tabClicked
+  );
 
   if (tabClicked) {
     await randomDelay(6000, 8000);
@@ -1254,12 +1428,24 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
 
   await clickNewestSort(page);
 
-  const storeRating = await extractStoreRating(page);
+  const storeRating =
+    await extractStoreRating(page);
 
-  console.log(`⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`, storeRating || '未抓到');
-  console.log('🔁 本次評論滑動輪數:', maxRounds);
+  console.log(
+    `⭐ ${storeConfig.brand} ${storeConfig.store} 平均星等:`,
+    storeRating || '未抓到'
+  );
 
-  const reviews = await fastLoadAndCollectReviews(page, maxRounds);
+  console.log(
+    '🔁 本次評論滑動輪數:',
+    maxRounds
+  );
+
+  const reviews =
+    await fastLoadAndCollectReviews(
+      page,
+      maxRounds
+    );
 
   reviews.forEach(review => {
     review.brand = storeConfig.brand;
@@ -1269,30 +1455,56 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
     review.averageRating = storeRating;
   });
 
-  console.log(`✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`);
+  console.log(
+    `✅ ${storeConfig.brand} ${storeConfig.store} 完成：${reviews.length} 筆`
+  );
 
   return reviews;
 }
 
-async function scrapeGoogleReviews(retryCount = 0) {
+// ========================================
+// Google 評論主程式
+// ========================================
+
+async function scrapeGoogleReviews(
+  retryCount = 0
+) {
   let browser;
 
   try {
-    console.log('➡️ 啟動防偵測 Chrome...');
+    console.log(
+      '➡️ 啟動防偵測 Chrome...'
+    );
 
     const isCloud = isCloudEnv();
-    const chromePath = getChromeExecutablePath(isCloud);
 
-    console.log('☁️ isCloud:', isCloud);
-    console.log('🧭 Chrome executablePath:', chromePath || '使用 Puppeteer 預設');
+    const chromePath =
+      getChromeExecutablePath(isCloud);
+
+    console.log(
+      '☁️ isCloud:',
+      isCloud
+    );
+
+    console.log(
+      '🧭 Chrome executablePath:',
+      chromePath || '使用 Puppeteer 預設'
+    );
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
+
       protocolTimeout: 600000,
+
       executablePath: chromePath,
+
       defaultViewport: isCloud
-        ? { width: 1366, height: 768 }
+        ? {
+            width: 1366,
+            height: 768
+          }
         : null,
+
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -1307,70 +1519,122 @@ async function scrapeGoogleReviews(retryCount = 0) {
       ]
     });
 
-    const page = (await browser.pages())[0] || await browser.newPage();
+    const page =
+      (await browser.pages())[0] ||
+      await browser.newPage();
 
     await page.setExtraHTTPHeaders({
-      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
+      'Accept-Language':
+        'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     });
 
     await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'webdriver', {
-        get: () => undefined
-      });
+      Object.defineProperty(
+        navigator,
+        'webdriver',
+        {
+          get: () => undefined
+        }
+      );
 
-      Object.defineProperty(navigator, 'language', {
-        get: () => 'zh-TW'
-      });
+      Object.defineProperty(
+        navigator,
+        'language',
+        {
+          get: () => 'zh-TW'
+        }
+      );
 
-      Object.defineProperty(navigator, 'languages', {
-        get: () => ['zh-TW', 'zh', 'en-US', 'en']
-      });
+      Object.defineProperty(
+        navigator,
+        'languages',
+        {
+          get: () => [
+            'zh-TW',
+            'zh',
+            'en-US',
+            'en'
+          ]
+        }
+      );
     });
 
     await page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
-      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+      '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     );
 
     const maxRounds = getMaxRounds();
     const allReviews = [];
 
-    const targetBrand = process.env.SCRAPE_TARGET_BRAND || 'all';
-    const targetStore = process.env.SCRAPE_TARGET_STORE || 'all';
+    const targetBrand =
+      process.env.SCRAPE_TARGET_BRAND ||
+      'all';
 
-    const targetStores = STORES.filter(storeConfig => {
-      const brandMatched =
-        targetBrand === 'all' ||
-        storeConfig.brand === targetBrand;
+    const targetStore =
+      process.env.SCRAPE_TARGET_STORE ||
+      'all';
 
-      const storeMatched =
-        targetStore === 'all' ||
-        storeConfig.store === targetStore;
+    const targetStores = STORES.filter(
+      storeConfig => {
+        const brandMatched =
+          targetBrand === 'all' ||
+          storeConfig.brand === targetBrand;
 
-      return brandMatched && storeMatched;
-    });
+        const storeMatched =
+          targetStore === 'all' ||
+          storeConfig.store === targetStore;
 
-    console.log('🎯 本次同步目標:', targetBrand, targetStore);
-    console.log('🎯 本次店家數:', targetStores.length);
+        return (
+          brandMatched &&
+          storeMatched
+        );
+      }
+    );
+
+    console.log(
+      '🎯 本次同步目標:',
+      targetBrand,
+      targetStore
+    );
+
+    console.log(
+      '🎯 本次店家數:',
+      targetStores.length
+    );
 
     for (const storeConfig of targetStores) {
       try {
-        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+        const reviews =
+          await scrapeOneStore(
+            page,
+            storeConfig,
+            maxRounds
+          );
 
-        // 第一間店就只抓到 3 筆，代表這次 Google session 很可能異常
-        // 整個 Chrome 關掉重開，整輪只重試一次
+        // 第一間只抓到 3 筆時重啟一次
         if (
           allReviews.length === 0 &&
           reviews.length === 3 &&
           retryCount < 1
         ) {
-          console.log('⚠️ 第一間店只抓到 3 筆，判定本次 Google session 異常');
-          console.log('🔄 關閉 Chrome，整輪重新執行一次');
+          console.log(
+            '⚠️ 第一間店只抓到 3 筆，判定本次 Google session 異常'
+          );
 
-          await browser.close().catch(() => {});
+          console.log(
+            '🔄 關閉 Chrome，整輪重新執行一次'
+          );
+
+          await browser.close().catch(
+            () => {}
+          );
+
           browser = null;
 
-          return await scrapeGoogleReviews(retryCount + 1);
+          return await scrapeGoogleReviews(
+            retryCount + 1
+          );
         }
 
         allReviews.push(...reviews);
@@ -1384,15 +1648,23 @@ async function scrapeGoogleReviews(retryCount = 0) {
       await randomDelay(3000, 5000);
     }
 
-    console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
+    console.log(
+      `✅ 全部店家合計抓到 ${allReviews.length} 筆評論`
+    );
 
     return allReviews;
   } catch (err) {
-    console.error('❌ 錯誤:', err);
+    console.error(
+      '❌ 錯誤:',
+      err
+    );
+
     return [];
   } finally {
     if (browser) {
-      await browser.close().catch(() => {});
+      await browser.close().catch(
+        () => {}
+      );
     }
   }
 }
