@@ -1,4 +1,3 @@
-
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const STORES = require('./stores');
@@ -84,16 +83,14 @@ function getReviewKey(review) {
   );
 }
 
-// ========================================
-// 店家平均星等
-// ========================================
+// ======================================================
+// 取得店家平均星等
+// ======================================================
 
 async function extractStoreRating(page) {
   return await page.evaluate(() => {
     function clean(value) {
-      return String(value || '')
-        .replace(/\s+/g, ' ')
-        .trim();
+      return String(value || '').replace(/\s+/g, ' ').trim();
     }
 
     function isVisible(el) {
@@ -202,9 +199,9 @@ async function extractStoreRating(page) {
   });
 }
 
-// ========================================
-// 最新評論排序：保留原本功能
-// ========================================
+// ======================================================
+// 評論排序
+// ======================================================
 
 async function clickNewestSort(page) {
   console.log('🔃 嘗試切換最新排序...');
@@ -246,14 +243,12 @@ async function clickNewestSort(page) {
     if (!target) return false;
 
     target.click();
+
     return true;
   });
 
   if (!sort) {
-    console.warn(
-      '⚠️ 找不到排序按鈕，無法確認最新排序'
-    );
-
+    console.warn('⚠️ 找不到排序按鈕，無法確認最新排序');
     return false;
   }
 
@@ -291,6 +286,7 @@ async function clickNewestSort(page) {
     if (!match) return false;
 
     match.click();
+
     return true;
   });
 
@@ -309,103 +305,81 @@ async function clickNewestSort(page) {
   return true;
 }
 
-// ========================================
-// 取得可見評論卡片與捲動資訊
-// ========================================
+// ======================================================
+// 修正：定位真正的評論捲動容器
+// ======================================================
 
 async function getReviewScrollBox(page) {
   return page.evaluate(() => {
     const cards = [
-      ...document.querySelectorAll(
-        '[data-review-id]'
-      )
-    ].filter(el =>
-      !el.parentElement?.closest('[data-review-id]')
+      ...document.querySelectorAll('[data-review-id]')
+    ].filter(
+      el => !el.parentElement?.closest('[data-review-id]')
     );
 
     if (!cards.length) return null;
 
-    const visible = cards
-      .map(el => ({
-        el,
-        r: el.getBoundingClientRect()
-      }))
-      .filter(x =>
-        x.r.width > 80 &&
-        x.r.height > 20 &&
-        x.r.bottom > 0 &&
-        x.r.top < innerHeight &&
-        x.r.left < innerWidth &&
-        x.r.right > 0
-      );
+    const candidates = new Set();
 
-    if (!visible.length) return null;
-
-    const target = visible.sort(
-      (a, b) => b.r.top - a.r.top
-    )[0];
-
-    const r = target.r;
-
-    const x = Math.max(
-      5,
-      Math.min(
-        innerWidth - 5,
-        r.left + Math.min(
-          120,
-          r.width * 0.35
-        )
-      )
-    );
-
-    const y = Math.max(
-      5,
-      Math.min(
-        innerHeight - 5,
-        Math.max(0, r.top) +
-        Math.min(
-          35,
-          (
-            Math.min(innerHeight, r.bottom) -
-            Math.max(0, r.top)
-          ) / 2
-        )
-      )
-    );
-
-    const ancestors = [];
-
-    for (
-      let el = target.el.parentElement;
-      el && el !== document.body;
-      el = el.parentElement
-    ) {
-      const rect = el.getBoundingClientRect();
-      const style = getComputedStyle(el);
-
-      if (
-        el.scrollHeight > el.clientHeight + 30 &&
-        rect.height > 100 &&
-        rect.bottom > 0 &&
-        rect.top < innerHeight &&
-        /auto|scroll|overlay/.test(style.overflowY)
+    for (const card of cards) {
+      for (
+        let el = card.parentElement;
+        el && el !== document.body;
+        el = el.parentElement
       ) {
-        ancestors.push({
-          top: el.scrollTop,
-
-          remaining: Math.max(
-            0,
-            el.scrollHeight -
-            el.clientHeight -
-            el.scrollTop
-          )
-        });
+        candidates.add(el);
       }
     }
+
+    const options = [...candidates]
+      .map(el => {
+        const rect = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+
+        const count = cards.filter(
+          card => el.contains(card)
+        ).length;
+
+        const range =
+          el.scrollHeight - el.clientHeight;
+
+        return {
+          el,
+          rect,
+          count,
+          range,
+          overflow: style.overflowY
+        };
+      })
+      .filter(x =>
+        x.count >= 2 &&
+        x.range > 20 &&
+        x.rect.width > 200 &&
+        x.rect.height > 180 &&
+        x.rect.bottom > 0 &&
+        x.rect.top < innerHeight &&
+        /auto|scroll|overlay/.test(x.overflow)
+      );
+
+    // 優先選擇包含最多評論的可捲動容器
+    // 數量相同時，選擇較窄、較接近評論列表的容器
+    options.sort(
+      (a, b) =>
+        b.count - a.count ||
+        a.rect.width - b.rect.width
+    );
+
+    if (!options.length) return null;
+
+    const picked = options[0];
+
+    const box = picked.el;
+    const r = picked.rect;
 
     const ids = [
       ...new Set(
         cards
+          .filter(c => box.contains(c))
           .map(c =>
             c.getAttribute('data-review-id')
           )
@@ -414,40 +388,53 @@ async function getReviewScrollBox(page) {
     ];
 
     return {
-      x,
-      y,
+      top: box.scrollTop,
 
-      top:
-        ancestors[0]?.top ?? -1,
+      height: box.scrollHeight,
 
-      remaining:
-        ancestors[0]?.remaining ?? -1,
+      clientHeight: box.clientHeight,
+
+      remaining: Math.max(
+        0,
+        box.scrollHeight -
+          box.clientHeight -
+          box.scrollTop
+      ),
 
       domReviews: cards.length,
+
       uniqueIds: ids.length,
 
-      lastId:
-        ids.at(-1) || '',
+      lastId: ids.at(-1) || '',
 
-      visibleId:
-        target.el.getAttribute('data-review-id') || '',
+      x: Math.max(
+        5,
+        Math.min(
+          innerWidth - 5,
+          r.left + r.width * 0.5
+        )
+      ),
 
-      visibleTop:
-        Math.round(r.top),
-
-      ancestors
+      y: Math.max(
+        5,
+        Math.min(
+          innerHeight - 5,
+          (
+            Math.max(0, r.top) +
+            Math.min(innerHeight, r.bottom)
+          ) / 2
+        )
+      )
     };
   });
 }
 
-// ========================================
-// 修正：真正開啟 Google Maps 評論分頁
-// ========================================
+// ======================================================
+// 開啟 Google Maps 評論分頁
+// ======================================================
 
 async function openReviewsTab(page) {
-  console.log(
-    '🎯 正在開啟 Google Maps 評論分頁...'
-  );
+  console.log('🎯 正在開啟 Google Maps 評論分頁...');
 
   const result = await page.evaluate(() => {
     const normalize = value =>
@@ -469,7 +456,6 @@ async function openReviewsTab(page) {
       );
     };
 
-    // 修正 Google Maps 的新版評論分頁名稱
     const isReviewTab = text => {
       const t = normalize(text);
 
@@ -483,13 +469,11 @@ async function openReviewsTab(page) {
       );
     };
 
-    const elements = [
+    const candidates = [
       ...document.querySelectorAll(
         '[role="tab"], button, [role="button"], a[aria-label]'
       )
-    ];
-
-    const candidates = elements
+    ]
       .filter(visible)
       .map(el => {
         const aria = normalize(
@@ -511,7 +495,6 @@ async function openReviewsTab(page) {
           score += 50;
         }
 
-        // 禁止誤點撰寫評論
         if (
           /撰寫評論|寫評論|write a review/i.test(
             `${aria} ${label}`
@@ -528,8 +511,8 @@ async function openReviewsTab(page) {
         };
       })
       .filter(x => x.score > 0)
-      .sort((a, b) =>
-        b.score - a.score
+      .sort(
+        (a, b) => b.score - a.score
       );
 
     if (!candidates.length) {
@@ -560,22 +543,12 @@ async function openReviewsTab(page) {
     result
   );
 
-  if (!result.clicked) {
-    console.error(
-      '❌ 找不到真正的評論分頁，停止本店抓取'
-    );
-
-    return false;
-  }
+  if (!result.clicked) return false;
 
   try {
-    // 確認選取的是評論分頁
-    // 不再因總覽有 3 筆評論就誤判成功
     await page.waitForFunction(() => {
       const tabs = [
-        ...document.querySelectorAll(
-          '[role="tab"]'
-        )
+        ...document.querySelectorAll('[role="tab"]')
       ];
 
       return tabs.some(el => {
@@ -584,8 +557,7 @@ async function openReviewsTab(page) {
           ' ' +
           (el.innerText || '')
         )
-          .replace(/\s+/g, ' ')
-          .trim();
+          .replace(/\s+/g, ' ');
 
         return (
           el.getAttribute('aria-selected') === 'true' &&
@@ -625,18 +597,16 @@ async function openReviewsTab(page) {
   }
 }
 
-// ========================================
-// 擷取評論與店家回覆
-// ========================================
+// ======================================================
+// 擷取評論及店家回覆
+// ======================================================
 
 async function collectCurrentReviews(page, reviewMap) {
   const current = await page.evaluate(() => {
     const results = [];
 
     const reviewEls = Array.from(
-      document.querySelectorAll(
-        'div[data-review-id]'
-      )
+      document.querySelectorAll('div[data-review-id]')
     );
 
     const REPLY_KEYWORD =
@@ -891,7 +861,8 @@ async function collectCurrentReviews(page, reviewMap) {
         ...r,
 
         hasReply: Boolean(
-          r.replyContent || old.replyContent
+          r.replyContent ||
+          old.replyContent
         ),
 
         replyContent:
@@ -910,16 +881,14 @@ async function collectCurrentReviews(page, reviewMap) {
   return current.length;
 }
 
-// ========================================
-// 展開評論「更多」
-// ========================================
+// ======================================================
+// 展開評論
+// ======================================================
 
 async function expandCurrentMore(page) {
   const count = await page.evaluate(() => {
     const reviewEls = Array.from(
-      document.querySelectorAll(
-        'div[data-review-id]'
-      )
+      document.querySelectorAll('div[data-review-id]')
     );
 
     let count = 0;
@@ -954,19 +923,18 @@ async function expandCurrentMore(page) {
   return count;
 }
 
-// ========================================
-// 評論卡片滑動
-// ========================================
+// ======================================================
+// 修正：實際捲動評論容器
+// ======================================================
 
 async function jsScrollReviewList(page, options = {}) {
   const reviewMap = options.reviewMap;
 
-  const before =
-    await getReviewScrollBox(page);
+  const before = await getReviewScrollBox(page);
 
   if (!before) {
     console.warn(
-      '❌ 找不到可見評論卡片，停止滾動'
+      '❌ 找不到包含評論的可捲動列表'
     );
 
     return {
@@ -974,110 +942,158 @@ async function jsScrollReviewList(page, options = {}) {
       before: -1,
       after: -1,
       remaining: -1,
-      method: 'no-review-card'
+      method: 'no-review-feed',
+      newIds: false
     };
   }
 
-  let previous = before;
-  let moved = false;
-  let newIds = false;
-
-  // 每輪滾動時即時收集評論
-  for (let step = 0; step < 8; step++) {
-    const state =
-      await getReviewScrollBox(page);
-
-    if (!state) break;
-
-    await page.mouse.move(
-      state.x,
-      state.y
-    );
-
-    await page.mouse.wheel({
-      deltaY: 720
-    });
-
-    await randomDelay(550, 850);
-
-    if (reviewMap) {
-      await expandCurrentMore(page);
-      await collectCurrentReviews(
-        page,
-        reviewMap
-      );
-    }
-
-    const next =
-      await getReviewScrollBox(page);
-
-    if (!next) break;
-
-    if (
-      next.visibleId !== state.visibleId ||
-      next.visibleTop !== state.visibleTop ||
-      next.top !== state.top
-    ) {
-      moved = true;
-    }
-
-    if (
-      next.lastId !== before.lastId ||
-      next.uniqueIds > before.uniqueIds
-    ) {
-      newIds = true;
-      previous = next;
-      break;
-    }
-
-    if (
-      next.remaining === 0 ||
-      (!moved && step >= 2)
-    ) {
-      await randomDelay(2000, 2800);
-
-      if (reviewMap) {
-        await collectCurrentReviews(
-          page,
-          reviewMap
-        );
-      }
-
-      const loaded =
-        await getReviewScrollBox(page);
-
-      if (
-        loaded &&
-        (
-          loaded.lastId !== before.lastId ||
-          loaded.uniqueIds > before.uniqueIds
-        )
-      ) {
-        newIds = true;
-        previous = loaded;
-        break;
-      }
-    }
-
-    previous = next;
-  }
-
-  console.log(
-    `⬇️ 卡片滾動 ${before.visibleId}:${before.visibleTop} -> ${previous.visibleId}:${previous.visibleTop}，新ID=${newIds}`
+  // 先讓真正的滑鼠滾輪作用在評論列表中央
+  await page.mouse.move(
+    before.x,
+    before.y
   );
 
-  if (!moved && !newIds) {
-    console.warn(
-      '⚠️ 評論卡片沒有移動，可能滾輪未作用於評論列表'
+  await page.mouse.wheel({
+    deltaY: Math.max(
+      850,
+      before.clientHeight * 0.85
+    )
+  });
+
+  await randomDelay(650, 900);
+
+  const wheelState =
+    await getReviewScrollBox(page);
+
+  let scroll = {
+    moved:
+      !!wheelState &&
+      wheelState.top > before.top,
+
+    from: before.top,
+
+    to: wheelState?.top ?? before.top
+  };
+
+  // 滾輪沒帶動評論列表時，直接操作列表容器
+  if (!scroll.moved) {
+    scroll = await page.evaluate(() => {
+      const cards = [
+        ...document.querySelectorAll('[data-review-id]')
+      ].filter(el =>
+        !el.parentElement?.closest('[data-review-id]')
+      );
+
+      const candidates = new Set();
+
+      for (const card of cards) {
+        for (
+          let el = card.parentElement;
+          el && el !== document.body;
+          el = el.parentElement
+        ) {
+          candidates.add(el);
+        }
+      }
+
+      const list = [...candidates]
+        .map(el => {
+          const r = el.getBoundingClientRect();
+          const css = getComputedStyle(el);
+
+          return {
+            el,
+            r,
+
+            count: cards.filter(
+              c => el.contains(c)
+            ).length,
+
+            range:
+              el.scrollHeight -
+              el.clientHeight,
+
+            overflow: css.overflowY
+          };
+        })
+        .filter(x =>
+          x.count >= 2 &&
+          x.range > 20 &&
+          x.r.width > 200 &&
+          x.r.height > 180 &&
+          x.r.bottom > 0 &&
+          x.r.top < innerHeight &&
+          /auto|scroll|overlay/.test(x.overflow)
+        );
+
+      list.sort(
+        (a, b) =>
+          b.count - a.count ||
+          a.r.width - b.r.width
+      );
+
+      for (const item of list) {
+        const el = item.el;
+
+        const oldTop = el.scrollTop;
+
+        // 直接到目前已載入的評論列表底部
+        el.scrollTop =
+          el.scrollHeight -
+          el.clientHeight;
+
+        if (el.scrollTop > oldTop) {
+          return {
+            moved: true,
+            from: oldTop,
+            to: el.scrollTop
+          };
+        }
+      }
+
+      return {
+        moved: false
+      };
+    });
+  }
+
+  await randomDelay(1800, 2500);
+
+  if (reviewMap) {
+    await expandCurrentMore(page);
+
+    await collectCurrentReviews(
+      page,
+      reviewMap
     );
   }
 
+  const after =
+    await getReviewScrollBox(page);
+
+  const newIds = !!after && (
+    after.lastId !== before.lastId ||
+    after.uniqueIds > before.uniqueIds
+  );
+
+  console.log(
+    `⬇️ 評論列表捲動 top=${before.top}->${after?.top ?? -1}, ` +
+    `實際移動=${scroll.moved}, 新ID=${newIds}, remaining=${after?.remaining ?? -1}`
+  );
+
   return {
-    success: moved || newIds,
+    success: scroll.moved || newIds,
+
     before: before.top,
-    after: previous.top,
-    remaining: previous.remaining,
-    method: 'mouse-wheel-on-review-card',
+
+    after: after?.top ?? -1,
+
+    remaining: after?.remaining ?? -1,
+
+    method: scroll.moved
+      ? 'review-container-scrollTop'
+      : 'no-scroll',
+
     newIds
   };
 }
@@ -1094,9 +1110,9 @@ async function fastScrollReviews(
   );
 }
 
-// ========================================
-// 載入並收集評論
-// ========================================
+// ======================================================
+// 快速同步與完整同步
+// ======================================================
 
 async function fastLoadAndCollectReviews(
   page,
@@ -1107,6 +1123,7 @@ async function fastLoadAndCollectReviews(
   );
 
   const reviewMap = new Map();
+
   let stableCount = 0;
 
   for (
@@ -1149,17 +1166,6 @@ async function fastLoadAndCollectReviews(
       stableCount = 0;
     }
 
-    if (
-      !result.success &&
-      !result.newIds
-    ) {
-      console.warn(
-        '⚠️ 卡片未移動，停止對錯誤位置反覆滾動'
-      );
-
-      break;
-    }
-
     if (stableCount >= 5) {
       break;
     }
@@ -1183,9 +1189,9 @@ async function fastLoadAndCollectReviews(
   return reviews;
 }
 
-// ========================================
+// ======================================================
 // 單一店家爬取
-// ========================================
+// ======================================================
 
 async function scrapeOneStore(
   page,
@@ -1224,11 +1230,14 @@ async function scrapeOneStore(
     }
   );
 
-  await page.click(searchBox, {
-    clickCount: 3
-  });
+  await page.click(
+    searchBox,
+    { clickCount: 3 }
+  );
 
-  await page.keyboard.press('Backspace');
+  await page.keyboard.press(
+    'Backspace'
+  );
 
   for (const char of storeConfig.keyword) {
     await page.type(
@@ -1315,7 +1324,7 @@ async function scrapeOneStore(
 
   if (!reviewsOpened) {
     console.warn(
-      '❌ 評論列表未開啟，略過本店'
+      '❌ 評論列表未開啟，略過本店，不回傳假成功的 3 筆'
     );
 
     return [];
@@ -1346,9 +1355,13 @@ async function scrapeOneStore(
 
   reviews.forEach(review => {
     review.brand = storeConfig.brand;
+
     review.store = storeConfig.store;
+
     review.branch = storeConfig.branch;
+
     review.storeRating = storeRating;
+
     review.averageRating = storeRating;
   });
 
@@ -1359,9 +1372,9 @@ async function scrapeOneStore(
   return reviews;
 }
 
-// ========================================
+// ======================================================
 // 主程式
-// ========================================
+// ======================================================
 
 async function scrapeGoogleReviews(
   retryCount = 0
@@ -1390,7 +1403,9 @@ async function scrapeGoogleReviews(
 
     browser = await puppeteer.launch({
       headless: isCloud ? 'new' : false,
+
       protocolTimeout: 600000,
+
       executablePath: chromePath,
 
       defaultViewport: isCloud
@@ -1508,8 +1523,8 @@ async function scrapeGoogleReviews(
             maxRounds
           );
 
-        // 保留第一間店僅抓到 3 筆時
-        // 重新啟動瀏覽器一次的機制
+        // 保留原本第一間店只抓到 3 筆時
+        // 重新啟動 Chrome 一次的機制
         if (
           allReviews.length === 0 &&
           reviews.length === 3 &&
