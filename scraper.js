@@ -1186,73 +1186,71 @@ async function scrapeOneStore(page, storeConfig, maxRounds) {
   });
 
   if (opened) {
-  await randomDelay(4000, 6000);
-}
+    await randomDelay(4000, 6000);
+  }
 
-let currentUrl = page.url();
+  let currentUrl = page.url();
 
-if (!currentUrl.includes('/maps/')) {
-  console.log('⚠️ 尚未真正進入 Google Maps，改用 fallback');
+  if (!currentUrl.includes('/maps/')) {
+    console.log('⚠️ 尚未真正進入 Google Maps，改用 fallback');
 
-  await page.goto(
-    forceGoogleChineseUrl(storeConfig.fallbackUrl),
-    {
-      waitUntil: 'networkidle2',
-      timeout: 60000
-    }
-  );
+    await page.goto(
+      forceGoogleChineseUrl(storeConfig.fallbackUrl),
+      {
+        waitUntil: 'networkidle2',
+        timeout: 60000
+      }
+    );
 
-  await randomDelay(8000, 10000);
+    await randomDelay(8000, 10000);
 
-  currentUrl = page.url();
-}
+    currentUrl = page.url();
+  }
 
-console.log('🗺️目前 Maps URL:', currentUrl);
+  console.log('🗺️目前 Maps URL:', currentUrl);
 
   await randomDelay(8000, 10000);
 
   console.log('🎯 找評論按鈕...');
 
-const tabClicked = await page.evaluate(() => {
-  const getText = (el) => {
-    return (
-      (el.innerText || '') +
-      (el.textContent || '') +
-      (el.getAttribute('aria-label') || '') +
-      (el.getAttribute('title') || '')
-    ).toLowerCase();
-  };
+  const tabClicked = await page.evaluate(() => {
+    const getText = (el) => {
+      return (
+        (el.innerText || '') +
+        (el.textContent || '') +
+        (el.getAttribute('aria-label') || '') +
+        (el.getAttribute('title') || '')
+      ).toLowerCase();
+    };
 
-  const keywords = [
-    '評論',
-    'reviews',
-    '查看評論',
-    '查看全部評論'
-  ];
+    const keywords = [
+      '評論',
+      'reviews',
+      '查看評論',
+      '查看全部評論'
+    ];
 
-  const elements = Array.from(
-    document.querySelectorAll('button, a, div')
-  );
+    const elements = Array.from(document.querySelectorAll('button, a, div'));
 
-  for (const el of elements) {
-    const text = getText(el);
+    for (const el of elements) {
+      const text = getText(el);
 
-    if (keywords.some(k => text.includes(k))) {
-      el.click();
-      return true;
+      if (keywords.some(k => text.includes(k))) {
+        el.click();
+        return true;
+      }
     }
+
+    return false;
+  });
+
+  console.log('🎯 review tab result:', tabClicked);
+
+  if (tabClicked) {
+    await randomDelay(6000, 8000);
+  } else {
+    console.log('⚠️ 沒點到評論');
   }
-
-  return false;
-});
-
-console.log('🎯 review tab result:', tabClicked);
-
-if (tabClicked) {
-  await randomDelay(6000, 8000);
-} else {
-  console.log('⚠️ 沒點到評論');
-}
 
   await clickNewestSort(page);
 
@@ -1356,35 +1354,35 @@ async function scrapeGoogleReviews(retryCount = 0) {
     console.log('🎯 本次店家數:', targetStores.length);
 
     for (const storeConfig of targetStores) {
-  try {
-    const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
+      try {
+        const reviews = await scrapeOneStore(page, storeConfig, maxRounds);
 
-    // 第一間店就只抓到 3 筆，代表這次 Google session 很可能異常
-    // 整個 Chrome 關掉重開，整輪只重試一次
-    if (
-      allReviews.length === 0 &&
-      reviews.length === 3 &&
-      retryCount < 1
-    ) {
-      console.log('⚠️ 第一間店只抓到 3 筆，判定本次 Google session 異常');
-      console.log('🔄 關閉 Chrome，整輪重新執行一次');
+        // 第一間店就只抓到 3 筆，代表這次 Google session 很可能異常
+        // 整個 Chrome 關掉重開，整輪只重試一次
+        if (
+          allReviews.length === 0 &&
+          reviews.length === 3 &&
+          retryCount < 1
+        ) {
+          console.log('⚠️ 第一間店只抓到 3 筆，判定本次 Google session 異常');
+          console.log('🔄 關閉 Chrome，整輪重新執行一次');
 
-      await browser.close().catch(() => {});
-      browser = null;
+          await browser.close().catch(() => {});
+          browser = null;
 
-      return await scrapeGoogleReviews(retryCount + 1);
+          return await scrapeGoogleReviews(retryCount + 1);
+        }
+
+        allReviews.push(...reviews);
+      } catch (err) {
+        console.error(
+          `❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`,
+          err.message
+        );
+      }
+
+      await randomDelay(3000, 5000);
     }
-
-    allReviews.push(...reviews);
-  } catch (err) {
-    console.error(
-      `❌ ${storeConfig.brand} ${storeConfig.store} 抓取失敗:`,
-      err.message
-    );
-  }
-
-  await randomDelay(3000, 5000);
-}
 
     console.log(`✅ 全部店家合計抓到 ${allReviews.length} 筆評論`);
 
