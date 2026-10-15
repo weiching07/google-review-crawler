@@ -225,12 +225,11 @@ async function clickNewestSort(page) {
 // ======================================================
 // 從 Google 搜尋頁擷取評論
 //
-// 主要修正：
 // 1. 直接使用 [data-review-id]
 // 2. 不要求星等元素一定存在
-// 3. 抓不到星等就保留 null
+// 3. 抓不到星等保留 null
 // 4. 不限定在 [role="dialog"] 內
-// 5. 加入實際解析數量與範例紀錄
+// 5. 顯示實際解析數量
 // ======================================================
 
 async function collectCurrentReviews(page, reviewMap) {
@@ -348,7 +347,7 @@ async function collectCurrentReviews(page, reviewMap) {
         return Number(textMatch[1]);
       }
 
-      // 不要亂補成 5 星
+      // 星等無法確認時，不假設為 5 星
       return null;
     }
 
@@ -449,7 +448,7 @@ async function collectCurrentReviews(page, reviewMap) {
         continue;
       }
 
-      // 避免誤把整個評論清單當成單筆評論
+      // 避免把整個評論清單誤認成單筆評論
       if (fullText.length > 12000) {
         continue;
       }
@@ -507,8 +506,8 @@ async function collectCurrentReviews(page, reviewMap) {
       const reply = extractReply(lines);
 
       if (!content) {
-        // 搜尋頁 HTML 沒有固定的評論文字 class，
-        // 使用卡片文字作為備援。
+        // 搜尋頁評論沒有固定的文字 class 時，
+        // 使用卡片內的文字作為備援。
         const replyStart = lines.findIndex(line =>
           replyPattern.test(line)
         );
@@ -551,12 +550,11 @@ async function collectCurrentReviews(page, reviewMap) {
         content = filtered.join(' ').trim();
       }
 
-      // 移除被合併進內容的業主回覆
+      // 移除誤合併進評論內容的店家回覆
       if (content && replyPattern.test(content)) {
         content = content.split(replyPattern)[0].trim();
       }
 
-      // 同時沒有作者與內容才排除
       if (!author && !content) {
         continue;
       }
@@ -714,192 +712,245 @@ async function expandCurrentMore(page) {
 }
 
 // ======================================================
+// GitHub Actions 搜尋頁診斷
+// ======================================================
+
+async function logSearchPageDiagnostics(page, storeConfig) {
+  const info = await page.evaluate(() => {
+    const body = (
+      document.body?.innerText || ''
+    ).replace(/\s+/g, ' ').trim();
+
+    const elements = [
+      ...document.querySelectorAll(
+        'a,button,[role="button"],span'
+      )
+    ];
+
+    const reviewLabels = elements
+      .map(el => ({
+        text: (el.innerText || '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 100),
+
+        aria: (
+          el.getAttribute('aria-label') || ''
+        ).slice(0, 100)
+      }))
+      .filter(x =>
+        /評論|reviews?|評價/i.test(
+          x.text + ' ' + x.aria
+        ) &&
+        x.text.length < 100
+      )
+      .slice(0, 12);
+
+    return {
+      url: location.href,
+      title: document.title,
+      bodyPreview: body.slice(0, 1000),
+
+      possibleBlock:
+        /unusual traffic|not a robot|captcha|verify you are human|異常流量|驗證您是人類|存取遭拒/i.test(body),
+
+      reviewLabels
+    };
+  });
+
+  console.log(
+    '🧪 搜尋頁診斷:',
+    JSON.stringify({
+      store: storeConfig.store,
+      ...info
+    }, null, 2)
+  );
+
+  return info;
+}
+
+// ======================================================
 // Google 搜尋結果：點評論數量
 // 不主動切換到 Google Maps
 // ======================================================
 
 async function openFullReviews(page) {
   console.log(
-    '🎯 在 Google 搜尋結果尋找「Google 評論」入口...'
+    '🎯 搜尋頁：嘗試點擊 Google 評論數量，不切換 Google Maps'
   );
 
-  const candidate = await page.evaluate(() => {
-    const pattern =
-      /(?:\d[\d,，.萬千]*\s*(?:則|篇)?\s*)?(?:Google\s*)?評論|Google reviews?/i;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    const result = await page.evaluate(() => {
+      const pattern =
+        /(?:Google\s*)?評論|Google\s*reviews?|\d[\d,，.]*\s*(?:則|篇)?\s*評論/i;
 
-    const nodes = [
-      ...document.querySelectorAll(
-        'a,button,[role="button"],span,div'
-      )
-    ];
+      const nodes = [
+        ...document.querySelectorAll(
+          'a,button,[role="button"],span,div'
+        )
+      ];
 
-    const matches = [];
+      const candidates = [];
 
-    for (const node of nodes) {
-      const text = (
-        node.innerText ||
-        ''
-      ).replace(/\s+/g, ' ').trim();
+      for (const node of nodes) {
+        const text = (
+          node.innerText || ''
+        ).replace(/\s+/g, ' ').trim();
 
-      const aria = (
-        node.getAttribute('aria-label') ||
-        ''
-      ).replace(/\s+/g, ' ').trim();
+        const aria = (
+          node.getAttribute('aria-label') || ''
+        ).trim();
 
-      const label = [text, aria].find(x =>
-        x &&
-        x.length < 100 &&
-        pattern.test(x)
+        const label = [aria, text].find(t =>
+          t &&
+          t.length <= 90 &&
+          pattern.test(t)
+        );
+
+        if (!label) {
+          continue;
+        }
+
+        const r = node.getBoundingClientRect();
+
+        if (!r.width || !r.height) {
+          continue;
+        }
+
+        const target =
+          node.closest(
+            'a,button,[role="button"]'
+          ) || node;
+
+        const href =
+          target.getAttribute('href') || '';
+
+        if (/\/maps\//i.test(href)) {
+          continue;
+        }
+
+        const priority =
+          (
+            /Google\s*評論|Google\s*reviews?/i.test(label)
+              ? 0
+              : 10
+          ) +
+          (
+            /\d/.test(label)
+              ? 0
+              : 5
+          ) +
+          (
+            target.matches(
+              'a,button,[role="button"]'
+            )
+              ? 0
+              : 3
+          ) +
+          label.length / 100;
+
+        candidates.push({
+          target,
+          label,
+          priority
+        });
+      }
+
+      candidates.sort(
+        (a, b) =>
+          a.priority - b.priority
       );
 
-      if (!label) {
-        continue;
+      if (!candidates.length) {
+        return null;
       }
 
-      const rect = node.getBoundingClientRect();
+      candidates[0].target.setAttribute(
+        'data-scraper-review-entry',
+        '1'
+      );
 
-      if (
-        rect.width < 3 ||
-        rect.height < 3 ||
-        rect.top < 0 ||
-        rect.top > innerHeight
-      ) {
-        continue;
-      }
-
-      const target =
-        node.closest(
-          'a,button,[role="button"]'
-        ) || node;
-
-      const href =
-        target.getAttribute('href') || '';
-
-      if (/\/maps\//i.test(href)) {
-        continue;
-      }
-
-      const score =
-        (
-          /Google\s*評論|Google reviews?/i.test(label)
-            ? 0
-            : 10
-        ) +
-        (
-          /\d/.test(label)
-            ? 0
-            : 5
-        ) +
-        (
-          target.matches('a,button,[role="button"]')
-            ? 0
-            : 3
-        ) +
-        label.length / 100;
-
-      matches.push({
-        element: target,
-        label,
-        score
-      });
-    }
-
-    matches.sort(
-      (a, b) => a.score - b.score
-    );
-
-    if (!matches.length) {
-      return null;
-    }
-
-    const chosen = matches[0];
-
-    chosen.element.setAttribute(
-      'data-scraper-review-entry',
-      '1'
-    );
-
-    return chosen.label;
-  });
-
-  if (!candidate) {
-    console.warn(
-      '❌ 找不到 Google 搜尋結果的評論入口'
-    );
-
-    return false;
-  }
-
-  console.log(
-    '🔎 找到評論入口:',
-    candidate
-  );
-
-  try {
-    const trigger = await page.$(
-      '[data-scraper-review-entry="1"]'
-    );
-
-    if (!trigger) {
-      return false;
-    }
-
-    await trigger.click({
-      delay: 100
+      return {
+        label: candidates[0].label,
+        count: candidates.length
+      };
     });
 
-    await randomDelay(1800, 2800);
-  } catch (error) {
-    console.warn(
-      '❌ 點擊評論入口失敗:',
-      error.message
-    );
+    if (result) {
+      console.log(
+        '🔎 評論入口:',
+        result
+      );
 
-    return false;
-  }
+      const target = await page.$(
+        '[data-scraper-review-entry="1"]'
+      );
 
-  if (/\/maps\//i.test(page.url())) {
-    console.warn(
-      '⚠️ Google 跳到 Maps，停止本店（只使用搜尋頁）'
-    );
+      if (target) {
+        try {
+          await target.evaluate(el =>
+            el.scrollIntoView({
+              block: 'center',
+              inline: 'nearest'
+            })
+          );
 
-    return false;
-  }
+          await target.click({
+            delay: 100
+          });
 
-  // 等待搜尋頁評論卡片真正載入
-  try {
-    await page.waitForFunction(
-      () =>
-        document.querySelectorAll(
-          '[data-review-id]'
-        ).length > 0,
-      {
-        timeout: 20000,
-        polling: 300
+          await randomDelay(1300, 2300);
+
+          if (/\/maps\//i.test(page.url())) {
+            console.warn(
+              '⚠️ 入口跳至 Maps，按需求略過本店'
+            );
+
+            return false;
+          }
+
+          await page.waitForFunction(
+            () =>
+              document.querySelectorAll(
+                '[data-review-id]'
+              ).length > 0,
+            {
+              polling: 300,
+              timeout: 16000
+            }
+          );
+
+          console.log(
+            '✅ 搜尋頁評論卡片:',
+            await page.evaluate(() =>
+              document.querySelectorAll(
+                '[data-review-id]'
+              ).length
+            )
+          );
+
+          return true;
+        } catch (err) {
+          console.warn(
+            '⚠️ 點擊或等待評論失敗:',
+            err.message
+          );
+        }
       }
-    );
-  } catch (_) {
+    }
+
     console.warn(
-      '⚠️ 點擊後沒有出現 [data-review-id] 評論卡片'
+      `⚠️ 第 ${attempt}/4 次未成功開啟搜尋頁評論`
     );
 
-    return false;
+    await randomDelay(1200, 2000);
   }
 
-  const state = await page.evaluate(() => ({
-    cards: document.querySelectorAll(
-      '[data-review-id]'
-    ).length,
-
-    url: location.href
-  }));
-
-  console.log(
-    '✅ Google 搜尋頁評論面板已開啟:',
-    state
+  console.warn(
+    '❌ 搜尋結果沒有可用的評論入口；不抓預覽評論'
   );
 
-  return true;
+  return false;
 }
 
 // ======================================================
@@ -1101,6 +1152,12 @@ async function scrapeOneStore(
 
   await randomDelay(2500, 4000);
 
+  // 記錄 GitHub 與本機實際看到的 Google 頁面
+  await logSearchPageDiagnostics(
+    page,
+    storeConfig
+  );
+
   const storeRating =
     await extractStoreRating(page);
 
@@ -1109,7 +1166,7 @@ async function scrapeOneStore(
     storeRating || '未找到'
   );
 
-  // 直接從 Google 搜尋結果進入評論
+  // 直接從搜尋結果頁進入評論
   if (!(await openFullReviews(page))) {
     console.warn(
       '❌ 搜尋頁評論沒有成功開啟，本店略過'
@@ -1118,7 +1175,7 @@ async function scrapeOneStore(
     return [];
   }
 
-  // 直接點最新，不先點排序
+  // 直接點「最新」，不先點「排序」
   await clickNewestSort(page);
 
   const reviewMap = new Map();
@@ -1140,18 +1197,14 @@ async function scrapeOneStore(
     const before =
       reviewMap.size;
 
-    // 先展開可見的評論全文
+    // 展開可見評論全文
     const expanded =
       await expandCurrentMore(page);
 
     if (expanded > 0) {
-      await randomDelay(
-        400,
-        700
-      );
+      await randomDelay(400, 700);
     }
 
-    // 直接從 data-review-id 擷取
     await collectCurrentReviews(
       page,
       reviewMap
@@ -1178,7 +1231,7 @@ async function scrapeOneStore(
       break;
     }
 
-    // 滑鼠滾輪向下滑動評論面板
+    // 使用滑鼠滾輪捲動評論面板
     const scrollResult =
       await scrollSearchReviewPanel(page);
 
@@ -1187,15 +1240,14 @@ async function scrapeOneStore(
       scrollResult
     );
 
-    // 捲動之後再擷取一次，
-    // 避免最後一批評論沒有被收集
+    // 捲動後再擷取一次
     await collectCurrentReviews(
       page,
       reviewMap
     );
   }
 
-  // 最後再收集一次畫面中的評論
+  // 最後再收集目前畫面的評論
   await expandCurrentMore(page);
 
   await collectCurrentReviews(
@@ -1282,8 +1334,8 @@ async function scrapeGoogleReviews(
       executablePath:
         chromePath,
 
-      // 本機保存登入資料
-      // GitHub Actions 不依賴本機登入狀態
+      // 本機保存登入設定檔
+      // GitHub Actions 不使用本機設定檔
       ...(
         !isCloud
           ? {
@@ -1340,13 +1392,11 @@ async function scrapeGoogleReviews(
       STORES.filter(storeConfig => {
         const brandMatched =
           targetBrand === 'all' ||
-          storeConfig.brand ===
-            targetBrand;
+          storeConfig.brand === targetBrand;
 
         const storeMatched =
           targetStore === 'all' ||
-          storeConfig.store ===
-            targetStore;
+          storeConfig.store === targetStore;
 
         return (
           brandMatched &&
@@ -1381,8 +1431,7 @@ async function scrapeGoogleReviews(
             maxRounds
           );
 
-        // 第一間店只抓到 3 筆時，
-        // 沿用原本重新啟動 Chrome 的機制。
+        // 第一間店只取得 3 筆時，重新啟動一次 Chrome
         if (
           allReviews.length === 0 &&
           reviews.length === 3 &&
