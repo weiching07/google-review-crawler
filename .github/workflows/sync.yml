@@ -1,4 +1,3 @@
-
 name: Sync Google Reviews
 
 on:
@@ -82,7 +81,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
 
       - name: Setup Chrome
         id: setup-chrome
@@ -101,6 +100,13 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: true
         run: |
           npm install --ignore-scripts
+
+      # BOQ 套件使用與 300 筆成功測試相同的版本與安裝位置。
+      - name: Install BOQ reviews backend
+        run: npm install --prefix .boq-test --no-save --no-audit --no-fund google-maps-review-scraper@3.1.0
+
+      - name: Verify BOQ backend syntax
+        run: node --check .boq-test/boq-main.mjs
 
       # =========================
       # 手動同步
@@ -136,14 +142,31 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: npm run sync:static
         env:
+          SCRAPE_ENGINE: "boq"
+          BOQ_PAGES: "30"
+          BOQ_MAX_REVIEWS: "300"
+          BOQ_MIN_REVIEWS: "10"
+          BOQ_STORE_DELAY_MS: "3000"
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
-          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+          SCRAPE_PROXY_URL: ${{ secrets.SCRAPE_PROXY_URL }}
+          SCRAPE_REQUIRE_PROXY: "0"
+          SCRAPE_LOGIN_MODE: "auto"
+          SCRAPE_ROUND_DELAY_MS: "3500"
+          SCRAPE_STORE_DELAY_MS: "12000"
           SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
           SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
+
+      - name: Upload BOQ diagnostic summary
+        if: ${{ always() && github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: boq-main-diagnostics-${{ github.run_id }}
+          path: .boq-test/results/status.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       # =========================
       # 完整同步通知基準
@@ -411,11 +434,19 @@ jobs:
         if: ${{ false }}
         run: npm run sync:static
         env:
+          SCRAPE_ENGINE: "boq"
+          BOQ_PAGES: "30"
+          BOQ_MAX_REVIEWS: "300"
+          BOQ_MIN_REVIEWS: "10"
+          BOQ_STORE_DELAY_MS: "3000"
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
-          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+          SCRAPE_PROXY_URL: ${{ secrets.SCRAPE_PROXY_URL }}
+          SCRAPE_REQUIRE_PROXY: "0"
+          SCRAPE_LOGIN_MODE: "auto"
+          SCRAPE_ROUND_DELAY_MS: "3500"
+          SCRAPE_STORE_DELAY_MS: "12000"
           SCRAPE_MAX_ROUNDS: "5"
           SCRAPE_TARGET_BRAND: "all"
           SCRAPE_TARGET_STORE: "all"

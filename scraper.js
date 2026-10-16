@@ -1,4 +1,3 @@
-
 'use strict';
 
 // Google Maps 評論爬蟲（GitHub Actions / Windows）
@@ -72,6 +71,98 @@ function setLanguage(url) {
   } catch {
     return url;
   }
+}
+
+// ======================================================
+// GitHub Actions 網路出口與抓取頻率設定
+// 未設定 SCRAPE_PROXY_URL 時使用原來的 GitHub 出口 IP。
+// 代理必須由使用者自行提供；不會暗中使用公開代理池。
+// ======================================================
+
+function readProxyConfig() {
+  const raw = (process.env.SCRAPE_PROXY_URL || '').trim();
+  if (!raw) {
+    if (process.env.SCRAPE_REQUIRE_PROXY === '1') {
+      throw new Error('要求使用代理，但缺少 SCRAPE_PROXY_URL；已停止，避免使用原始出口 IP');
+    }
+    return null;
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error('SCRAPE_PROXY_URL 不是有效 URL（不顯示代理憑證）');
+  }
+
+  const protocol = parsed.protocol.toLowerCase();
+  if (!['http:', 'https:', 'socks5:'].includes(protocol)) {
+    throw new Error('代理協定僅支援 http、https 或 socks5');
+  }
+  if (!parsed.hostname || !parsed.port || parsed.pathname !== '/' || parsed.search || parsed.hash) {
+    throw new Error('代理格式必須為 scheme://host:port，或 scheme://user:pass@host:port');
+  }
+  const username = parsed.username ? decodeURIComponent(parsed.username) : '';
+  const password = parsed.password ? decodeURIComponent(parsed.password) : '';
+  if (protocol === 'socks5:' && (username || password)) {
+    throw new Error('此版本 Chrome SOCKS5 不支援帳密代理，請使用 HTTP(S) 代理');
+  }
+
+  const host = parsed.hostname.includes(':') && !parsed.hostname.startsWith('[')
+    ? `[${parsed.hostname}]` : parsed.hostname;
+  return {
+    server: `${protocol}//${host}:${parsed.port}`,
+    hostname: parsed.hostname,
+    credentials: (username || password) ? { username, password } : null
+  };
+}
+
+async function applyProxyAuth(page, proxy) {
+  if (proxy?.credentials) {
+    await page.authenticate(proxy.credentials);
+  }
+}
+
+// 從瀏覽器本身確認代理能對外連線（不是只看 Chrome 啟動參數）。
+// 查詢服務沒有回應時，不會假裝代理已生效。
+async function verifyProxyEgress(browser, proxy) {
+  if (!proxy) return;
+  const page = await browser.newPage();
+  try {
+    await applyProxyAuth(page, proxy);
+    const response = await page.goto('https://api.ipify.org?format=json', {
+      waitUntil: 'domcontentloaded', timeout: 25000
+    });
+    if (!response || !response.ok()) {
+      throw new Error('IP 檢查服務沒有正常回應');
+    }
+    const value = await page.evaluate(() => document.body?.innerText || '');
+    const ip = JSON.parse(value).ip;
+    if (typeof ip !== 'string' || !/^[0-9a-f:.]+$/i.test(ip)) {
+      throw new Error('IP 檢查回應不正確');
+    }
+    console.log('🌍 Chrome 實際對外 IP:', ip);
+  } catch {
+    throw new Error('代理連線驗證失敗，停止爬蟲，避免默默改用原始 IP');
+  } finally {
+    await page.close().catch(() => {});
+  }
+}
+
+function readDelay(name, fallback) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0 || n > 120000) {
+    throw new Error(`${name} 必須介於 0 到 120000 毫秒`);
+  }
+  return Math.floor(n);
+}
+
+function isGoogleAccessBlock(error) {
+  return /人機驗證|流量驗證|異常流量|流量有異常|IP\/流量|此網路 IP|unusual traffic|captcha|\/sorry\/|HTTP 429|Too Many Requests/i.test(
+    String(error?.message || error)
+  );
 }
 
 // ======================================================
@@ -246,9 +337,10 @@ async function waitForInteractiveGoogleLogin(page) {
   return verifyGoogleSession(page);
 }
 
-async function ensureGoogleSignedIn(browser, cloud) {
+async function ensureGoogleSignedIn(browser, cloud, proxy) {
   const loginPage = await browser.newPage();
   try {
+    await applyProxyAuth(loginPage, proxy);
     console.log('🔎 開始確認 Google 登入狀態（未登入不會爬評論）');
 
     if (await verifyGoogleSession(loginPage)) {
@@ -879,6 +971,11 @@ async function scrapeStore(page, store, maxRounds) {
     if (round % 12 === 0) {
       checkAccess(await diagnose(page, `第 ${round} 輪`));
     }
+
+    // 只做節流，不宣稱能解除 Google 既有的 IP 封鎖。
+    if (round < maxRounds) {
+      await sleep(readDelay('SCRAPE_ROUND_DELAY_MS', 3500));
+    }
   }
 
   await expandReviewText(page);
@@ -902,10 +999,24 @@ async function scrapeStore(page, store, maxRounds) {
 // ======================================================
 
 async function scrapeGoogleReviews() {
+  // 2026/10：預設走已在 GitHub Actions 取得 300 筆的 BOQ 免登入後端。
+  // 保留下面全部 Puppeteer 程式，僅在 SCRAPE_ENGINE=legacy 時使用。
+  const engine = String(process.env.SCRAPE_ENGINE || 'boq').trim().toLowerCase();
+  if (engine === 'boq') {
+    const { scrapeBOQ } = await import('./.boq-test/boq-main.mjs');
+    return scrapeBOQ(STORES);
+  }
+  if (engine !== 'legacy') {
+    throw new Error(`不支援的 SCRAPE_ENGINE：${engine}（只能是 boq 或 legacy）`);
+  }
   let browser;
   try {
     const cloud = isCloud();
+    const proxy = readProxyConfig();
     console.log('☁️ GitHub Actions/雲端模式:', cloud);
+    console.log(proxy
+      ? `🌐 已設定代理出口：${proxy.hostname}（未驗證是否可正常存取 Google）`
+      : '🌐 未設定代理：使用 GitHub Actions／本機原本的出口 IP');
 
     browser = await puppeteer.launch({
       headless: cloud ? 'new' : false,
@@ -923,16 +1034,24 @@ async function scrapeGoogleReviews() {
         '--window-size=1366,900',
         '--lang=zh-TW',
         '--no-first-run',
-        '--no-default-browser-check'
+        '--no-default-browser-check',
+        ...(proxy ? [`--proxy-server=${proxy.server}`] : [])
       ]
     });
 
+    await verifyProxyEgress(browser, proxy);
+
     // 本機／雲端一律先確認 Google 已登入，再開始 Maps 評論爬取。
     // 本機沒有環境變數時，不會跳過驗證。
-    await ensureGoogleSignedIn(browser, cloud);
+    if (process.env.SCRAPE_LOGIN_MODE === 'skip') {
+      console.log('⚠️ 未登入公開評論測試模式：Google 可能不提供「最新」或完整評論');
+    } else {
+      await ensureGoogleSignedIn(browser, cloud, proxy);
+    }
 
     const pages = await browser.pages();
     const page = pages[0] || await browser.newPage();
+    await applyProxyAuth(page, proxy);
     await page.setExtraHTTPHeaders({
       'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7'
     });
@@ -959,8 +1078,12 @@ async function scrapeGoogleReviews() {
         const message = `${store.brand} ${store.store}: ${error.message}`;
         console.error('❌', message);
         failures.push(message);
+        if (isGoogleAccessBlock(error)) {
+          console.error('🛑 偵測到 Google 限流／IP 驗證，立即停止本次執行，不再請求後續店家');
+          break;
+        }
       }
-      await pause(1800, 3000);
+      await sleep(readDelay('SCRAPE_STORE_DELAY_MS', 12000));
     }
 
     // 有任一店家失敗就拋錯，避免不完整輸出覆蓋舊資料。
