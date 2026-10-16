@@ -1,0 +1,37 @@
+name: Test BOQ Google Reviews (No Login)
+
+'on':
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-boq:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SCRAPE_MAX_REVIEWS: '300'
+      SCRAPE_PAGES: '30'
+      SCRAPE_PROXY_URL: ${{ secrets.SCRAPE_PROXY_URL }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install standalone BOQ dependency
+        run: npm install --prefix .boq-test --no-save --no-audit --no-fund google-maps-review-scraper@3.1.0
+      - name: Check JavaScript syntax
+        run: node --check .boq-test/run.mjs
+      - name: Run BOQ review test
+        run: node .boq-test/run.mjs
+      - name: Upload diagnostic files (even when blocked)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boq-TXRH-songgao-${{ github.run_id }}
+          path: .boq-test/results/
+          retention-days: 7
+          if-no-files-found: warn
