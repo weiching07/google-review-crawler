@@ -91,6 +91,9 @@ module.exports = [
     storeCode: "5512",
     branch: "FRIDAYS",
     keyword: "TGI FRIDAYS 西門餐廳",
+    // Google Maps 顯示「TGI Fridays」，需以門牌識別西門店（武昌街二段 72 號 2 樓）
+    mapsPlaceAliases: ["Wuchang St 72號", "武昌街二段72號"],
+    mapsAddressHints: ["Wuchang St 72號", "武昌街二段72號"],
     fallbackUrl: googleMapsSearch("TGI FRIDAYS 西門餐廳")
   },
   {
@@ -163,6 +166,9 @@ module.exports = [
     storeCode: "5522",
     branch: "FRIDAYS",
     keyword: "TGI FRIDAYS 華泰餐廳",
+    // Google Maps 顯示「TGI FRIDAYS Gloria Outlet Restaurant」
+    mapsPlaceAliases: ["Gloria Outlet", "Chunde Rd 189號", "189號, Chunde Rd", "春德路189號"],
+    mapsAddressHints: ["Chunde Rd 189號", "189號, Chunde Rd", "春德路189號"],
     fallbackUrl: googleMapsSearch("TGI FRIDAYS 華泰餐廳")
   },
   {
@@ -199,6 +205,9 @@ module.exports = [
     storeCode: "5525",
     branch: "FRIDAYS",
     keyword: "TGI FRIDAYS 台南新天地餐廳",
+    // Google Maps 顯示「TGI Fridays」，需以門牌識別新天地店（西門路一段 658 號 6 樓）
+    mapsPlaceAliases: ["Ximen Rd 658號", "西門路一段658號"],
+    mapsAddressHints: ["Ximen Rd 658號", "西門路一段658號"],
     fallbackUrl: googleMapsSearch("TGI FRIDAYS 台南新天地餐廳")
   },
   {
