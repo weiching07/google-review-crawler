@@ -101,7 +101,12 @@ async function discoverFeatureId(store, browserState) {
         document.querySelector('link[rel="canonical"]')?.href,
         document.querySelector('meta[property="og:url"]')?.content,
       ].filter(Boolean);
-      return { heading: normalized, urls: u, href: location.href };
+      // Google Maps 的店名不一定包含商場名。讀取商家資訊區的地址供交叉驗證。
+      const addressNodes = [
+        ...document.querySelectorAll('[data-item-id="address"], button[aria-label^="地址"], button[aria-label^="Address"]'),
+      ];
+      const address = addressNodes.map(el => [el.getAttribute('aria-label'), el.textContent].filter(Boolean).join(' ')).join(' ');
+      return { heading: normalized, address, urls: u, href: location.href };
     });
     const id = state.urls.map(exactFeatureId).find(Boolean) || '';
     if (!id) {
@@ -114,7 +119,21 @@ async function discoverFeatureId(store, browserState) {
     const expected = shortName(store.store);
     const heading = shortName(state.heading);
     if (expected && !heading.includes(expected)) {
-      throw new Error(`搜尋結果商家不吻合：期待「${store.store}」，實際「${state.heading}」；請設定正確 Maps 連結`);
+      // LillA 位於 DREAM PLAZA，但 Maps 商家名稱只有「LillA」。
+      // 只針對這家例外，不取消其他 29 家的分店名稱防呆。
+      const isLillaDreamPlaza = storeKey(store) === 'LILLA|DREAM PLAZA';
+      const brandMatches = heading === 'lilla';
+      const normalizedAddress = shortName(state.address).replace(/臺/g, '台');
+      const addressKnown = Boolean(normalizedAddress);
+      const addressMatches = /松高路11號/.test(normalizedAddress) || /dreamplaza/.test(normalizedAddress);
+      if (!isLillaDreamPlaza || !brandMatches || (addressKnown && !addressMatches)) {
+        throw new Error(`搜尋結果商家不吻合：期待「${store.store}」，實際「${state.heading}」，地址「${state.address || '未取得'}」；請設定正確 Maps 連結`);
+      }
+      if (!addressKnown) {
+        console.warn('⚠️ LillA 的 Google 名稱沒有 DREAM PLAZA，商家地址也未能讀取；依既有搜尋詞與精確品牌名稱辨識，建議改用指定 Maps 商家 ID');
+      } else {
+        console.log(`✅ LillA 品牌與 DREAM PLAZA 地址驗證成功：${state.address}`);
+      }
     }
     console.log(`✅ 已核對店家：${state.heading} / ${id}`);
     return id;
