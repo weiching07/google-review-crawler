@@ -313,7 +313,7 @@ async function main() {
   if (!Array.isArray(reviews) || reviews.length === 0) {
     console.warn('⚠️ 本次抓到 0 筆，為避免覆蓋舊資料，不更新 comments.json / review-versions.json');
     console.warn(`📦 目前舊資料仍保留：comments=${oldComments.length}, versions=${oldVersions.length}`);
-    return;
+    throw new Error('本次抓取結果為 0：中止工作流程，禁止後續通知使用舊資料');
   }
 
   let newCount = 0;
@@ -342,6 +342,8 @@ async function main() {
       averageRating: r.averageRating || r.storeRating || old?.averageRating || old?.storeRating || '',
 
       date: r.date || old?.date || '',
+      // BOQ 的精確發布時間必須保留供通知篩選。
+      publishedAt: r.publishedAt || old?.publishedAt || '',
       editedText: r.editedText || old?.editedText || '',
       isEdited:
         Boolean(r.isEdited) ||

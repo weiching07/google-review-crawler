@@ -241,56 +241,61 @@ function getStoreAccountEmail(
 }
 
 function isReviewWithinOneDay(review) {
-  const dateText =
-    text(review.date).toLowerCase();
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
 
-  if (!dateText) {
-    return false;
+  // BOQ 優先提供發布時間 ISO 8601，精確判斷過去 24 小時。
+  const publishedAt = text(review.publishedAt);
+  if (publishedAt) {
+    const parsed = Date.parse(publishedAt);
+    if (Number.isFinite(parsed)) {
+      const elapsed = now - parsed;
+      return elapsed >= 0 && elapsed <= oneDayMs;
+    }
   }
 
+  const dateText = text(review.date).toLowerCase();
+  if (!dateText) return false;
+
+  // 某些來源在 date 中直接保留完整時間與時區。
+  if (/^\d{4}-\d{2}-\d{2}t\d{2}:\d{2}/.test(dateText)) {
+    const parsed = Date.parse(dateText);
+    if (Number.isFinite(parsed)) {
+      const elapsed = now - parsed;
+      return elapsed >= 0 && elapsed <= oneDayMs;
+    }
+  }
+
+  // BOQ 的 date 可能只剩 YYYY-MM-DD，無法判斷確切小時。
+  // 這時依台灣日期將「今天／昨天」視為一天內，與原本接受「昨天」的邏輯一致。
+  const dateOnly = dateText.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if (dateOnly) {
+    const [, y, m, d] = dateOnly;
+    const year = Number(y), month = Number(m), day = Number(d);
+    const target = Date.UTC(year, month - 1, day);
+    const valid = new Date(target);
+    if (valid.getUTCFullYear() !== year || valid.getUTCMonth() !== month - 1 || valid.getUTCDate() !== day) {
+      return false;
+    }
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(new Date(now));
+    const get = (type) => Number(parts.find((p) => p.type === type)?.value);
+    const today = Date.UTC(get('year'), get('month') - 1, get('day'));
+    const dayDiff = Math.round((today - target) / oneDayMs);
+    return dayDiff >= 0 && dayDiff <= 1;
+  }
+
+  // 保留原 Puppeteer 相對時間字串的判斷。
   if (
-    dateText.includes('剛剛') ||
-    dateText.includes('分鐘前') ||
-    dateText.includes('小時前') ||
-    dateText.includes('昨天') ||
-    dateText.includes('一天前')
-  ) {
-    return true;
-  }
+    /剛剛|分鐘前|小時前|昨天|一天前/.test(dateText) ||
+    /just now|minute ago|minutes ago|hour ago|hours ago|yesterday/.test(dateText)
+  ) return true;
 
-  const chineseDayMatch =
-    dateText.match(
-      /(\d+)\s*天前/
-    );
-
-  if (chineseDayMatch) {
-    return Number(
-      chineseDayMatch[1]
-    ) <= 1;
-  }
-
-  if (
-    dateText.includes('just now') ||
-    dateText.includes('minute ago') ||
-    dateText.includes('minutes ago') ||
-    dateText.includes('hour ago') ||
-    dateText.includes('hours ago') ||
-    dateText.includes('yesterday')
-  ) {
-    return true;
-  }
-
-  const englishDayMatch =
-    dateText.match(
-      /(\d+)\s*day[s]?\s*ago/
-    );
-
-  if (englishDayMatch) {
-    return Number(
-      englishDayMatch[1]
-    ) <= 1;
-  }
-
+  const chineseDayMatch = dateText.match(/(\d+)\s*天前/);
+  if (chineseDayMatch) return Number(chineseDayMatch[1]) <= 1;
+  const englishDayMatch = dateText.match(/(\d+)\s*days?\s*ago/);
+  if (englishDayMatch) return Number(englishDayMatch[1]) <= 1;
   return false;
 }
 
@@ -618,7 +623,7 @@ async function sendNewReviewEmail(
     !Array.isArray(newReviews) ||
     newReviews.length === 0
   ) {
-    return;
+    return { sent: false, sentReviewIds: [], reason: 'empty' };
   }
 
   const group =
@@ -635,7 +640,7 @@ async function sendNewReviewEmail(
       `⚠️ 未設定 ${groupLabel} 收件人，略過寄信`
     );
 
-    return;
+    return { sent: false, sentReviewIds: [], reason: 'missing-recipient' };
   }
 
   /*
@@ -646,6 +651,8 @@ async function sendNewReviewEmail(
       isReviewWithinOneDay
     );
 
+  console.log(`📧 ${groupLabel} 通知日期篩選：新評論 ${newReviews.length} 筆，今天／昨天（或近 24 小時）${reviewsWithinOneDay.length} 筆`);
+
   if (
     reviewsWithinOneDay.length === 0
   ) {
@@ -653,7 +660,7 @@ async function sendNewReviewEmail(
       `📭 ${groupLabel} 本次沒有一天內的新評論，略過寄信`
     );
 
-    return;
+    return { sent: false, sentReviewIds: [], reason: 'no-recent-review' };
   }
 
   const user =
@@ -670,7 +677,7 @@ async function sendNewReviewEmail(
       '⚠️ 未設定 O365_SMTP_USER / O365_SMTP_PASS，略過寄信'
     );
 
-    return;
+    return { sent: false, sentReviewIds: [], reason: 'missing-smtp' };
   }
 
   const negativeReviews =
@@ -791,7 +798,7 @@ async function sendNewReviewEmail(
     </div>
   `;
 
-  await transporter.sendMail({
+  const mailResult = await transporter.sendMail({
     from:
       `"Google 評論通知" <${user}>`,
 
@@ -799,6 +806,13 @@ async function sendNewReviewEmail(
     subject,
     html
   });
+
+  // SMTP 有接受至少一個收件人才視為「寄出」；不代表已送達收件匣。
+  const accepted = Array.isArray(mailResult?.accepted) ? mailResult.accepted : [];
+  if (accepted.length === 0) {
+    throw new Error('SMTP 未接受任何收件人，不能標記已通知');
+  }
+  console.log(`📨 SMTP 接受 ${accepted.length} 個收件人，拒絕 ${Array.isArray(mailResult?.rejected) ? mailResult.rejected.length : 0} 個`);
 
   console.log(
     `📧 已寄出 ${groupLabel} 一天內新評論通知：` +
@@ -847,8 +861,18 @@ async function sendNewReviewEmail(
     groupLabel,
     negativeReviews
   });
+
+  return {
+    sent: true,
+    sentReviewIds: reviewsWithinOneDay
+      .map(r => text(r.reviewId || r.id))
+      .filter(Boolean),
+    eligibleCount: reviewsWithinOneDay.length,
+    acceptedCount: accepted.length
+  };
 }
 
 module.exports = {
-  sendNewReviewEmail
+  sendNewReviewEmail,
+  isReviewWithinOneDay
 };
