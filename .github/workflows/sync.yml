@@ -30,6 +30,13 @@ on:
 
 
 
+  # 三個資料群組各自每兩小時執行一次（GitHub Cron 使用 UTC）
+  # 台灣時間：new-brand 每個偶數小時 :03、TGIF :23、TXRH :43
+  schedule:
+    - cron: "3 */2 * * *"     # new-brand
+    - cron: "23 */2 * * *"    # TGIF
+    - cron: "43 */2 * * *"    # TXRH
+
   push:
     branches:
       - main
@@ -66,10 +73,10 @@ jobs:
   # 下一輪才會等待，避免同一組同時改同一份 JSON。
   # ============================================================
   sync:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
 
     concurrency:
-      group: sync-${{ github.event.inputs.group || 'manual' }}
+      group: sync-${{ github.event_name == 'schedule' && github.event.schedule || github.event.inputs.group || 'manual' }}
       cancel-in-progress: false
 
     runs-on: ubuntu-latest
@@ -396,18 +403,18 @@ jobs:
       # 排程同步
       # =========================
       - name: Prepare scheduled group JSON
-        if: ${{ false }}
+        if: ${{ github.event_name == 'schedule' }}
         run: |
           EVENT_SCHEDULE="${{ github.event.schedule }}"
 
           case "$EVENT_SCHEDULE" in
-            "3 * * * *")
+            "3 */2 * * *")
               GROUP="new-brand"
               ;;
-            "23 * * * *")
+            "23 */2 * * *")
               GROUP="TGIF"
               ;;
-            "43 * * * *")
+            "43 */2 * * *")
               GROUP="TXRH"
               ;;
             *)
@@ -431,7 +438,7 @@ jobs:
           cp "public/$GROUP/notified-review-ids.json" public/notified-review-ids.json
 
       - name: Scheduled sync Google reviews
-        if: ${{ false }}
+        if: ${{ github.event_name == 'schedule' }}
         run: npm run sync:static
         env:
           SCRAPE_ENGINE: "boq"
@@ -452,7 +459,7 @@ jobs:
           SCRAPE_TARGET_STORE: "all"
 
       - name: Scheduled send notifications
-        if: ${{ false }}
+        if: ${{ github.event_name == 'schedule' }}
         run: npm run notify:push
         env:
           DASHBOARD_GROUP: ${{ env.DASHBOARD_GROUP }}
@@ -475,7 +482,7 @@ jobs:
           O365_NOTIFY_TO_TXRH: ${{ secrets.O365_NOTIFY_TO_TXRH }}
 
       - name: Commit scheduled updated JSON
-        if: ${{ false }}
+        if: ${{ github.event_name == 'schedule' }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
