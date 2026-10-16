@@ -1,0 +1,50 @@
+name: Test Gosom 300 Reviews
+
+'on':
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-reviews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Prepare output folder
+        run: mkdir -p gosom-output
+
+      - name: Run free Google Maps scraper for TXRH Songgao
+        run: |
+          docker run --rm --shm-size=1g \
+            -v "${{ github.workspace }}/gosom-queries.txt:/queries.txt:ro" \
+            -v "${{ github.workspace }}/gosom-output:/out" \
+            gosom/google-maps-scraper:latest \
+            -input /queries.txt \
+            -results /out/results.json \
+            -json \
+            -extra-reviews \
+            -depth 1 \
+            -c 1 \
+            -lang zh-TW \
+            -exit-on-inactivity 3m
+
+      - name: Convert reviews to existing JSON fields
+        run: node scripts/gosom-300-to-json.js gosom-output/results.json gosom-output/TXRH-songgao-300.json
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gosom-TXRH-songgao-test
+          path: gosom-output/
+          if-no-files-found: warn
+          retention-days: 7
