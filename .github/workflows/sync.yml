@@ -1,3 +1,4 @@
+
 name: Sync Google Reviews
 
 on:
@@ -138,6 +139,8 @@ jobs:
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
           SCRAPE_MAX_ROUNDS: ${{ github.event.inputs.scrape_rounds || '5' }}
           SCRAPE_TARGET_BRAND: ${{ github.event.inputs.brand || 'all' }}
           SCRAPE_TARGET_STORE: ${{ github.event.inputs.store || 'all' }}
@@ -411,6 +414,8 @@ jobs:
           NODE_ENV: production
           PUPPETEER_SKIP_DOWNLOAD: true
           PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+          GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
           SCRAPE_MAX_ROUNDS: "5"
           SCRAPE_TARGET_BRAND: "all"
           SCRAPE_TARGET_STORE: "all"
