@@ -123,9 +123,15 @@ async function discoverFeatureId(store, browserState) {
       // 只針對這家例外，不取消其他 29 家的分店名稱防呆。
       const isLillaDreamPlaza = storeKey(store) === 'LILLA|DREAM PLAZA';
       const brandMatches = heading === 'lilla';
-      const normalizedAddress = shortName(state.address).replace(/臺/g, '台');
+      // Google Maps 同一個地址可能顯示「松高路 11 號」或英文「Songgao Rd, 11號1樓」。
+      // 正規化只用在 LILLA|DREAM PLAZA 例外，不影響其他店家驗證。
+      const normalizedAddress = shortName(state.address)
+        .replace(/臺/g, '台')
+        .replace(/[\s\u3000,，.。:：\-]/g, '');
       const addressKnown = Boolean(normalizedAddress);
-      const addressMatches = /松高路11號/.test(normalizedAddress) || /dreamplaza/.test(normalizedAddress);
+      const addressMatches = /松高路11號/.test(normalizedAddress) ||
+        /songgao(?:rd|road)11號/.test(normalizedAddress) ||
+        /dreamplaza/.test(normalizedAddress);
       if (!isLillaDreamPlaza || !brandMatches || (addressKnown && !addressMatches)) {
         throw new Error(`搜尋結果商家不吻合：期待「${store.store}」，實際「${state.heading}」，地址「${state.address || '未取得'}」；請設定正確 Maps 連結`);
       }
