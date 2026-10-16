@@ -66,6 +66,102 @@ async function readOverrides() {
   }
 }
 
+/**
+ * 通用商家辨識。內部 store（店別鍵值）不必等於 Google Maps 英文名稱。
+ * 依「品牌」及「店別／商場別名／Google 商家正式名稱」判斷。
+ * 不明確的結果仍拒絕，避免跨分店混抓。
+ * 不再對某一家店寫死判斷；可在 stores.js 的 maps* 欄位配置別名。
+ */
+const BRAND_ALIASES = {
+  'LILLA': ['lilla'],
+  'SALT&STONE': ['salt & stone', 'salt and stone', 'saltstone'],
+  'TGIF': ['tgi fridays', 'tgi friday', 'tgifridays', 'tgif'],
+  'TXRH': ['texas roadhouse', 'texasroadhouse'],
+  '泰勒肉舖': ['泰勒肉舖', 'taylor butchery'],
+  '囕盈豚': ['囕盈豚', 'nyd taipei', 'nyd'],
+};
+
+// 各店通用的中英文地名／商場別名；不是單一品牌的硬編碼。
+const LOCATION_ALIASES = {
+  'DREAM PLAZA': ['dream plaza'],
+  '南港': ['nangang'],
+  '101': ['台北101', '臺北101', 'taipei 101'],
+  '大巨蛋': ['taipei dome', 'far eastern garden city', '遠東garden city', '台北大巨蛋', '臺北大巨蛋'],
+  '台北': ['taipei'],
+  '美麗華': ['miramar'],
+  '西門': ['ximen', 'ximending'],
+  '古亭': ['guting'],
+  '信義': ['xinyi'],
+  '林森': ['linsen'],
+  '松高': ['songgao'],
+  '環球': ['global mall'],
+  '裕隆城': ['yulon city'],
+  '中壢': ['zhongli', 'chungli'],
+  '華泰': ['gloria outlets'],
+  '台茂': ['taimall'],
+  '竹北': ['zhubei', 'chubei'],
+  '崇德': ['chongde'],
+  '新天地': ['shintiandi', '台南新天地', '臺南新天地'],
+  '夢時代': ['dream mall'],
+  '草衙': ['skm park', '草衙道'],
+  '宏匯': ['honhui', '宏匯廣場'],
+  '民生': ['minsheng'],
+  '台中': ['taichung'],
+  '新光': ['shin kong', '新光三越'],
+  '復興': ['fuxing', 'fuhsing'],
+};
+
+const norm = (value) => text(value).toLowerCase()
+  .replace(/臺/g, '台').replace(/&/g, 'and')
+  .replace(/[^\p{L}\p{N}]+/gu, '');
+const includesAny = (value, alternatives) => {
+  const hay = norm(value);
+  return alternatives.filter(Boolean).some((a) => {
+    const needle = norm(a);
+    return needle && hay.includes(needle);
+  });
+};
+const asStrings = (value) => Array.isArray(value) ? value.map(text) : (text(value) ? [text(value)] : []);
+
+export function verifyDiscoveredStore(store, state) {
+  const title = text(state?.heading);
+  const address = text(state?.address);
+  if (!title) return { ok: false, reason: '沒有取得商家標題' };
+  const brands = [
+    ...(BRAND_ALIASES[text(store.brand).toUpperCase()] || [text(store.brand)]),
+    ...asStrings(store.mapsBrandAliases),
+  ];
+  if (!includesAny(title, brands)) {
+    return { ok: false, reason: `品牌不一致（預期 ${store.brand}）` };
+  }
+
+  // 可指定 Maps 的完整正式名稱；例如 Google 寫 Far Eastern Garden City，內部叫大巨蛋。
+  const officialNames = asStrings(store.mapsExpectedName);
+  const officialMatch = officialNames.some((v) => norm(v) === norm(title));
+  const names = [
+    text(store.store),
+    ...(LOCATION_ALIASES[text(store.store)] || []),
+    ...asStrings(store.mapsPlaceAliases),
+    ...asStrings(store.mapsNameAliases),
+  ];
+  // 地址只允許具有辨識性的字串；101 等純數字短字串不能單憑門牌號放行。
+  const addrNames = names.filter((v) => norm(v).length >= 4 && !/^\d+$/.test(norm(v)));
+  const placeMatch = includesAny(title, names) || includesAny(address, addrNames);
+  if (!officialMatch && !placeMatch) {
+    return { ok: false, reason: `找不到店別 ${store.store} 或其已設定的 Maps 別名` };
+  }
+
+  // 若有已知地址，Google 能讀到地址時必須符合，避免名字近似導致抓錯門店。
+  const addressHints = asStrings(store.mapsAddressHints);
+  if (addressHints.length && address && !includesAny(address, addressHints)) {
+    return { ok: false, reason: `商家地址不符合已設定的 ${store.store} 地址提示` };
+  }
+  return {
+    ok: true,
+    reason: officialMatch ? '品牌＋已設定的 Google 正式店名' : '品牌＋店別／商場中英文別名',
+  };
+}
+
 // 只有 stores.js 尚未指定 Google Maps feature ID 的店家才啟動公開 Maps
 // 搜尋頁來「辨識商家」；評論本身仍由 BOQ 取得，不經 Google 登入。
 async function discoverFeatureId(store, browserState) {
@@ -116,31 +212,11 @@ async function discoverFeatureId(store, browserState) {
     if (!state.heading) {
       throw new Error('無法確認商家名稱，為避免抓錯店，請在 store-urls.json 設定該分店的 Maps 連結');
     }
-    const expected = shortName(store.store);
-    const heading = shortName(state.heading);
-    if (expected && !heading.includes(expected)) {
-      // LillA 位於 DREAM PLAZA，但 Maps 商家名稱只有「LillA」。
-      // 只針對這家例外，不取消其他 29 家的分店名稱防呆。
-      const isLillaDreamPlaza = storeKey(store) === 'LILLA|DREAM PLAZA';
-      const brandMatches = heading === 'lilla';
-      // Google Maps 同一個地址可能顯示「松高路 11 號」或英文「Songgao Rd, 11號1樓」。
-      // 正規化只用在 LILLA|DREAM PLAZA 例外，不影響其他店家驗證。
-      const normalizedAddress = shortName(state.address)
-        .replace(/臺/g, '台')
-        .replace(/[\s\u3000,，.。:：\-]/g, '');
-      const addressKnown = Boolean(normalizedAddress);
-      const addressMatches = /松高路11號/.test(normalizedAddress) ||
-        /songgao(?:rd|road)11號/.test(normalizedAddress) ||
-        /dreamplaza/.test(normalizedAddress);
-      if (!isLillaDreamPlaza || !brandMatches || (addressKnown && !addressMatches)) {
-        throw new Error(`搜尋結果商家不吻合：期待「${store.store}」，實際「${state.heading}」，地址「${state.address || '未取得'}」；請設定正確 Maps 連結`);
-      }
-      if (!addressKnown) {
-        console.warn('⚠️ LillA 的 Google 名稱沒有 DREAM PLAZA，商家地址也未能讀取；依既有搜尋詞與精確品牌名稱辨識，建議改用指定 Maps 商家 ID');
-      } else {
-        console.log(`✅ LillA 品牌與 DREAM PLAZA 地址驗證成功：${state.address}`);
-      }
+    const verified = verifyDiscoveredStore(store, state);
+    if (!verified.ok) {
+      throw new Error(`搜尋結果商家不吻合：${verified.reason}；實際「${state.heading}」，地址「${state.address || '未取得'}」；請在 stores.js 補 mapsNameAliases / mapsPlaceAliases，或在 store-urls.json 指定確定的商家 ID`);
     }
+    console.log(`✅ 商家辨識通過：${verified.reason}`);
     console.log(`✅ 已核對店家：${state.heading} / ${id}`);
     return id;
   } finally {
@@ -307,8 +383,14 @@ export async function scrapeBOQ(stores, deps = {}) {
         entry.status = 'failed';
         entry.error = text(error?.message || error);
         console.error(`❌ ${name}：${entry.error}`);
-        throw error;
+        // ALL 一次檢查後面所有分店，避免每次只修第一間。
+        await writeStatus(report);
       }
+    }
+    const failures = report.stores.filter((item) => item.status === 'failed');
+    if (failures.length) {
+      throw new Error(`${failures.length}/${selected.length} 間店未成功，為防止部分資料寫入已取消本次同步：\n` +
+        failures.map((f) => `- ${f.name}：${f.error}`).join('\n'));
     }
     report.success = true;
     report.total = all.length;
