@@ -266,6 +266,10 @@ module.exports = [
     storeCode: "8005",
     branch: "ROADHOUSE",
     keyword: "Texas Roadhouse 台中店",
+    // 固定商家 ID：避免 Google Maps 搜尋停在搜尋結果頁而抓不到 ID。
+    mapsReviewUrl: "https://www.google.com/maps/place//data=!4m4!3m3!1s0x34693dee5ae7c311:0x5a6f24b86e03d95d!9m1!1b1?hl=zh-TW&gl=TW",
+    mapsPlaceAliases: ["Taichung", "台中店", "Shizheng Rd 581", "市政路581"],
+    mapsAddressHints: ["Shizheng Rd", "市政路"],
     fallbackUrl: googleMapsSearch("Texas Roadhouse 台中店")
   },
   {
@@ -275,6 +279,10 @@ module.exports = [
     storeCode: "8006",
     branch: "ROADHOUSE",
     keyword: "Texas Roadhouse 新光店",
+    // 官方新光影城門店，固定 ID 避免僅顯示 Texas Roadhouse 時名稱比對失敗。
+    mapsReviewUrl: "https://www.google.com/maps/place//data=!4m4!3m3!1s0x346821d37732c231:0x604d07bcc04e91f4!9m1!1b1?hl=zh-TW&gl=TW",
+    mapsPlaceAliases: ["新光影城", "Shin Kong", "Shin Kong Cinemas", "Chunde Rd 107", "春德路107"],
+    mapsAddressHints: ["Chunde Rd 107", "春德路107"],
     fallbackUrl: googleMapsSearch("Texas Roadhouse 新光店")
   },
   {
