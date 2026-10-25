@@ -1,5 +1,22 @@
 [
   {
+    "id": "version-1792920479789-0",
+    "commentId": "1792913224860-0",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2s5emFVRjJVa2RyWkZKRk4zY3dRbU40VEVwYVFuYxAB",
+    "author": "Melody Ma",
+    "content": "餐點口味都很好吃，服務很棒",
+    "rating": 5,
+    "date": "2026-10-25",
+    "editedText": "",
+    "branch": "FRIDAYS",
+    "brand": "TGIF",
+    "store": "美麗華",
+    "group": "TGIF",
+    "savedAt": "2026-10-25T09:27:59.788Z",
+    "replacedAt": "2026-10-25T09:27:59.788Z",
+    "reason": "content_or_rating_changed"
+  },
+  {
     "id": "version-1792916857967-0",
     "commentId": "1792913224860-0",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2s5emFVRjJVa2RyWkZKRk4zY3dRbU40VEVwYVFuYxAB",
