@@ -5,6 +5,7 @@
  * 不需要 Google 登入；不修改 public JSON 或通知程式。
  */
 import { scraper } from 'google-maps-review-scraper';
+import { parseBOQRawRows, isLocaleOnly } from './boq-raw-parser.mjs';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -268,7 +269,7 @@ function normalizeReview(row, store) {
   return {
     reviewId: getReviewId(row, store),
     author: text(row.author?.name),
-    content: text(row.review?.text),
+    content: isLocaleOnly(row.review?.text) ? '' : text(row.review?.text),
     rating,
     date: publishedAt ? publishedAt.slice(0, 10) : '',
     publishedAt,
@@ -310,6 +311,25 @@ async function readPreviousRatings() {
   return ratings;
 }
 
+// Protect previously valid customer text if Google returns a star-only row
+// or if an unknown BOQ format prevents decoding on this run.
+async function readPreviousContentById() {
+  const cache = new Map();
+  const file = path.resolve(process.cwd(), 'public', 'comments.json');
+  try {
+    const rows = JSON.parse(await fs.readFile(file, 'utf8'));
+    if (!Array.isArray(rows)) return cache;
+    for (const r of rows) {
+      const key = `${text(r?.brand)}|${text(r?.store)}|${text(r?.reviewId)}`;
+      const previous = text(r?.content);
+      if (text(r?.reviewId) && previous && !isLocaleOnly(previous)) cache.set(key, previous);
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') console.warn('⚠️ Cannot load old review text:', err.message);
+  }
+  return cache;
+}
+
 export async function scrapeBOQ(stores, deps = {}) {
   const backend = deps.scraper || scraper;
   if (!Array.isArray(stores)) throw new Error('stores.js 必須匯出店家陣列');
@@ -325,6 +345,7 @@ export async function scrapeBOQ(stores, deps = {}) {
   const delay = setting('BOQ_STORE_DELAY_MS', 3000, 120000);
   const overrides = await readOverrides();
   const oldRatings = await readPreviousRatings();
+  const oldContents = await readPreviousContentById();
   const browserState = { browser: null };
   const report = {
     startedAt: new Date().toISOString(), engine: 'boq',
@@ -343,12 +364,19 @@ export async function scrapeBOQ(stores, deps = {}) {
       await writeStatus(report);
       try {
         const url = await resolveURL(store, overrides, browserState);
-        const options = { url, sort_type: 'newest', pages, clean: true };
+        const options = { url, sort_type: 'newest', pages, clean: false }; // parse source rows ourselves; upstream clean:true may mistake zh-Hant for review text
         const proxyUrl = text(process.env.SCRAPE_PROXY_URL);
         if (proxyUrl) options.proxy = { proxyUrl, ignoreTls: false };
-        const rows = await backend(options);
-        if (!Array.isArray(rows)) throw new Error('Google 評論接口沒有回傳陣列');
-        entry.fetched = rows.length;
+        const fetched = await backend(options);
+        if (!Array.isArray(fetched)) throw new Error('Google 評論接口沒有回傳陣列');
+        // Allow injected clean:true rows in tests; actual official backend uses raw rows.
+        const decoded = fetched.some(Array.isArray)
+          ? parseBOQRawRows(fetched)
+          : { rows: fetched, rawCount: fetched.length, rawLocaleTags: 0, missingTexts: 0 };
+        const rows = decoded.rows;
+        entry.fetched = decoded.rawCount;
+        entry.rawLocaleTags = decoded.rawLocaleTags;
+        entry.unresolvedTextCount = decoded.missingTexts;
         const seen = new Set();
         const reviews = [];
         for (const row of rows) {
@@ -357,6 +385,10 @@ export async function scrapeBOQ(stores, deps = {}) {
             ? originalRating : oldRatings.get(name);
           const normal = normalizeReview(row, { ...store, storeRating: stableRating });
           if (!normal) continue;
+          if (!normal.content) {
+            const old = oldContents.get(`${text(store.brand)}|${text(store.store)}|${normal.reviewId}`);
+            if (old) normal.content = old;
+          }
           if (seen.has(normal.reviewId)) continue;
           seen.add(normal.reviewId);
           reviews.push(normal);
@@ -370,6 +402,8 @@ export async function scrapeBOQ(stores, deps = {}) {
         }
         entry.status = 'ok';
         entry.withText = reviews.filter((r) => r.content).length;
+        entry.noText = reviews.length - entry.withText;
+        if (entry.noText > 0) console.log(`ℹ️ ${name}: ${entry.noText} 筆沒有可確認的文字（可能純星等），不會寫入語言代碼`);
         entry.withReply = reviews.filter((r) => r.hasReply).length;
         entry.withDate = reviews.filter((r) => r.publishedAt).length;
         if (entry.withDate === 0) {
