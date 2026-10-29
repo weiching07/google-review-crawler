@@ -1,5 +1,22 @@
 [
   {
+    "id": "version-1793278254594-321",
+    "commentId": "1793018936696-300",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT21KRU1rZFBTa2wwUlhGNWFuTjZRWFYxYVd4VGMxRRAB",
+    "author": "劉凡瑜",
+    "content": "The food was delicious, and I will definitely come back again.",
+    "rating": 5,
+    "date": "2026-10-26",
+    "editedText": "",
+    "branch": "SALT&STONE",
+    "brand": "SALT&STONE",
+    "store": "南港",
+    "group": "new-brand",
+    "savedAt": "2026-10-29T12:50:54.592Z",
+    "replacedAt": "2026-10-29T12:50:54.592Z",
+    "reason": "content_or_rating_changed"
+  },
+  {
     "id": "version-1793271745914-610",
     "commentId": "1793113681448-605",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2tkcWVtRlJURE5uV2pGUU1qZGlUV1pMYWxsNWRrRRAB",
