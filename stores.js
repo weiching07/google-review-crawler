@@ -365,17 +365,36 @@ module.exports = [
     fallbackUrl: googleMapsSearch("Texas Roadhouse 竹北店")
   },
   {
-    group: "TXRH",
-    brand: "TXRH",
-    store: "復興",
-    storeCode: "8009",
-    address: "台北市大安區復興南路一段219-2號1樓",
-    mapsPlaceAliases: ["復興南路一段219", "Fuxing S Rd 219", "Fuxing S Rd"],
-    mapsAddressHints: ["復興南路一段219", "Fuxing S Rd 219", "Fuxing S Rd"],
-    branch: "ROADHOUSE",
-    keyword: "Texas Roadhouse 復興店",
-    fallbackUrl: googleMapsSearch("Texas Roadhouse 復興店")
-  },
+  group: "TXRH",
+  brand: "TXRH",
+  store: "復興",
+  storeCode: "8009",
+  address: "台北市大安區復興南路一段219-2號1樓",
+
+  mapsBrandAliases: [
+    "德州鮮切牛排",
+    "Texas Roadhouse"
+  ],
+
+  mapsNameAliases: [
+    "德州鮮切牛排 復興店",
+    "Texas Roadhouse Fuxing"
+  ],
+
+  mapsPlaceAliases: [
+    "復興南路一段219-2號",
+    "Fuxing S Rd 219-2"
+  ],
+
+  mapsAddressHints: [
+    "復興南路一段219-2號",
+    "Fuxing S Rd 219-2"
+  ],
+
+  branch: "ROADHOUSE",
+  keyword: "Texas Roadhouse 復興店",
+  fallbackUrl: googleMapsSearch("Texas Roadhouse 復興店")
+},
   {
     group: "TXRH",
     brand: "TXRH",
