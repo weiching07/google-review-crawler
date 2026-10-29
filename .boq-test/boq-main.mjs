@@ -421,14 +421,28 @@ export async function scrapeBOQ(stores, deps = {}) {
         await writeStatus(report);
       }
     }
+    // BOQ_PARTIAL_SYNC_V1: 允許個別門市失敗，成功門市仍可更新 JSON。
+    // 同步端 sync-static.js 會合併舊評論；失敗門市不會被清空或標為刪除。
     const failures = report.stores.filter((item) => item.status === 'failed');
-    if (failures.length) {
-      throw new Error(`${failures.length}/${selected.length} 間店未成功，為防止部分資料寫入已取消本次同步：\n` +
+    const succeeded = report.stores.filter((item) => item.status === 'ok');
+    report.successCount = succeeded.length;
+    report.failedCount = failures.length;
+    report.partialSuccess = failures.length > 0;
+    report.total = all.length;
+    report.success = succeeded.length > 0 && all.length > 0;
+
+    if (!report.success) {
+      throw new Error(`本次 ${selected.length} 間全部抓取失敗，或沒有取得有效評論，保留所有既有 JSON：\n` +
         failures.map((f) => `- ${f.name}：${f.error}`).join('\n'));
     }
-    report.success = true;
-    report.total = all.length;
-    console.log(`\n🎉 BOQ 成功完成 ${selected.length} 間店、${all.length} 筆；返回原本 sync-static.js`);
+    if (failures.length) {
+      console.warn(`\n⚠️ BOQ 部分成功：${succeeded.length}/${selected.length} 間成功，${failures.length} 間失敗。`);
+      for (const f of failures) console.warn(`  ↳ 失敗：${f.name}：${f.error}`);
+      console.warn('⚠️ 失敗門市保留舊評論，其他成功門市照常更新與通知。');
+    } else {
+      console.log(`\n🎉 BOQ 全部成功：${succeeded.length} 間。`);
+    }
+    console.log(`📦 本次成功取得評論：${all.length} 筆；返回 sync-static.js`);
     return all;
   } catch (error) {
     report.error = text(error?.message || error);
