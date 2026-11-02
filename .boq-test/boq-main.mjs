@@ -385,9 +385,27 @@ export async function scrapeBOQ(stores, deps = {}) {
             ? originalRating : oldRatings.get(name);
           const normal = normalizeReview(row, { ...store, storeRating: stableRating });
           if (!normal) continue;
-          if (!normal.content) {
-            const old = oldContents.get(`${text(store.brand)}|${text(store.store)}|${normal.reviewId}`);
-            if (old) normal.content = old;
+          // BOQ_PRESERVE_COMPLETE_REVIEW_V1: don't downgrade an existing
+          // complete multi-paragraph original to a matching short preview.
+          const old = oldContents.get(`${text(store.brand)}|${text(store.store)}|${normal.reviewId}`);
+          if (old) {
+            if (!normal.content) {
+              normal.content = old;
+            } else {
+              const compact = (s) => String(s || '')
+                .replace(/(?:\.\.\.|…|⋯)\s*$/, '')
+                .replace(/[\s，。！？、,.!?;；:："“”‘’'()（）]/gu, '');
+              const newer = compact(normal.content);
+              const previous = compact(old);
+              const sameOpening = newer.length >= 35 && previous.startsWith(newer);
+              // Require a much longer old review, plus matching exact opening.
+              // Don't overwrite a genuinely different edited review.
+              if (sameOpening && old.length > normal.content.length + 50 &&
+                  old.length >= normal.content.length * 1.4) {
+                console.log(`📝 既有完整評論優先：${name} / ${normal.reviewId}，保留 ${old.length} 字（本次只有 ${normal.content.length} 字）`);
+                normal.content = old;
+              }
+            }
           }
           if (seen.has(normal.reviewId)) continue;
           seen.add(normal.reviewId);

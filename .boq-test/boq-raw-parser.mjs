@@ -59,68 +59,124 @@ function googleIndex(raw) {
   return raw.length;
 }
 
-/** Return best available REAL review body; never return a language marker. */
+/**
+ * A short excerpt and a multi-paragraph original can coexist in the BOQ row.
+ * Keep the customer's original language, but upgrade a preview to a verified
+ * longer text when the beginning clearly matches. Never concatenate unrelated
+ * fields, and never treat a different-language translation as continuation.
+ */
+function comparable(value) {
+  return String(value || '')
+    .replace(/(?:\.\.\.|…|⋯)\s*$/u, '')
+    .replace(/\s+/gu, '')
+    .replace(/[，。！？、,.!?;；:："“”‘’'()（）]/gu, '');
+}
+
+function sameBeginning(shortValue, longerValue) {
+  const a = comparable(shortValue);
+  const b = comparable(longerValue);
+  if (a.length < 15 || b.length <= a.length) return false;
+  // The first 24 characters must match; the rest may be shortened/reformatted.
+  const prefixSize = Math.min(24, a.length);
+  return a.slice(0, prefixSize) === b.slice(0, prefixSize) &&
+    (b.startsWith(a) || b.slice(0, Math.min(40, a.length)) === a.slice(0, Math.min(40, a.length)));
+}
+
+function collectRawTextCandidates(raw, qa, end) {
+  const candidates = [];
+  const seen = new Set();
+  function add(value, source) {
+    const str = goodText(value);
+    if (!str || seen.has(str)) return;
+    seen.add(str);
+    candidates.push({ text: str, source });
+  }
+  if (qa >= 0) {
+    for (let i = Math.max(6, qa - 6); i < Math.min(end, qa + 2); i++) {
+      const part = raw[i];
+      if (typeof part === 'string') add(part, `adjacent:${i}`);
+      if (Array.isArray(part)) for (const value of textObjects(part, 0)) add(value, `structured:${i}`);
+    }
+  }
+  for (let i = 6; i < end; i++) {
+    if (!Array.isArray(raw[i])) continue;
+    for (const value of textObjects(raw[i], 0)) add(value, `structured:${i}`);
+  }
+  return candidates;
+}
+
+// Google sometimes nests the *full* customer text in an unrecognized array
+// shape. Search conservatively for a longer string with the same beginning.
+// This must NEVER pick an arbitrary long string or translated wording.
+function findMatchingLongerText(raw, excerpt, end) {
+  if (!excerpt || !Array.isArray(raw)) return '';
+  let best = '';
+  let visited = 0;
+  function scan(node, depth) {
+    if (++visited > 1600 || depth > 10) return;
+    if (typeof node === 'string') {
+      const candidate = goodText(node);
+      if (candidate.length > best.length && sameBeginning(excerpt, candidate)) best = candidate;
+      return;
+    }
+    if (Array.isArray(node)) for (const part of node) scan(part, depth + 1);
+  }
+  for (let i = 6; i < end && visited <= 1600; i++) scan(raw[i], 0);
+  return best;
+}
+
+/** Return best available ORIGINAL review body, preferring verified full text. */
 export function extractRawCommentText(raw) {
   if (!Array.isArray(raw)) return '';
   const end = googleIndex(raw);
   let qa = -1;
-  // Match the QA-array anchor used by upstream boqParser.ts, but choose
-  // the *actual* review text, not a nearby locale string.
   for (let i = 6; i < end; i++) {
     if (typeof getPath(raw[i], [0, 0, 0]) === 'string') qa = i;
   }
-  if (qa >= 0) {
-    // In BOQ, the earlier adjacent field normally contains the reviewer's
-    // original wording, while the later one can contain Google's translation.
-    // The earlier field can instead be a locale label (zh-Hant / Chinese).
-    // Preserve the original when it is real text; use the later field only
-    // if the original slot is missing or merely a locale label.
-    const translatedOrSecondary = goodText(raw[qa - 2]);
-    const originalOrLocale = goodText(raw[qa - 3]);
-    if (originalOrLocale && translatedOrSecondary &&
-        (originalOrLocale.includes(translatedOrSecondary) ||
-         translatedOrSecondary.includes(originalOrLocale))) {
-      // Truncated and full versions of the same text, not a translation.
-      return originalOrLocale.length >= translatedOrSecondary.length
-        ? originalOrLocale : translatedOrSecondary;
-    }
-    if (originalOrLocale) return originalOrLocale;
-    if (translatedOrSecondary) return translatedOrSecondary;
+
+  const original = qa >= 0 ? goodText(raw[qa - 3]) : '';
+  const secondary = qa >= 0 ? goodText(raw[qa - 2]) : '';
+  const candidates = collectRawTextCandidates(raw, qa, end);
+
+  if (original) {
+    // Original slot outranks a translation, except when another field has a
+    // clearly matching longer *original* (e.g. full four-paragraph review).
+    const matching = candidates
+      .filter(c => sameBeginning(original, c.text))
+      .sort((a, b) => b.text.length - a.text.length);
+    const nested = findMatchingLongerText(raw, original, end);
+    if (nested && (!matching.length || nested.length > matching[0].text.length)) return nested;
+    if (matching.length) return matching[0].text;
+    // If original and secondary hold excerpt/full versions of SAME wording,
+    // choose the complete one; translations won't have the same prefix.
+    if (sameBeginning(original, secondary)) return secondary;
+    return original;
   }
-  const candidates = [];
-  function add(v, priority) {
-    const s = goodText(v);
-    if (s) candidates.push({ s, priority });
+
+  if (secondary) {
+    // There is no confidently identified original slot. Prefer the same-text
+    // longer version, if present, otherwise preserve earlier fallback behavior.
+    const matching = candidates
+      .filter(c => sameBeginning(secondary, c.text))
+      .sort((a, b) => b.text.length - a.text.length);
+    const nested = findMatchingLongerText(raw, secondary, end);
+    if (nested && (!matching.length || nested.length > matching[0].text.length)) return nested;
+    if (matching.length) return matching[0].text;
+    return secondary;
   }
-  if (qa >= 0) {
-    // -3 is the field frequently parsed as zh-Hant/Chinese by v3.1.0;
-    // -2 is often the actual customer review text.
-    add(raw[qa - 2], 130);
-    add(raw[qa - 3], 120);
-    add(raw[qa - 1], 90);
-    // When Google uses a structured text object, it sits near the QA anchor.
-    for (let i = Math.max(6, qa - 5); i <= Math.min(end - 1, qa + 1); i++) {
-      for (const s of textObjects(raw[i])) add(s, 125);
-    }
+
+  // Source data varies. Prefer structured review text, not arbitrary metadata.
+  const structured = candidates.filter(c => c.source.startsWith('structured:'));
+  if (structured.length) {
+    return structured.sort((a, b) => b.text.length - a.text.length)[0].text;
   }
-  // Known structured Google review-text objects outside the QA neighborhood.
-  for (let i = 6; i < end; i++) {
-    if (i === qa) continue;
-    for (const s of textObjects(raw[i])) add(s, 100);
-  }
-  // Conservative fallback for top-level plain-string text when there is no QA
-  // anchor; ignore language, urls and system labels. Search only review body.
-  if (!candidates.length && qa < 0) {
+  if (qa < 0) {
     for (let i = 6; i < end; i++) {
-      if (typeof raw[i] === 'string') add(raw[i], 10);
+      const c = goodText(raw[i]);
+      if (c) return c;
     }
   }
-  if (!candidates.length) return '';
-  // Give precedence to the intended location, then prefer untruncated body.
-  // A shorter but higher-confidence review can win only within 40 chars.
-  candidates.sort((a, b) => (b.priority + Math.min(b.s.length, 400) / 40) -
-                            (a.priority + Math.min(a.s.length, 400) / 40));
-  return candidates[0].s;
+  return '';
 }
 
 function numericStamp(value) {
