@@ -70,12 +70,22 @@ export function extractRawCommentText(raw) {
     if (typeof getPath(raw[i], [0, 0, 0]) === 'string') qa = i;
   }
   if (qa >= 0) {
-    const a = goodText(raw[qa - 2]);
-    const b = goodText(raw[qa - 3]);
-    // Two versions of the same review: keep the complete, untruncated one.
-    if (a && b && (a.includes(b) || b.includes(a))) {
-      return a.length >= b.length ? a : b;
+    // In BOQ, the earlier adjacent field normally contains the reviewer's
+    // original wording, while the later one can contain Google's translation.
+    // The earlier field can instead be a locale label (zh-Hant / Chinese).
+    // Preserve the original when it is real text; use the later field only
+    // if the original slot is missing or merely a locale label.
+    const translatedOrSecondary = goodText(raw[qa - 2]);
+    const originalOrLocale = goodText(raw[qa - 3]);
+    if (originalOrLocale && translatedOrSecondary &&
+        (originalOrLocale.includes(translatedOrSecondary) ||
+         translatedOrSecondary.includes(originalOrLocale))) {
+      // Truncated and full versions of the same text, not a translation.
+      return originalOrLocale.length >= translatedOrSecondary.length
+        ? originalOrLocale : translatedOrSecondary;
     }
+    if (originalOrLocale) return originalOrLocale;
+    if (translatedOrSecondary) return translatedOrSecondary;
   }
   const candidates = [];
   function add(v, priority) {
