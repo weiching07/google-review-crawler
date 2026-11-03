@@ -1,5 +1,22 @@
 [
   {
+    "id": "version-1793737640069-1241",
+    "commentId": "1793363248458-1205",
+    "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2w5eFFYTjBUMjB0YURacE4yaHRYMmRMVHpSWk1FRRAB",
+    "author": "廖部祺",
+    "content": "The seafood platter is good. Don’t take the ribeye steak. It chews like a sole.",
+    "rating": 5,
+    "date": "2026-11-03",
+    "editedText": "",
+    "branch": "FRIDAYS",
+    "brand": "TGIF",
+    "store": "林森",
+    "group": "TGIF",
+    "savedAt": "2026-11-03T20:27:20.064Z",
+    "replacedAt": "2026-11-03T20:27:20.064Z",
+    "reason": "content_or_rating_changed"
+  },
+  {
     "id": "version-1793734120465-1200",
     "commentId": "1793363248458-1205",
     "reviewId": "Ci9DQUlRQUNvZENodHljRjlvT2w5eFFYTjBUMjB0YURacE4yaHRYMmRMVHpSWk1FRRAB",
